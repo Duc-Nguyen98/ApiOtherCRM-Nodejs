@@ -14,6 +14,7 @@ const schema = new mongoose.Schema({
         default: ''
     },
     assignee: {
+        type: Object,
         fullName: {
             type: String,
             default: ''
