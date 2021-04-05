@@ -36,6 +36,34 @@ router.get('/task/:id', async function (req, res, next) {
 
 
 
+/* POST todo listing. */
+router.post('/task', async function (req, res, next) {
+  todoModel.create({
+    title: req.body.title,
+    dueDate: req.body.dueDate,
+    description: req.body.description,
+    tags: req.body.tags
+  }).then(data => {
+    res.json(data)
+  });
+});
+
+/* PUT todo listing. */
+router.put('/task/:id', async function (req, res, next) {
+  const _id = req.params.id;
+
+  todoModel.findByIdAndUpdate({ _id: _id }, {
+    title: req.body.title,
+    dueDate: req.body.dueDate,
+    description: req.body.description,
+    tags: req.body.tags
+  }).then(data => {
+    res.json(data)
+  });
+});
+
+
+
 
 
 

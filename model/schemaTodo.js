@@ -24,9 +24,18 @@ const schema = new mongoose.Schema({
         },
     },
     tags: [],
-    isCompleted: Boolean,
-    isDeleted: Boolean,
-    isImportant: Boolean
+    isCompleted: {
+        type: Boolean,
+        default: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    isImportant: {
+        type: Boolean,
+        default: false
+    },
 });
 
 
