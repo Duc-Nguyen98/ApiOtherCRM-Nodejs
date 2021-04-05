@@ -2,12 +2,31 @@ var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser')
 var logger = require('morgan');
+const mongoose = require('mongoose');
+
 
 var indexRouter = require('./routes/index');
 var todoRouter = require('./routes/todo');
 
 var app = express();
+
+// !setup connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || `mongodb+srv://admin:admin@cluster0.ilkgc.mongodb.net/crm_demo?retryWrites=true&w=majority`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+// !setup body-parser 
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+// parse application/json
+app.use(bodyParser.json())
+
+
+
+const db = mongoose.connection;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
