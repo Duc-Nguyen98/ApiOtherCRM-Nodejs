@@ -62,28 +62,28 @@ router.post('/task', async function (req, res, next) {
   // console.log(body?.Name);
 });
 
-/* PUT todo listing. */
-router.put('/task/:id', async function (req, res, next) {
-  const _id = req.params.id;
+// /* PUT todo listing. */
+// router.put('/task/:id', async function (req, res, next) {
+//   const _id = req.params.id;
 
-  todoModel
-    .findByIdAndUpdate({ _id: _id }, {
-      title: req.body?.title,
-      dueDate: req.body?.dueDate,
-      description: req.body?.description,
-      tags: req.body?.tags,
-      assignee: JSON.parse(req.body?.assignee),
-    })
-    .then(data => {
-      res.json(data)
-    })
-    .cath(err => {
-      res.send({
-        status: 400,
-        message: err.message
-      })
-    });
-});
+//   todoModel
+//     .findByIdAndUpdate({ _id: _id }, {
+//       title: req.body?.title,
+//       dueDate: req.body?.dueDate,
+//       description: req.body?.description,
+//       tags: req.body?.tags,
+//       assignee: JSON.parse(req.body?.assignee),
+//     })
+//     .then(data => {
+//       res.json(data)
+//     })
+//     .cath(err => {
+//       res.send({
+//         status: 400,
+//         message: err.message
+//       })
+//     });
+// });
 
 
 /* Delete users listing. */
