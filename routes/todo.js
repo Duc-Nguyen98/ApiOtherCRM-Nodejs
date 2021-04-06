@@ -4,6 +4,14 @@ const todoModel = require('../model/schemaTodo');
 
 
 /* GET users listing. */
+router.get('/', async function (req, res, next) {
+  res.send({
+    status: 200,
+    message: 'Success API ToDo'
+  })
+});
+
+/* GET users listing. */
 router.get('/task', async function (req, res, next) {
   await todoModel
     .find({ isDeleted: false })
