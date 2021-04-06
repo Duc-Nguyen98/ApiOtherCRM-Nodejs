@@ -37,6 +37,10 @@ const schema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    idAuthor: {
+        type: String,
+        default: ""
+    },
 });
 
 
