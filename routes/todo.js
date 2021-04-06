@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const todoModel = require('../model/schemaTodo');
 
-
+//! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 /* GET home Todo listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/
@@ -215,5 +215,9 @@ router.delete('/task/delete/:id', async function (req, res, next) {
     });
   };
 });
+
+
+
+//! CODE API FOR PERMISSION EMPLOYEE
 
 module.exports = router;
