@@ -112,6 +112,7 @@ router.post('/task/create', async function (req, res, next) {
       isCompleted: req.body?.isCompleted,
       isImportant: req.body?.isImportant,
       isDeleted: req.body?.isDeleted,
+      idAuthor: req.body?.idAuthor,
     })
     return res.status(200).json({
       success: true,
@@ -142,6 +143,7 @@ router.put('/task/update/:id', async function (req, res, next) {
         isCompleted: req.body?.isCompleted,
         isImportant: req.body?.isImportant,
         isDeleted: req.body?.isDeleted,
+        idAuthor: req.body?.idAuthor,
       })
     return res.status(200).json({
       success: true,
