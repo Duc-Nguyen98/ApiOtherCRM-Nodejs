@@ -5,7 +5,7 @@ const todoModel = require('../model/schemaTodo');
 
 /* GET home Todo listing. */
 // TODO: METHOD - GET
-// -u http://localhost:3000/todo/
+// -u http://localhost:1509/todo/
 router.get('/', async function (req, res, next) {
   res.send({
     status: 200,
@@ -15,7 +15,7 @@ router.get('/', async function (req, res, next) {
 
 /* GET todo listing view MyTask */
 // TODO: METHOD - GET
-// -u http://localhost:3000/todo/task 
+// -u http://localhost:1509/todo/task 
 router.get('/task', async function (req, res, next) {
   try {
     await todoModel
@@ -36,7 +36,7 @@ router.get('/task', async function (req, res, next) {
 
 /* GET todo listing view Important */
 // TODO: METHOD - GET
-// -u http://localhost:3000/todo/important
+// -u http://localhost:1509/todo/important
 router.get('/important', async function (req, res, next) {
   try {
     await todoModel
@@ -57,7 +57,7 @@ router.get('/important', async function (req, res, next) {
 
 /* GET todo listing view Deleted */
 // TODO: METHOD - GET
-// -u http://localhost:3000/todo/deleted
+// -u http://localhost:1509/todo/deleted
 router.get('/deleted', async function (req, res, next) {
   try {
     await todoModel
@@ -78,7 +78,7 @@ router.get('/deleted', async function (req, res, next) {
 
 /* GET Details users listing. */
 // TODO: METHOD - GET
-// -u http://localhost:3000/todo/task/detail/:id
+// -u http://localhost:1509/todo/task/detail/:id
 router.get('/task/detail/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
@@ -100,7 +100,7 @@ router.get('/task/detail/:id', async function (req, res, next) {
 
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
-// -u http://localhost:3000/todo/task/create
+// -u http://localhost:1509/todo/task/create
 router.post('/task/create', async function (req, res, next) {
   try {
     const entry = await todoModel.create({
@@ -129,7 +129,7 @@ router.post('/task/create', async function (req, res, next) {
 
 /* PUT todo listing. update an record */
 // TODO: METHOD - PUT
-// -u http://localhost:3000/todo/task/update/:id
+// -u http://localhost:1509/todo/task/update/:id
 router.put('/task/update/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
@@ -160,7 +160,7 @@ router.put('/task/update/:id', async function (req, res, next) {
 
 /* PATCH todo listing change status isComplete. */
 // TODO: METHOD - PATCH
-// -u http://localhost:3000/todo/task/change/:id
+// -u http://localhost:1509/todo/task/change/:id
 router.patch('/task/change/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
@@ -180,7 +180,7 @@ router.patch('/task/change/:id', async function (req, res, next) {
 
 /* PATCH todo listing deleteSoft Record */
 // TODO: METHOD - PATCH
-// -u http://localhost:3000/todo/task/delete/:id
+// -u http://localhost:1509/todo/task/delete/:id
 router.patch('/task/delete/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
@@ -199,7 +199,7 @@ router.patch('/task/delete/:id', async function (req, res, next) {
 
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
-// -u http://localhost:3000/todo/task/delete/:id
+// -u http://localhost:1509/todo/task/delete/:id
 router.delete('/task/delete/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
