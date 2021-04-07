@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const todoModel = require('../model/schemaTodo');
 
-
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 /* GET home Todo listing. */
 // TODO: METHOD - GET
