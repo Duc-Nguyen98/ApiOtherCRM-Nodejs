@@ -1,16 +1,26 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser')
-var logger = require('morgan');
+const logger = require('morgan');
 const mongoose = require('mongoose');
+const cors = require('cors')
 
-var indexRouter = require('./routes/index');
-var todoRouter = require('./routes/todo');
+const indexRouter = require('./routes/index');
+const todoRouter = require('./routes/todo');
 
-var app = express();
 
+const app = express();
+
+// !setup cors
+app.use(cors())
+
+// // !Config Cors
+// var corsOptions = {
+//   origin: 'http://localhost:1509',
+//   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }
 
 
 // !setup connect to MongoDB
@@ -21,8 +31,8 @@ mongoose.connect(process.env.MONGODB_URI || `mongodb+srv://admin:admin@cluster0.
 
 // !setup body-parser 
 //cài đặt bodyparser
-var bodyParserJSON = bodyParser.json();
-var bodyParserURLEncoded = bodyParser.urlencoded({ extended: true });
+const bodyParserJSON = bodyParser.json();
+const bodyParserURLEncoded = bodyParser.urlencoded({ extended: true });
 // configure app.use()
 app.use(bodyParserJSON);
 app.use(bodyParserURLEncoded);
