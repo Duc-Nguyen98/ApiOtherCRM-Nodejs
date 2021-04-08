@@ -50,7 +50,6 @@ router.get('/task(/:task)?/', async function (req, res, next) {
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
     let sort = req.query.sort;
     let currentPage = parseInt(req.query.page);
-    console.log(currentPage)
     await todoModel
       .find(hasFilter(task, regex))
       .sort(hasSort(sort))
