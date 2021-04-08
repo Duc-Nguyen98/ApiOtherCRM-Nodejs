@@ -49,16 +49,23 @@ router.get('/task(/:task)?/', async function (req, res, next) {
     let q = req.query.q;
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
     let sort = req.query.sort;
-    let currentPage = parseInt(req.query.page);
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.per_page)
+    }
+    console.log(pagination.currentPage, pagination.totalItemsPerPage)
+
     await todoModel
       .find(hasFilter(task, regex))
       .sort(hasSort(sort))
-      .limit(10)
-      .skip((currentPage - 1) * 10)
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage)
       .then(data => {
         return res.status(200).json({
           success: true,
-          data: data
+          data: data,
+          pagination,
         });
       })
   } catch (err) {
