@@ -2,32 +2,74 @@ const express = require('express');
 const router = express.Router();
 const todoModel = require('../model/schemaTodo');
 
-const hasFilter = (task, keyword) => {
-  let isImportant = true;
-  let isDeleted = true;
-  let isCompleted = true;
-  if (task === 'important') {
-    return { isImportant: isImportant, isDeleted: !isDeleted, title: keyword }
-  } else if (task === 'completed') {
-    return { isCompleted: isCompleted, isDeleted: !isDeleted, title: keyword }
-  } else if (task === 'deleted') {
-    return { isDeleted: isDeleted, title: keyword }
-  } else {
-    return { isDeleted: !isDeleted, title: keyword }
+let isImportant = true;
+let isDeleted = true;
+let isCompleted = true;
+
+let hasFilter = (task, keyword) => {
+  switch (task) {
+    case 'important':
+      return { isImportant: isImportant, isDeleted: !isDeleted, title: keyword }
+      break;
+    case 'completed':
+      return { isCompleted: isCompleted, isDeleted: !isDeleted, title: keyword }
+      break;
+    case 'deleted':
+      return { isDeleted: isDeleted, title: keyword }
+      break;
+    default:
+      return { isDeleted: !isDeleted, title: keyword }
   }
 }
 
 const hasSort = type => {
-  if (type === 'title-asc') {
-    return { title: 1 }
-  } else if (type === "title-desc") {
-    return { title: -1 }
-  } else if (type === 'due-date-desc') {
-    return { dueDate: -1 }
-  } else {
-    return { dueDate: 1 }
+  switch (type) {
+    case 'title-asc':
+      return { title: 1 }
+      break;
+    case 'title-desc':
+      return { title: -1 }
+      break;
+    case 'due-date-desc':
+      return { dueDate: -1 }
+      break;
+    default:
+      return { dueDate: 1 }
   }
 }
+
+const hasTotalRecords = param => {
+  switch (param) {
+    case 'important':
+      return { isImportant: isImportant }
+      break;
+    case 'completed':
+      return { isCompleted: isCompleted }
+      break;
+    case 'deleted':
+      return { isDeleted: isDeleted }
+      break;
+    case 'team':
+      return { tags: 'team' }
+      break;
+    case 'low':
+      return { tags: 'low' }
+      break;
+    case 'medium':
+      return { tags: 'medium' }
+      break;
+    case 'high':
+      return { tags: 'high' }
+      break;
+    case 'update':
+      return { tags: 'update' }
+      break;
+
+    default:
+      return { isDeleted: !isDeleted }
+  }
+}
+
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 /* GET home Todo listing. */
 // TODO: METHOD - GET
@@ -54,20 +96,22 @@ router.get('/task(/:task)?/', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.per_page)
     }
-    console.log(pagination.currentPage, pagination.totalItemsPerPage)
 
-    await todoModel
+    const taskOne = await todoModel.countDocuments(hasTotalRecords(task));
+
+    const taskTwo = await todoModel
       .find(hasFilter(task, regex))
       .sort(hasSort(sort))
       .limit(pagination.totalItemsPerPage)
-      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage)
-      .then(data => {
-        return res.status(200).json({
-          success: true,
-          data: data,
-          pagination,
-        });
-      })
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+    Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
+      return res.status(200).json({
+        success: true,
+        totalRecords: dataOne,
+        data: dataTwo,
+      });
+    })
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -81,28 +125,38 @@ router.get('/task(/:task)?/', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task/tag/:params?query(q=)&query(sort=)
 // ? Example : http://localhost:1509/todo/task/tag/medium?q=c&sort=due-date-desc
-router.get('/task/tag(/:tags)?/', async function (req, res, next) {
+router.get('/task/tag(/:tag)?/', async function (req, res, next) {
+
   try {
     let q = req.query.q;
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
     let sort = req.query.sort;
-    let tag = req.params.tags;
-    let currentPage = parseInt(req.query.page);
+    let tag = req.params.tag;
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.per_page)
+    }
 
-    await todoModel
+    const taskOne = await todoModel.countDocuments(hasTotalRecords(tag));
+    const taskTwo = await todoModel
       .find({
         tags: tag,
         isDeleted: false,
         title: regex
       })
       .sort(hasSort(sort))
-      .limit(10)
-      .skip((currentPage - 1) * 10)
-      .then(data => {
-        return res.status(200).json({
-          success: true,
-        })
-      })
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+    Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
+      return res.status(200).json({
+        success: true,
+        totalRecords: dataOne,
+        data: dataTwo,
+      });
+    })
+
   } catch (err) {
     return res.status(500).json({
       success: false,
