@@ -11,7 +11,9 @@ var todoRouter = require('./routes/todo');
 
 var app = express();
 
+var cors = require('cors')
 
+app.use(cors())
 
 // !setup connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || `mongodb+srv://admin:admin@cluster0.ilkgc.mongodb.net/crm_demo?retryWrites=true&w=majority`, {
