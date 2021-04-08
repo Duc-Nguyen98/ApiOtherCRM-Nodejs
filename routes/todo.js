@@ -1,5 +1,4 @@
 const express = require('express');
-
 const router = express.Router();
 const todoModel = require('../model/schemaTodo');
 
@@ -140,7 +139,7 @@ router.put('/task/update/:id', async function (req, res, next) {
         dueDate: req.body?.dueDate,
         description: req.body?.description,
         tags: req.body?.tags,
-        assignee: req.body?.assignee,
+        assignee: JSON.parse(req.body?.assignee),
         isCompleted: req.body?.isCompleted,
         isImportant: req.body?.isImportant,
         isDeleted: req.body?.isDeleted,
@@ -165,8 +164,8 @@ router.put('/task/update/:id', async function (req, res, next) {
 router.patch('/task/change/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const isCompleted = req.body?.isCompleted;
-    const entry = await todoModel.findByIdAndUpdate({ _id: _id }, { isCompleted: isCompleted });
+    const isCompleted = await todoModel.findById({ _id: _id }).select('isCompleted')
+    const entry = await todoModel.findByIdAndUpdate({ _id: _id }, { isCompleted: !isCompleted });
     return res.status(200).json({
       success: true,
       data: entry
@@ -180,9 +179,9 @@ router.patch('/task/change/:id', async function (req, res, next) {
 });
 
 /* PATCH todo listing deleteSoft Record */
-// TODO: METHOD - DELETE
+// TODO: METHOD - PATCH
 // -u http://localhost:1509/todo/task/delete/:id
-router.delete('/task/delete-soft/:id', async function (req, res, next) {
+router.patch('/task/delete/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await todoModel.updateOne({ _id: _id }, { isDeleted: true });
