@@ -94,8 +94,9 @@ router.get('/task', async function (req, res, next) {
     //? Begin config Pagination
     let pagination = {
       currentPage: parseInt(req.query.page),
-      totalItemsPerPage: parseInt(req.query.per_page)
+      totalItemsPerPage: parseInt(req.query.perPage)
     }
+    console.log(pagination.currentPage, pagination.totalItemsPerPage)
 
     const taskOne = await todoModel.countDocuments(hasTotalRecords(filter));
 
@@ -135,7 +136,7 @@ router.get('/task/tag/', async function (req, res, next) {
     //? Begin config Pagination
     let pagination = {
       currentPage: parseInt(req.query.page),
-      totalItemsPerPage: parseInt(req.query.per_page)
+      totalItemsPerPage: parseInt(req.query.perPage)
     }
 
     const taskOne = await todoModel.countDocuments(hasTotalRecords(filter));
