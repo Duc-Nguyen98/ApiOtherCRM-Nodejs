@@ -17,6 +17,21 @@ let hasFilter = (task, keyword) => {
     case 'deleted':
       return { isDeleted: isDeleted, title: keyword }
       break;
+    case 'low':
+      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      break;
+    case 'update':
+      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      break;
+    case 'medium':
+      return { isDeleted: !isDeleted, tags: 'medium', title: keyword }
+      break;
+    case 'high':
+      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      break;
+    case 'team':
+      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      break;
     default:
       return { isDeleted: !isDeleted, title: keyword }
   }
@@ -50,19 +65,19 @@ const hasTotalRecords = param => {
       return { isDeleted: isDeleted }
       break;
     case 'team':
-      return { tags: 'team' }
+      return { tags: 'team', isDeleted: !isDeleted }
       break;
     case 'low':
-      return { tags: 'low' }
+      return { tags: 'low', isDeleted: !isDeleted }
       break;
     case 'medium':
-      return { tags: 'medium' }
+      return { tags: 'medium', isDeleted: !isDeleted }
       break;
     case 'high':
-      return { tags: 'high' }
+      return { tags: 'high', isDeleted: !isDeleted }
       break;
     case 'update':
-      return { tags: 'update' }
+      return { tags: 'update', isDeleted: !isDeleted }
       break;
 
     default:
@@ -120,53 +135,45 @@ router.get('/task', async function (req, res, next) {
   };
 });
 
-/* GET todo listing return list todo follow Tags */
+-/* GET todo listing return list todo follow Tags */
 
-// TODO: METHOD - GET
-// -u http://localhost:1509/todo/task/tag/?query(filter=)&query(q=)&query(sort=)
-// ? Example : http://localhost:1509/todo/task/tag/?filter=medium&q=c&sort=due-date-desc&page=1&perPage=10
-router.get('/task/tag/', async function (req, res, next) {
+  // TODO: METHOD - GET
+  // -u http://localhost:1509/todo/task/?query(tag=)&query(q=)&query(sort=)
+  // ? Example : http://localhost:1509/todo/task/?tag=medium&q=c&sort=due-date-desc&page=1&perPage=10
+  router.get('/task/tag', async function (req, res, next) {
 
-  try {
-    let filter = req.query.filter;
-    let q = req.query.q;
-    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
-    let sort = req.query.sort;
-    //? Begin config Pagination
-    let pagination = {
-      currentPage: parseInt(req.query.page),
-      totalItemsPerPage: parseInt(req.query.perPage)
-    }
+    try {
+      let tag = req.query.tag;
+      let q = req.query.q;
+      let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+      let sort = req.query.sort;
+      //? Begin config Pagination
+      let pagination = {
+        currentPage: parseInt(req.query.page),
+        totalItemsPerPage: parseInt(req.query.perPage)
+      }
 
-    const taskOne = await todoModel.countDocuments(hasTotalRecords(filter));
-    const taskTwo = await todoModel
-      .find({
-        tags: filter,
-        isDeleted: false,
-        title: regex
+      const taskOne = await todoModel.countDocuments(hasTotalRecords(tag));
+      const taskTwo = await todoModel
+        .find(hasFilter(tag, regex))
+        .sort(hasSort(sort))
+        .limit(pagination.totalItemsPerPage)
+        .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+      Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
+        return res.status(200).json({
+          success: true,
+          totalRecords: dataOne,
+          data: dataTwo,
+        });
       })
-      .sort(hasSort(sort))
-      .limit(pagination.totalItemsPerPage)
-      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-
-    Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
-      return res.status(200).json({
-        success: true,
-        totalRecords: dataOne,
-        data: dataTwo,
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        error: 'Server Error'
       });
-    })
-
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
-
-
-
+    };
+  });
 /* GET Details users listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task/detail/:id
