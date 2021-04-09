@@ -96,7 +96,6 @@ router.get('/task', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    console.log(pagination.currentPage, pagination.totalItemsPerPage)
 
     const taskOne = await todoModel.countDocuments(hasTotalRecords(filter));
 
