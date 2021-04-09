@@ -83,11 +83,11 @@ router.get('/', async function (req, res, next) {
 
 /* GET todo listing view MyTask */
 // TODO: METHOD - GET
-// -u http://localhost:1509/todo/task/:params?query(q=)&query(sort=)
-// ? Example : http://localhost:1509/todo/task/completed?q=5&sort=title-desc
-router.get('/task(/:task)?/', async function (req, res, next) {
+// -u http://localhost:1509/todo/task/?query(filter=)&query(q=)&query(sort=)
+// ? Example : http://localhost:1509/todo/task?filter=important&sort=title-desc&page=1&perPage=10
+router.get('/task', async function (req, res, next) {
   try {
-    let task = req.params.task;
+    let filter = req.query.filter;
     let q = req.query.q;
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
     let sort = req.query.sort;
@@ -97,10 +97,10 @@ router.get('/task(/:task)?/', async function (req, res, next) {
       totalItemsPerPage: parseInt(req.query.per_page)
     }
 
-    const taskOne = await todoModel.countDocuments(hasTotalRecords(task));
+    const taskOne = await todoModel.countDocuments(hasTotalRecords(filter));
 
     const taskTwo = await todoModel
-      .find(hasFilter(task, regex))
+      .find(hasFilter(filter, regex))
       .sort(hasSort(sort))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
@@ -123,25 +123,25 @@ router.get('/task(/:task)?/', async function (req, res, next) {
 /* GET todo listing return list todo follow Tags */
 
 // TODO: METHOD - GET
-// -u http://localhost:1509/todo/task/tag/:params?query(q=)&query(sort=)
-// ? Example : http://localhost:1509/todo/task/tag/medium?q=c&sort=due-date-desc
-router.get('/task/tag(/:tag)?/', async function (req, res, next) {
+// -u http://localhost:1509/todo/task/tag/?query(filter=)&query(q=)&query(sort=)
+// ? Example : http://localhost:1509/todo/task/tag/?filter=medium&q=c&sort=due-date-desc&page=1&perPage=10
+router.get('/task/tag/', async function (req, res, next) {
 
   try {
+    let filter = req.query.filter;
     let q = req.query.q;
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
     let sort = req.query.sort;
-    let tag = req.params.tag;
     //? Begin config Pagination
     let pagination = {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.per_page)
     }
 
-    const taskOne = await todoModel.countDocuments(hasTotalRecords(tag));
+    const taskOne = await todoModel.countDocuments(hasTotalRecords(filter));
     const taskTwo = await todoModel
       .find({
-        tags: tag,
+        tags: filter,
         isDeleted: false,
         title: regex
       })
