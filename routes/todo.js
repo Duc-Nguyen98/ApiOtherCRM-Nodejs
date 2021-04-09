@@ -192,14 +192,14 @@ router.get('/task/detail/:id', async function (req, res, next) {
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/todo/task/create
-router.post('/task/create', async function (req, res, next) {
+router.patch('/task/create', async function (req, res, next) {
   try {
     const entry = await todoModel.create({
       title: req.body?.title,
       dueDate: req.body?.dueDate,
       description: req.body?.description,
       tags: req.body?.tags,
-      assignee: JSON.parse(req.body?.assignee),
+      assignee: req.body?.assignee,
       isCompleted: req.body?.isCompleted,
       isImportant: req.body?.isImportant,
       isDeleted: req.body?.isDeleted,
