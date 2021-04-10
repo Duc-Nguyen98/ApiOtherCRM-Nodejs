@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mailModel = require('../model/schemaEMail');
-const { ObjectId } = require('mongodb');
+const ObjectId = require('mongodb').ObjectId;
 
 
 
@@ -26,11 +26,12 @@ let hasFilter = (param, param2, param3) => {
     case 'trash':
       return { folder: param, isRead: !isRead, subject: param3 }
       break;
-    case 'label':  //? call function  handlePaLabels
+    case 'inbox':
+      return { isRead: isRead, subject: param3 }
+      break;
+    default://? call function  handlePaLabels
       return handlePaLabels(param2, param3)
       break;
-    default:
-      return { isRead: isRead, subject: param3 }
   }
 }
 let handlePaLabels = (param2, param3) => {
@@ -50,6 +51,7 @@ let handlePaLabels = (param2, param3) => {
 }
 
 
+
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 /* GET home Todo listing. */
 
@@ -57,13 +59,13 @@ let handlePaLabels = (param2, param3) => {
 http://localhost:1509/mail/task/?folder=inbox
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/param(filter=)&query(q=)
-// ? Example : http://localhost:1509/mail/task/sent?q=&page=1&perPage=10
-// ? Example : http://localhost:1509/mail/task/label/personal?q=&page=1&perPage=10
+// ? Example : http://localhost:1509/mail/task/?folder=inbox&q=&page=1&perPage=10
+// ? Example :http://localhost:1509/mail/task/?folder=&page=1&perPage=10&q=&label=personal
 
-router.get('/task(/:folder)?(/:label)?', async function (req, res, next) {
+router.get('/task/', async function (req, res, next) {
   try {
-    let folder = req.params.folder;
-    let label = req.params.label;
+    let folder = req.query.folder;
+    let label = req.query.label;
     let q = req.query.q;
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
@@ -174,30 +176,29 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
 // ? Example : http://localhost:1509/mail/task/update-all/606f591f41340a452c5e8377
 router.patch('/task/update-all', async function (req, res, next) {
   try {
-    const arr = [ObjectId("606f591f41340a452c5e8377"), ObjectId("606f591f41340a452c5e8378"), ObjectId("606f591f41340a452c5e8379")];
-    const entry = await mailModel.updateMany(
-      {
-        _id:
-        {
-          $in: arr
+    const arr = req.body._idArray
+    convertStringToObjectId(arr)
+    // const arr = [ObjectId("606f591f41340a452c5e8377"), ObjectId("606f591f41340a452c5e8378"), ObjectId("606f591f41340a452c5e8379")];
+    // const entry = await mailModel.updateMany(
+    //   {
+    //     _id:
+    //     {
+    //       $in: arr
 
-        }
-      },
-      {
-        $set: {
-          folder: req.body?.folder,
-          labels: req.body?.labels,
-          isRead: req.body?.isRead,
-        }
-      },
-    )
-
-
-
-    return res.status(200).json({
-      success: true,
-      data: entry
-    });
+    //     }
+    //   },
+    //   {
+    //     $set: {
+    //       folder: req.body?.folder,
+    //       labels: req.body?.labels,
+    //       isRead: req.body?.isRead,
+    //     }
+    //   },
+    // )
+    // return res.status(200).json({
+    //   success: true,
+    //   data: entry
+    // });
   } catch (err) {
     console.log(err)
     return res.status(500).json({
@@ -207,7 +208,7 @@ router.patch('/task/update-all', async function (req, res, next) {
   };
 });
 
-// TODO: METHOD - DELETE
+// TODO: METHOD - DELETE AN RECORD
 // -u http://localhost:1509/mail/task/delete/:id
 //? Example : http://localhost:1509/mail/task/delete/606f591f41340a452c5e8376
 router.delete('/task/delete/:id', async function (req, res, next) {
