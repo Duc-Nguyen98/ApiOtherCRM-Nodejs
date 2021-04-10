@@ -123,8 +123,6 @@ router.get('/task', async function (req, res, next) {
         totalItemsPerPage: parseInt(req.query.perPage)
       }
 
-      console.log(tag)
-
       const taskOne = await todoModel
         .find(hasFilter(tag, regex))
         .sort(hasSort(sort))
