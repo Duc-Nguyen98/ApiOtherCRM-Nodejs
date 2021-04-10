@@ -53,8 +53,10 @@ handlePaLabels = (param2, param3) => {
 /* GET todo listing view MyTask */
 http://localhost:1509/mail/task/?folder=inbox
 // TODO: METHOD - GET
-// -u http://localhost:1509/mail/task/?query(filter=)&query(q=)&query(sort=)
-// ? Example : http://localhost:1509/mail/task?folder=inbox&page=1&perPage=10
+// -u http://localhost:1509/mail/task/param(filter=)&query(q=)
+// ? Example : http://localhost:1509/mail/task/sent?q=&page=1&perPage=10
+// ? Example : http://localhost:1509/mail/task/label/personal?q=&page=1&perPage=10
+
 router.get('/task(/:folder)?(/:label)?', async function (req, res, next) {
   try {
     let folder = req.params.folder;
