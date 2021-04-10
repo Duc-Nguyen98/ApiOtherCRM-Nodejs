@@ -8,6 +8,7 @@ const mongoose = require('mongoose');
 
 var indexRouter = require('./routes/index');
 var todoRouter = require('./routes/todo');
+var emailRouter = require('./routes/email');
 
 var app = express();
 
@@ -43,6 +44,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/todo', todoRouter);
+app.use('/mail', emailRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
