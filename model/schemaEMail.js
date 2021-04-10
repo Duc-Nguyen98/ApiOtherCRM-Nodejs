@@ -69,10 +69,6 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    _idArray: {
-        type: Array,
-        default: []
-    },
 });
 
 
