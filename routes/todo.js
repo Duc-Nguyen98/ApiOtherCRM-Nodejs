@@ -34,6 +34,8 @@ let hasFilter = (task, keyword) => {
       break;
     default:
       return { isDeleted: !isDeleted, title: keyword }
+      break;
+
   }
 }
 
@@ -50,6 +52,8 @@ const hasSort = type => {
       break;
     default:
       return { dueDate: 1 }
+      break;
+
   }
 }
 
