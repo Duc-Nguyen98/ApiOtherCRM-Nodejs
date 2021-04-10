@@ -24,7 +24,7 @@ let hasFilter = (task, keyword) => {
       return { isDeleted: !isDeleted, tags: task, title: keyword }
       break;
     case 'medium':
-      return { isDeleted: !isDeleted, tags: 'medium', title: keyword }
+      return { isDeleted: !isDeleted, tags: task, title: keyword }
       break;
     case 'high':
       return { isDeleted: !isDeleted, tags: task, title: keyword }
@@ -53,37 +53,6 @@ const hasSort = type => {
   }
 }
 
-const hasTotalRecords = param => {
-  switch (param) {
-    case 'important':
-      return { isImportant: isImportant }
-      break;
-    case 'completed':
-      return { isCompleted: isCompleted }
-      break;
-    case 'deleted':
-      return { isDeleted: isDeleted }
-      break;
-    case 'team':
-      return { tags: 'team', isDeleted: !isDeleted }
-      break;
-    case 'low':
-      return { tags: 'low', isDeleted: !isDeleted }
-      break;
-    case 'medium':
-      return { tags: 'medium', isDeleted: !isDeleted }
-      break;
-    case 'high':
-      return { tags: 'high', isDeleted: !isDeleted }
-      break;
-    case 'update':
-      return { tags: 'update', isDeleted: !isDeleted }
-      break;
-
-    default:
-      return { isDeleted: !isDeleted }
-  }
-}
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 /* GET home Todo listing. */
@@ -112,19 +81,20 @@ router.get('/task', async function (req, res, next) {
       totalItemsPerPage: parseInt(req.query.perPage)
     }
 
-    const taskOne = await todoModel.countDocuments(hasTotalRecords(filter));
 
-    const taskTwo = await todoModel
+    const taskOne = await todoModel
       .find(hasFilter(filter, regex))
       .sort(hasSort(sort))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
+    const taskTwo = await todoModel.countDocuments(hasFilter(filter, regex));
+
     Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
       return res.status(200).json({
         success: true,
-        totalRecords: dataOne,
-        data: dataTwo,
+        totalRecords: dataTwo,
+        data: dataOne,
       });
     })
   } catch (err) {
@@ -153,18 +123,19 @@ router.get('/task', async function (req, res, next) {
         totalItemsPerPage: parseInt(req.query.perPage)
       }
 
-      const taskOne = await todoModel.countDocuments(hasTotalRecords(tag));
-      const taskTwo = await todoModel
-        .find(hasFilter(tag, regex))
+      const taskOne = await todoModel
+        .find(hasFilter(filter, regex))
         .sort(hasSort(sort))
         .limit(pagination.totalItemsPerPage)
         .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
+      const taskTwo = await todoModel.countDocuments(hasFilter(filter, regex));
+
       Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
         return res.status(200).json({
           success: true,
-          totalRecords: dataOne,
-          data: dataTwo,
+          totalRecords: dataTwo,
+          data: dataOne,
         });
       })
     } catch (err) {
