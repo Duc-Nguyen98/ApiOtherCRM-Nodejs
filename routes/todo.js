@@ -18,16 +18,16 @@ let hasFilter = (task, keyword) => {
       return { isDeleted: isDeleted, title: keyword }
       break;
     case 'low':
-      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      return { isDeleted: !isDeleted, tags: 'low', title: keyword }
       break;
     case 'update':
-      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      return { isDeleted: !isDeleted, tags: 'update', title: keyword }
       break;
     case 'medium':
-      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      return { isDeleted: !isDeleted, tags: 'medium', title: keyword }
       break;
     case 'high':
-      return { isDeleted: !isDeleted, tags: task, title: keyword }
+      return { isDeleted: !isDeleted, tags: 'high', title: keyword }
       break;
     case 'team':
       return { isDeleted: !isDeleted, tags: task, title: keyword }
@@ -109,8 +109,8 @@ router.get('/task', async function (req, res, next) {
 
   // TODO: METHOD - GET
   // -u http://localhost:1509/todo/task/?query(tag=)&query(q=)&query(sort=)
-  // ? Example : http://localhost:1509/todo/task/?tag=medium&q=c&sort=due-date-desc&page=1&perPage=10
-  router.get('/task/tag', async function (req, res, next) {
+  // ? Example : http://localhost:1509/todo/task/tag/?tag=medium&q=c&sort=due-date-desc&page=1&perPage=10
+  router.get('/task/tag/', async function (req, res, next) {
 
     try {
       let tag = req.query.tag;
@@ -123,13 +123,15 @@ router.get('/task', async function (req, res, next) {
         totalItemsPerPage: parseInt(req.query.perPage)
       }
 
+      console.log(tag)
+
       const taskOne = await todoModel
-        .find(hasFilter(filter, regex))
+        .find(hasFilter(tag, regex))
         .sort(hasSort(sort))
         .limit(pagination.totalItemsPerPage)
         .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
-      const taskTwo = await todoModel.countDocuments(hasFilter(filter, regex));
+      const taskTwo = await todoModel.countDocuments(hasFilter(tag, regex));
 
       Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
         return res.status(200).json({
