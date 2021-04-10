@@ -98,7 +98,7 @@ router.get('/', async function (req, res, next) {
 
 /* GET todo listing view MyTask */
 // TODO: METHOD - GET
-// -u http://localhost:1509/todo/task/?query(filter=)&query(q=)&query(sort=)
+// -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
 // ? Example : http://localhost:1509/todo/task?filter=important&sort=title-desc&page=1&perPage=10
 router.get('/task', async function (req, res, next) {
   try {
