@@ -5,114 +5,81 @@ const mailModel = require('../model/schemaEMail');
 let isStarred = true;
 let isRead = true;
 
-let hasFilter = (task, keyword) => {
-  switch (task) {
-    case 'sent':
-      return { isRead: isRead, title: keyword }
-      break;
-    case 'draft':
-      return { isRead: isRead, title: keyword }
-      break;
-    case 'starred':
-      return { isRead: isRead, isStarred: isStarred, title: keyword }
-      break;
-    case 'spam':
-      return { isRead: isRead, title: keyword }
-      break;
-    case 'trash':
-      return { isRead: isRead, title: keyword }
-      break;
-    case 'personal':
-      return { isRead: isRead, labels: 'medium', title: keyword }
-      break;
-    case 'company':
-      return { isRead: isRead, labels: 'company', title: keyword }
-      break;
-    case 'important':
-      return { isRead: isRead, labels: 'important', title: keyword }
-      break;
-    case 'private':
-      return { isRead: isRead, labels: 'private', title: keyword }
-      break;
-    default:
-      return { isRead: !isRead, title: keyword }
-  }
-}
-
-const hasTotalRecords = param => {
+let hasFilter = (param, param2, param3) => {
   switch (param) {
     case 'sent':
-      return { folder: "sent", isRead: isRead }
+      return { folder: param, isRead: isRead, subject: param3 }
       break;
     case 'draft':
-      return { folder: 'draft', isRead: isRead }
+      return { folder: param, isRead: isRead, subject: param3 }
       break;
     case 'starred':
-      return { isStarred: isStarred, isRead: isRead }
+      return { folder: param, isRead: isRead, isStarred: isStarred, subject: param3 }
       break;
     case 'spam':
-      return { folder: 'spam', isRead: isRead }
+      return { folder: param, isRead: isRead, subject: param3 }
       break;
     case 'trash':
-      return { isRead: !isRead }
+      return { folder: param, isRead: !isRead, subject: param3 }
       break;
-    case 'personal':
-      return { isRead: isRead, labels: 'personal' }
+    case 'label':  //? call function  handlePaLabels
+      return handlePaLabels(param2, param3)
       break;
-    case 'company':
-      return { isRead: isRead, labels: 'company' }
-      break;
-    case 'important':
-      return { isRead: isRead, labels: 'important' }
-      break;
-    case 'private':
-      return { isRead: isRead, labels: 'private' }
-      break;
-
     default:
-      return { isRead: isRead }
+      return { isRead: isRead, subject: param3 }
   }
 }
+
+handlePaLabels = (param2, param3) => {
+  switch (param2) {
+    case 'personal':
+      return { isRead: isRead, labels: 'personal', subject: param3 }
+      break;
+    case 'company':
+      return { isRead: isRead, labels: 'company', subject: param3 }
+      break;
+    case 'important':
+      return { isRead: isRead, labels: 'important', subject: param3 }
+      break;
+    case 'private': //? default to  private
+      return { isRead: isRead, labels: 'private', subject: param3 }
+  }
+}
+
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 /* GET home Todo listing. */
-// TODO: METHOD - GET
-// -u http://localhost:1509/mail/
-router.get('/', async function (req, res, next) {
-  res.send({
-    status: 200,
-    message: 'Success API ToDo'
-  })
-});
 
 /* GET todo listing view MyTask */
+http://localhost:1509/mail/task/?folder=inbox
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/?query(filter=)&query(q=)&query(sort=)
-// ? Example : http://localhost:1509/mail/task?labels=important&page=1&perPage=10
-router.get('/task', async function (req, res, next) {
+// ? Example : http://localhost:1509/mail/task?folder=inbox&page=1&perPage=10
+router.get('/task(/:folder)?(/:label)?', async function (req, res, next) {
   try {
-    let labels = req.query.labels;
+    let folder = req.params.folder;
+    let label = req.params.label;
     let q = req.query.q;
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
-    console.log(labels, q)
+
     //? Begin config Pagination
     let pagination = {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-
-    const taskOne = await mailModel.countDocuments(hasTotalRecords(labels));
-
-    const taskTwo = await mailModel
-      .find(hasFilter(labels, regex))
+    const taskOne = await mailModel
+      .find(hasFilter(folder, label, regex))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+    const taskTwo = await mailModel.countDocuments(hasFilter(folder, label, regex));
+
 
     Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
       return res.status(200).json({
         success: true,
-        totalRecords: dataOne,
-        data: dataTwo,
+        totalRecords: dataTwo,
+        data: dataOne,
       });
     })
   } catch (err) {
@@ -123,45 +90,6 @@ router.get('/task', async function (req, res, next) {
   };
 });
 
-/* GET todo listing return list todo follow Tags */
-
-// TODO: METHOD - GET
-// -u http://localhost:1509/mail/task/?query(tag=)&query(q=)&query(sort=)
-// ? Example : http://localhost:1509/mail/task/?tag=medium&q=c&sort=due-date-desc&page=1&perPage=10
-router.get('/task/tag', async function (req, res, next) {
-
-  try {
-    let tag = req.query.tag;
-    let q = req.query.q;
-    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
-    let sort = req.query.sort;
-    //? Begin config Pagination
-    let pagination = {
-      currentPage: parseInt(req.query.page),
-      totalItemsPerPage: parseInt(req.query.perPage)
-    }
-
-    const taskOne = await mailModel.countDocuments(hasTotalRecords(tag));
-    const taskTwo = await mailModel
-      .find(hasFilter(tag, regex))
-      .sort(hasSort(sort))
-      .limit(pagination.totalItemsPerPage)
-      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-
-    Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
-      return res.status(200).json({
-        success: true,
-        totalRecords: dataOne,
-        data: dataTwo,
-      });
-    })
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
 
 /* GET Details users listing. */
 // TODO: METHOD - GET
