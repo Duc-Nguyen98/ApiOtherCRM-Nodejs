@@ -314,18 +314,6 @@ router.delete('/task/delete/:id', async function (req, res, next) {
   };
 });
 
-/* GET todo listing Search Record */
-// TODO: METHOD - GET
-// -u http://localhost:1509/todo/task/search/?keyword=abc
-
-// router.get('/task/search', async function (req, res, next) {
-//   let q = req.query.q;
-//   var regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
-//   return todoModel.find({ title: regex }, function (err, q) {
-//     return res.send(q);
-//   });
-// });
-
 
 //! CODE API FOR PERMISSION EMPLOYEE
 
