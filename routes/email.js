@@ -82,14 +82,14 @@ router.get('/task/', async function (req, res, next) {
     const totalRecords = await mailModel.countDocuments(hasFilter(folder, label, regex));
 
     let meta = await mailModel.aggregate(
-        [
-          {
-            $group : {
-              _id : "$folder",
-              count: { $sum: 1 }
-            }
+      [
+        {
+          $group: {
+            _id: "$folder",
+            count: { $sum: 1 }
           }
-          ]
+        }
+      ]
     );
 
     let emailsMeta = {};
@@ -210,32 +210,21 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
 /* PATCH todo listing Update MultiRecord & count Record Update   . */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/todo/task/param=:options
-// ? Example : http://localhost:1509/mail/task/update-all/606f591f41340a452c5e8377
-router.patch('/task/update-all', async function (req, res, next) {
+// ? Example : http://localhost:1509/mail/task/update-multi
+router.patch('/task/update-multi', async function (req, res, next) {
   try {
-    const arr = req.body._idArray
-    convertStringToObjectId(arr)
-    // const arr = [ObjectId("606f591f41340a452c5e8377"), ObjectId("606f591f41340a452c5e8378"), ObjectId("606f591f41340a452c5e8379")];
-    // const entry = await mailModel.updateMany(
-    //   {
-    //     _id:
-    //     {
-    //       $in: arr
+    const cid = JSON.parse(req.body.cid);
+    await mailModel.updateMany({ _id: { $in: cid } }, {
+      labels: req.body?.labels,
+      isRead: req.body?.isRead,
+      folder: req.body?.folder,
+    }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        data: result
+      });
+    })
 
-    //     }
-    //   },
-    //   {
-    //     $set: {
-    //       folder: req.body?.folder,
-    //       labels: req.body?.labels,
-    //       isRead: req.body?.isRead,
-    //     }
-    //   },
-    // )
-    // return res.status(200).json({
-    //   success: true,
-    //   data: entry
-    // });
   } catch (err) {
     console.log(err)
     return res.status(500).json({
@@ -257,6 +246,28 @@ router.delete('/task/delete/:id', async function (req, res, next) {
       success: true,
       data: entry
     });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+// TODO: METHOD - DELETE MULTI RECORD
+// -u http://localhost:1509/mail/task/delete/:id
+//? Example : http://localhost:1509/mail/task/delete-multi
+router.delete('/task/delete-multi', async function (req, res, next) {
+
+  try {
+    const cid = JSON.parse(req.body.cid);
+    await mailModel.deleteMany({ _id: { $in: cid } }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        data: result
+      });
+    })
+
   } catch (err) {
     return res.status(500).json({
       success: false,
