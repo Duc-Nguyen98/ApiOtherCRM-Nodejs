@@ -270,26 +270,6 @@ router.patch('/task/update-multi', async function (req, res, next) {
   };
 });
 
-// TODO: METHOD - DELETE AN RECORD
-// -u http://localhost:1509/mail/task/delete/:id
-//? Example : http://localhost:1509/mail/task/delete/606f591f41340a452c5e8376
-router.delete('/task/delete/:id', async function (req, res, next) {
-
-  try {
-    const _id = req.params.id;
-    const entry = await mailModel.findByIdAndDelete({ _id: _id });
-    return res.status(200).json({
-      success: true,
-      data: entry
-    });
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
-
 // TODO: METHOD - DELETE MULTI RECORD
 // -u http://localhost:1509/mail/task/delete/:id
 //? Example : http://localhost:1509/mail/task/delete-multi

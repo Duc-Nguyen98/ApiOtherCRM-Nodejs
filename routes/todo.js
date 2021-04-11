@@ -251,7 +251,7 @@ router.patch('/task/change/:id', async function (req, res, next) {
   };
 });
 
-/* PATCH todo listing deleteSoft Record */
+/* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/todo/task/delete-soft/:id
 router.delete('/task/delete-soft/:id', async function (req, res, next) {
