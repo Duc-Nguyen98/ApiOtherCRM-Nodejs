@@ -74,19 +74,55 @@ router.get('/task/', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const taskOne = await mailModel
+    const emails = await mailModel
       .find(hasFilter(folder, label, regex))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
-    const taskTwo = await mailModel.countDocuments(hasFilter(folder, label, regex));
+    const totalRecords = await mailModel.countDocuments(hasFilter(folder, label, regex));
 
+    let meta = await mailModel.aggregate(
+        [
+          {
+            $group : {
+              _id : "$folder",
+              count: { $sum: 1 }
+            }
+          }
+          ]
+    );
 
-    Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
+    let emailsMeta = {};
+
+    meta.map(obj => {
+      switch (obj._id) {
+        case 'sent':
+          emailsMeta.sent = obj.count
+          break;
+        case 'trash':
+          emailsMeta.trash = obj.count
+          break;
+        case 'draft':
+          emailsMeta.draft = obj.count
+          break;
+        case 'spam':
+          emailsMeta.spam = obj.count
+          break;
+        case 'inbox':
+          emailsMeta.inbox = obj.count
+          break;
+        case 'starred':
+          emailsMeta.starred = obj.count
+          break;
+      }
+    })
+
+    Promise.all([emails, emailsMeta, totalRecords]).then(([emails, emailsMeta, totalRecords]) => {
       return res.status(200).json({
         success: true,
-        totalRecords: dataTwo,
-        data: dataOne,
+        totalRecords: totalRecords,
+        emails: emails,
+        emailsMeta: emailsMeta
       });
     })
   } catch (err) {
@@ -124,14 +160,15 @@ router.get('/task/detail/:id', async function (req, res, next) {
 
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
-// -u http://localhost:1509/todo/task/is-starred/:id
+// -u http://localhost:1509/mail/task/is-starred/:id
 
 router.patch('/task/is-starred/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     const isStarred = req.body?.isStarred;
 
-    const entry = await todoModel.findByIdAndUpdate({ _id: _id }, { isStarred: isStarred });
+    const entry = await mailModel.findByIdAndUpdate({ _id: _id }, { isStarred: isStarred });
+
     return res.status(200).json({
       success: true,
       data: entry
