@@ -47,6 +47,9 @@ let handlePaLabels = (param2, param3) => {
       break;
     case 'private': //? default to  private
       return { labels: 'private', subject: param3 }
+
+    default:
+      return { subject: param3 }
   }
 }
 
