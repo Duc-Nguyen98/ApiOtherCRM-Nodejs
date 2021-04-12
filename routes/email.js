@@ -151,7 +151,7 @@ router.post('/task/create', async function (req, res, next) {
       time: req.body?.time,
       labels: req.body?.labels,
       replies: req.body?.replies,
-      folder: req.body?.folder,     // folder after create have value == 'Sent'
+      folder: "Sent",     // folder after create have value == 'Sent'
       isRead: req.body?.isRead,     // value default == true
       isStarred: req.body?.isStarred,  // value default == false
       idAuthor: req.body?.idAuthor,
@@ -228,7 +228,6 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
     const entry = await mailModel.findByIdAndUpdate({ _id: _id }, {
       isStarred: req.body?.isStarred,
       labels: req.body?.labels,
-      isRead: req.body?.isRead,
     });
     return res.status(200).json({
       success: true,
