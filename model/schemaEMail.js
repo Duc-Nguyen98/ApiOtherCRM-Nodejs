@@ -52,11 +52,6 @@ const schema = new mongoose.Schema({
         default: false
     },
 
-    isRead: {
-        type: Boolean,
-        default: true
-    },
-
     time: {
         type: String,
         default: ''
