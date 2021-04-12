@@ -251,19 +251,14 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
 // ? Example : http://localhost:1509/mail/task/update-multi
 router.patch('/task/update-multi', async function (req, res, next) {
   try {
-    console.log(req.body);
+    let update = {};
     const cid = req.body.emailIds;
-    await mailModel.updateMany({ _id: { $in: cid } }, {
-      labels: req.body?.dataToUpdate?.labels,
-      isRead: req.body?.dataToUpdate?.isRead,
-      folder: req.body?.dataToUpdate?.folder,
-    }, (err, result) => {
+    await mailModel.updateMany({ _id: { $in: cid } }, req.body?.dataToUpdate, (err, result) => {
       return res.status(200).json({
         success: true,
         data: result
       });
     })
-
   } catch (err) {
     console.log(err)
     return res.status(500).json({
