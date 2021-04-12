@@ -251,7 +251,6 @@ router.patch('/task/update-multi', async function (req, res, next) {
     const cid = req.body.cid;
     await mailModel.updateMany({ _id: { $in: cid } }, {
       labels: req.body?.labels,
-      isRead: req.body?.isRead,
       folder: req.body?.folder,
     }, (err, result) => {
       return res.status(200).json({
