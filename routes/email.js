@@ -155,11 +155,11 @@ router.post('/task/create', async function (req, res, next) {
       bcc: req.body?.bcc,
       message: req.body?.message,
       attachments: req.body?.attachments,
-      time: req.body?.time,
+      time: new Date().toLocaleDateString(),
       labels: req.body?.labels,
       replies: req.body?.replies,
-      folder: req.body?.folder,     // folder after create have value == 'Sent'
-      isRead: req.body?.isRead,     // value default == true
+      folder: 'sent',     // folder after create have value == 'Sent'
+      isRead: 'false',     // value default == true
       isStarred: req.body?.isStarred,  // value default == false
       idAuthor: req.body?.idAuthor,
     })
@@ -274,9 +274,10 @@ router.patch('/task/update-multi', async function (req, res, next) {
 // TODO: METHOD - DELETE MULTI RECORD
 // -u http://localhost:1509/mail/task/delete/:id
 //? Example : http://localhost:1509/mail/task/delete-multi
-router.delete('/task/delete-multi', async function (req, res, next) {
+router.patch('/task/delete-multi', async function (req, res, next) {
   try {
     const cid = req.body.emailIds;
+
     await mailModel.deleteMany({ _id: { $in: cid } }, (err, result) => {
       return res.status(200).json({
         success: true,
