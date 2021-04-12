@@ -9,6 +9,26 @@ const ObjectId = require('mongodb').ObjectId;
 let isStarred = true;
 let isRead = true;
 
+
+let handlePaLabels = (param2, param3) => {
+  switch (param2) {
+    case 'personal':
+      return { folder: "inbox", labels: 'personal', subject: param3 }
+      break;
+    case 'company':
+      return { folder: "inbox", labels: 'company', subject: param3 }
+      break;
+    case 'important':
+      return { folder: "inbox", labels: 'important', subject: param3 }
+      break;
+    case 'private': //? default to  private
+      return { folder: "inbox", labels: 'private', subject: param3 }
+
+    default:
+      return { folder: "inbox", subject: param3 }
+  }
+}
+
 let hasFilter = (param, param2, param3) => {
   switch (param) {
     case 'sent':
@@ -18,7 +38,7 @@ let hasFilter = (param, param2, param3) => {
       return { folder: param, subject: param3 }
       break;
     case 'starred':
-      return { folder: param, isStarred: isStarred, subject: param3 }
+      return { isStarred: isStarred, subject: param3 }
       break;
     case 'spam':
       return { folder: param, subject: param3 }
@@ -34,25 +54,6 @@ let hasFilter = (param, param2, param3) => {
       break;
   }
 }
-let handlePaLabels = (param2, param3) => {
-  switch (param2) {
-    case 'personal':
-      return { labels: 'personal', subject: param3 }
-      break;
-    case 'company':
-      return { labels: 'company', subject: param3 }
-      break;
-    case 'important':
-      return { labels: 'important', subject: param3 }
-      break;
-    case 'private': //? default to  private
-      return { labels: 'private', subject: param3 }
-
-    default:
-      return { subject: param3 }
-  }
-}
-
 
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
@@ -62,8 +63,8 @@ let handlePaLabels = (param2, param3) => {
 http://localhost:1509/mail/task/?folder=inbox
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/param(filter=)&query(q=)
-// ? Example : http://localhost:1509/mail/task/?folder=inbox&q=&page=1&perPage=10
-// ? Example :http://localhost:1509/mail/task/?folder=&page=1&perPage=10&q=&label=personal
+// ? Example : http://localhost:1509/mail/task?folder=inbox&page=1&perPage=10
+// ? Example : http://localhost:1509/mail/task?folder=&label=important&page=1&perPage=10
 
 router.get('/task/', async function (req, res, next) {
   try {
@@ -77,13 +78,6 @@ router.get('/task/', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const emails = await mailModel
-      .find(hasFilter(folder, label, regex))
-      .sort({ time: -1 })
-      .limit(pagination.totalItemsPerPage)
-      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-
-    const totalRecords = await mailModel.countDocuments(hasFilter(folder, label, regex));
 
     let meta = await mailModel.aggregate(
       [
@@ -95,8 +89,6 @@ router.get('/task/', async function (req, res, next) {
         }
       ]
     );
-
-    console.log(meta);
 
     let emailsMeta = {};
 
@@ -123,12 +115,22 @@ router.get('/task/', async function (req, res, next) {
       }
     })
 
-    Promise.all([emails, emailsMeta, totalRecords]).then(([emails, emailsMeta, totalRecords]) => {
+    const emails = await mailModel
+      .find(hasFilter(folder, label, regex))
+      .sort({ time: -1 })
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+
+
+
+    const totalRecords = await mailModel.countDocuments(hasFilter(folder, label, regex));
+    Promise.all([emailsMeta, emails, totalRecords]).then(([emailsMeta, emails, totalRecords]) => {
       return res.status(200).json({
         success: true,
+        catalogEmail: emailsMeta,
         totalRecords: totalRecords,
         emails: emails,
-        emailsMeta: emailsMeta
       });
     })
   } catch (err) {
