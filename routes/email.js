@@ -47,8 +47,6 @@ let handlePaLabels = (param2, param3) => {
       break;
     case 'private': //? default to  private
       return { labels: 'private', subject: param3 }
-    default: //? default to  private
-      return { subject: param3 }
   }
 }
 
@@ -94,6 +92,8 @@ router.get('/task/', async function (req, res, next) {
         }
       ]
     );
+
+    console.log(meta);
 
     let emailsMeta = {};
 
@@ -153,7 +153,7 @@ router.post('/task/create', async function (req, res, next) {
       time: req.body?.time,
       labels: req.body?.labels,
       replies: req.body?.replies,
-      folder: "Sent",     // folder after create have value == 'Sent'
+      folder: req.body?.folder,     // folder after create have value == 'Sent'
       isRead: req.body?.isRead,     // value default == true
       isStarred: req.body?.isStarred,  // value default == false
       idAuthor: req.body?.idAuthor,
@@ -230,6 +230,7 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
     const entry = await mailModel.findByIdAndUpdate({ _id: _id }, {
       isStarred: req.body?.isStarred,
       labels: req.body?.labels,
+      isRead: req.body?.isRead,
     });
     return res.status(200).json({
       success: true,
@@ -250,19 +251,14 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
 // ? Example : http://localhost:1509/mail/task/update-multi
 router.patch('/task/update-multi', async function (req, res, next) {
   try {
-    const cid = req.body.cid;
-    await mailModel.updateMany({ _id: { $in: cid } }, {
-      labels: req.body?.labels,
-      folder: req.body?.folder,
-    }, (err, result) => {
+    const cid = req.body.emailIds;
+    await mailModel.updateMany({ _id: { $in: cid } }, req.body?.dataToUpdate, (err, result) => {
       return res.status(200).json({
         success: true,
         data: result
       });
     })
-
   } catch (err) {
-    console.log(err)
     return res.status(500).json({
       success: false,
       error: 'Server Error'
@@ -274,9 +270,8 @@ router.patch('/task/update-multi', async function (req, res, next) {
 // -u http://localhost:1509/mail/task/delete/:id
 //? Example : http://localhost:1509/mail/task/delete-multi
 router.delete('/task/delete-multi', async function (req, res, next) {
-
   try {
-    const cid = req.body.cid;
+    const cid = req.body.emailIds;
     await mailModel.deleteMany({ _id: { $in: cid } }, (err, result) => {
       return res.status(200).json({
         success: true,
