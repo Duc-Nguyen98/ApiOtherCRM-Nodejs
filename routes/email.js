@@ -93,6 +93,8 @@ router.get('/task/', async function (req, res, next) {
       ]
     );
 
+    console.log(meta);
+
     let emailsMeta = {};
 
     meta.map(obj => {
@@ -249,11 +251,12 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
 // ? Example : http://localhost:1509/mail/task/update-multi
 router.patch('/task/update-multi', async function (req, res, next) {
   try {
-    const cid = req.body.cid;
+    console.log(req.body);
+    const cid = req.body.emailIds;
     await mailModel.updateMany({ _id: { $in: cid } }, {
-      labels: req.body?.labels,
-      isRead: req.body?.isRead,
-      folder: req.body?.folder,
+      labels: req.body?.dataToUpdate?.labels,
+      isRead: req.body?.dataToUpdate?.isRead,
+      folder: req.body?.dataToUpdate?.folder,
     }, (err, result) => {
       return res.status(200).json({
         success: true,
@@ -274,9 +277,8 @@ router.patch('/task/update-multi', async function (req, res, next) {
 // -u http://localhost:1509/mail/task/delete/:id
 //? Example : http://localhost:1509/mail/task/delete-multi
 router.delete('/task/delete-multi', async function (req, res, next) {
-
   try {
-    const cid = req.body.cid;
+    const cid = req.body.emailIds;
     await mailModel.deleteMany({ _id: { $in: cid } }, (err, result) => {
       return res.status(200).json({
         success: true,
