@@ -12,22 +12,22 @@ let isRead = true;
 let hasFilter = (param, param2, param3) => {
   switch (param) {
     case 'sent':
-      return { folder: param, isRead: isRead, subject: param3 }
+      return { folder: param, subject: param3 }
       break;
     case 'draft':
-      return { folder: param, isRead: isRead, subject: param3 }
+      return { folder: param, subject: param3 }
       break;
     case 'starred':
-      return { folder: param, isRead: isRead, isStarred: isStarred, subject: param3 }
+      return { folder: param, isStarred: isStarred, subject: param3 }
       break;
     case 'spam':
-      return { folder: param, isRead: isRead, subject: param3 }
+      return { folder: param, subject: param3 }
       break;
     case 'trash':
-      return { folder: param, isRead: !isRead, subject: param3 }
+      return { folder: param, subject: param3 }
       break;
     case 'inbox':
-      return { isRead: isRead, subject: param3 }
+      return { folder: param, subject: param3 }
       break;
     default://? call function  handlePaLabels
       return handlePaLabels(param2, param3)
@@ -37,16 +37,16 @@ let hasFilter = (param, param2, param3) => {
 let handlePaLabels = (param2, param3) => {
   switch (param2) {
     case 'personal':
-      return { isRead: isRead, labels: 'personal', subject: param3 }
+      return { labels: 'personal', subject: param3 }
       break;
     case 'company':
-      return { isRead: isRead, labels: 'company', subject: param3 }
+      return { labels: 'company', subject: param3 }
       break;
     case 'important':
-      return { isRead: isRead, labels: 'important', subject: param3 }
+      return { labels: 'important', subject: param3 }
       break;
     case 'private': //? default to  private
-      return { isRead: isRead, labels: 'private', subject: param3 }
+      return { labels: 'private', subject: param3 }
   }
 }
 
