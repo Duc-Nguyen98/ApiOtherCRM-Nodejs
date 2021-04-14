@@ -107,7 +107,7 @@ router.patch('/create', async function (req, res, next) {
       birthDate: req.body?.birthDate,
       telephone: req.body?.telephone,
       note: req.body?.note,
-      lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
+      // lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
       groups: req.body?.groups,
       created: Date.now(),
       modified: Date.now(),
@@ -142,7 +142,7 @@ router.put('/update/:id', async function (req, res, next) {
         birthDate: req.body?.birthDate,
         telephone: req.body?.telephone,
         note: req.body?.note,
-        lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
+        // lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
         groups: req.body?.groups,
         modified: Date.now(),
       })
