@@ -7,7 +7,6 @@ const ObjectId = require('mongodb').ObjectId;
 
 
 let isStarred = true;
-let isRead = true;
 
 
 let handlePaLabels = (param2, param3) => {
@@ -66,9 +65,10 @@ http://localhost:1509/mail/task/?folder=inbox
 // ? Example : http://localhost:1509/mail/task?folder=inbox&page=1&perPage=10
 // ? Example : http://localhost:1509/mail/task?folder=&label=important&page=1&perPage=10
 
-router.get('/task/', async function (req, res, next) {
+router.get('/task', async function (req, res, next) {
   try {
     let folder = req.query.folder;
+    (folder == undefined || folder == '') ? folder = 'inbox' : folder = folder;
     let label = req.query.label;
     let q = req.query.q;
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
