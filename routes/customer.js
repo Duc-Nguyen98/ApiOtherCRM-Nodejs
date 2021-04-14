@@ -33,11 +33,15 @@ router.get('/', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
 // ? Example : http://localhost:1509/user/list?group=&gender=&q=&sort=title-desc&page=1&perPage=10
-router.get('/list', async function (req, res, next) {
+router.get('/list(/?group?gender)?', async function (req, res, next) {
 
   try {
     let group = req.query.group;
     let gender = req.query.gender;
+    (group == undefined) ? group = '' : group = group;
+    (gender == undefined) ? gender = '' : gender = gender;
+    console.log(group, gender)
+
     let q = req.query.q;
 
     let keyword = new RegExp(q, 'i');  // 'i' makes it case insensitive
