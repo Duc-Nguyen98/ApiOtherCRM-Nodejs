@@ -40,7 +40,6 @@ router.get('/list', async function (req, res, next) {
     let gender = req.query.gender;
     (group == undefined) ? group = '' : group = group;
     (gender == undefined) ? gender = '' : gender = gender;
-    console.log(group, gender)
 
     let q = req.query.q;
 
