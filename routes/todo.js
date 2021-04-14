@@ -149,7 +149,7 @@ router.get('/task', async function (req, res, next) {
       });
     };
   });
-/* GET Details users listing. */
+/* GET Details todo listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task/detail/:id
 router.get('/task/detail/:id', async function (req, res, next) {
