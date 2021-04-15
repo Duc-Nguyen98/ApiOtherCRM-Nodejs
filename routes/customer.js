@@ -101,7 +101,7 @@ router.get('/list', async function (req, res, next) {
 // -u http://localhost:1509/customer/create
 router.patch('/create', async function (req, res, next) {
   try {
-    const entry = await todoModel.create({
+    const entry = await customerModel.create({
       avatar: req.body?.avatar,
       name: req.body?.name,
       address: req.body?.address,
@@ -135,7 +135,7 @@ router.patch('/create', async function (req, res, next) {
 router.put('/update/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const entry = await todoModel
+    const entry = await customerModel
       .findByIdAndUpdate({ _id: _id }, {
         avatar: req.body?.avatar,
         name: req.body?.name,
@@ -168,7 +168,7 @@ router.put('/update/:id', async function (req, res, next) {
 router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const entry = await todoModel.updateOne({ _id: _id }, { softDelete: 1 });
+    const entry = await customerModel.updateOne({ _id: _id }, { softDelete: 1 });
     return res.status(200).json({
       success: true,
       data: entry
