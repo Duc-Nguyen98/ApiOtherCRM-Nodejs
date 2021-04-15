@@ -128,7 +128,7 @@ router.get('/task/', async function (req, res, next) {
     Promise.all([emailsMeta, emails, totalRecords]).then(([emailsMeta, emails, totalRecords]) => {
       return res.status(200).json({
         success: true,
-        catalogEmail: emailsMeta,
+        emailsMeta: emailsMeta,
         totalRecords: totalRecords,
         emails: emails,
       });
@@ -231,11 +231,8 @@ router.patch('/task/is-starred/:id', async function (req, res, next) {
 router.patch('/task/detail/update/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-
     const entry = await mailModel.findByIdAndUpdate({ _id: _id }, {
-      isStarred: req.body?.isStarred,
       labels: req.body?.labels,
-      isRead: req.body?.isRead,
     });
     return res.status(200).json({
       success: true,
@@ -256,6 +253,7 @@ router.patch('/task/detail/update/:id', async function (req, res, next) {
 // ? Example : http://localhost:1509/mail/task/update-multi
 router.patch('/task/update-multi', async function (req, res, next) {
   try {
+    console.log(req.body.dataToUpdate);
     const cid = req.body.emailIds;
     await mailModel.updateMany({ _id: { $in: cid } }, req.body?.dataToUpdate, (err, result) => {
       return res.status(200).json({
