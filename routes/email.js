@@ -227,18 +227,27 @@ router.patch('/task/is-starred/:id', async function (req, res, next) {
 /* PATCH todo listing update an Record . */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/todo/task/update/:id
-// ? Example : http://localhost:1509/mail/task/detail/update/606f591f41340a452c5e8377
-router.patch('/task/detail/update/:id', async function (req, res, next) {
+// ? Example : http://localhost:1509/task/detail/update/update/606f591f41340a452c5e8377
+router.patch('/task/update/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
+    const item = await mailModel.findOne({ _id: _id });
+    let labels = item.labels??[];
+    if (labels.includes(req.body?.label)) {
+        labels = item.labels.filter(lab => lab != req.body?.label);
+    } else {
+        labels = [...labels, req.body?.label];
+    }
+
     const entry = await mailModel.findByIdAndUpdate({ _id: _id }, {
-      labels: req.body?.labels,
+      labels: labels,
     });
     return res.status(200).json({
       success: true,
       data: entry
     });
   } catch (err) {
+    console.log(err);
     return res.status(500).json({
       success: false,
       error: 'Server Error'
