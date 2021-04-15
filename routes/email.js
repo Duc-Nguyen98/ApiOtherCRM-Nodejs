@@ -234,9 +234,9 @@ router.patch('/task/update/:id', async function (req, res, next) {
     const item = await mailModel.findOne({ _id: _id });
     let labels = item.labels??[];
     if (labels.includes(req.body?.label)) {
-        labels = item.labels.filter(lab => lab != req.body?.label);
+      labels = item.labels.filter(lab => lab != req.body?.label);
     } else {
-        labels = [...labels, req.body?.label];
+      labels = [...labels, req.body?.label];
     }
 
     const entry = await mailModel.findByIdAndUpdate({ _id: _id }, {
@@ -254,7 +254,6 @@ router.patch('/task/update/:id', async function (req, res, next) {
     });
   };
 });
-
 
 /* PATCH todo listing Update MultiRecord & count Record Update   . */
 // TODO: METHOD - PATCH
