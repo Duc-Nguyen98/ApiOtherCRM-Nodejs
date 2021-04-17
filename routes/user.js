@@ -2,24 +2,23 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../model/schemaUser');
 
-let hasFilter = (param, param2, param3, param4) => {
+let hasFilter = (param, param2, param3, param4, param5) => {
   if (param !== null && param2 !== null && param3 !== null) {
-    return { gender: param, role: param2, active: param3 }
-
+    return { gender: param, role: param2, active: param3, softDelete: param5 }
   } else if (param == null && param2 !== null && param3 !== null) {
-    return { role: param2, active: param3, name: param4 }
+    return { role: param2, active: param3, name: param4, softDelete: param5 }
   } else if (param2 == null && param !== null && param3 !== null) {
-    return { gender: param, active: param3, name: param4 }
+    return { gender: param, active: param3, name: param4, softDelete: param5 }
   } else if (param3 == null && param !== null && param2 !== null) {
-    return { gender: param, role: param2, name: param4 }
+    return { gender: param, role: param2, name: param4, softDelete: param5 }
   } else if (param == null && param2 == null && param3 !== null) {
-    return { active: param3, name: param4 }
+    return { active: param3, name: param4, softDelete: param5 }
   } else if (param == null && param3 == null && param2 !== null) {
     return { role: param2, name: param4 }
   } else if (param2 == null && param3 == null && param !== null) {
-    return { gender: param, name: param4 }
+    return { gender: param, name: param4, softDelete: param5 }
   } else {
-    return { name: param4 }
+    return { name: param4, softDelete: param5 }
   }
 }
 
@@ -37,6 +36,7 @@ router.get('/list', async function (req, res, next) {
     let gender = req.query.gender;
     let role = req.query.role;
     let active = req.query.active;
+    let softDelete = 0;
     let q = req.query.q;
     (gender == undefined || gender == '') ? gender = null : gender = gender;
     (role == undefined || role == '') ? role = null : role = role;
@@ -51,12 +51,12 @@ router.get('/list', async function (req, res, next) {
     }
 
     const users = await userModel
-      .find(hasFilter(gender, role, active, regex))
+      .find(hasFilter(gender, role, active, regex, softDelete))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
 
-    const totalRecords = await userModel.countDocuments(hasFilter(gender, role, active, regex));
+    const totalRecords = await userModel.countDocuments(hasFilter(gender, role, active, regex, softDelete));
     Promise.all([users, totalRecords]).then(([users, totalRecords]) => {
       return res.status(200).json({
         success: true,
@@ -240,6 +240,74 @@ router.delete('/delete/:id', async function (req, res, next) {
     });
   };
 });
+
+
+router.get('/list/trash', async function (req, res, next) {
+  try {
+    let gender = req.query.gender;
+    let role = req.query.role;
+    let active = req.query.active;
+    let softDelete = 1;
+    let q = req.query.q;
+    (gender == undefined || gender == '') ? gender = null : gender = gender;
+    (role == undefined || role == '') ? role = null : role = role;
+    (active == undefined || active == '') ? active = null : active = active;
+
+    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.perPage)
+    }
+
+    const users = await userModel
+      .find(hasFilter(gender, role, active, regex, softDelete))
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+
+    const totalRecords = await userModel.countDocuments(hasFilter(gender, role, active, regex, softDelete));
+    Promise.all([users, totalRecords]).then(([users, totalRecords]) => {
+      return res.status(200).json({
+        success: true,
+        totalRecords: totalRecords,
+        users: users,
+      });
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/active/:id
+
+router.patch('/trash/restore/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+
+    const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
+      softDelete: 0,
+    });
+    return res.status(200).json({
+      success: true,
+      data: entry
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
 
 
 
