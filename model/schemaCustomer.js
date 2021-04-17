@@ -34,10 +34,7 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    lastTrading: {
-        type: Date,
-        default: ''
-    },
+
     servicesId: {
         type: mongoose.Types.ObjectId,
         ref: 'services',
