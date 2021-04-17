@@ -85,12 +85,12 @@ router.post('/create', async function (req, res, next) {
       gender: req.body?.gender,
       birthDate: req.body?.birthDate,
       role: req.body?.role,
-      active: req.body?.active,
       telephone: req.body?.telephone,
       attachments: req.body?.attachments,
       email: req.body?.email,
       account: req.body?.account,
       password: req.body?.password,
+      active: 1,
       softDelete: 0,
       created: {
         createBy: "Admin",
