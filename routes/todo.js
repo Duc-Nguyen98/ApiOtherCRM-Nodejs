@@ -156,7 +156,7 @@ router.get('/task/detail/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     await todoModel
-      .find({ _id: _id })
+      .findOne({ _id: _id })
       .then(data => {
         return res.status(200).json({
           success: true,
