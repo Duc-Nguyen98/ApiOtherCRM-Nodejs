@@ -2,16 +2,24 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../model/schemaUser');
 
-let hasFilter = (param, param2, param3) => {
-  if (param !== null && param2 !== null) {
-    return { gender: param, role: param2, name: param3 }
+let hasFilter = (param, param2, param3, param4) => {
+  if (param !== null && param2 !== null && param3 !== null) {
+    return { gender: param, role: param2, active: param3 }
 
-  } else if (param == null && param2 !== null) {
-    return { role: param2, name: param3 }
-  } else if (param !== null && param2 == null) {
-    return { gender: param, name: param3 }
+  } else if (param == null && param2 !== null && param3 !== null) {
+    return { role: param2, active: param3, name: param4 }
+  } else if (param2 == null && param !== null && param3 !== null) {
+    return { gender: param, active: param3, name: param4 }
+  } else if (param3 == null && param !== null && param2 !== null) {
+    return { gender: param, role: param2, name: param4 }
+  } else if (param == null && param2 == null && param3 !== null) {
+    return { active: param3, name: param4 }
+  } else if (param == null && param3 == null && param2 !== null) {
+    return { role: param2, name: param4 }
+  } else if (param2 == null && param3 == null && param !== null) {
+    return { gender: param, name: param4 }
   } else {
-    return { name: param3 }
+    return { name: param4 }
   }
 }
 
@@ -28,9 +36,11 @@ router.get('/list', async function (req, res, next) {
   try {
     let gender = req.query.gender;
     let role = req.query.role;
+    let active = req.query.active;
     let q = req.query.q;
     (gender == undefined || gender == '') ? gender = null : gender = gender;
     (role == undefined || role == '') ? role = null : role = role;
+    (active == undefined || active == '') ? active = null : active = active;
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
@@ -41,12 +51,12 @@ router.get('/list', async function (req, res, next) {
     }
 
     const users = await userModel
-      .find(hasFilter(gender, role, regex))
+      .find(hasFilter(gender, role, active, regex))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
 
-    const totalRecords = await userModel.countDocuments(hasFilter(gender, role, regex));
+    const totalRecords = await userModel.countDocuments(hasFilter(gender, role, active, regex));
     Promise.all([users, totalRecords]).then(([users, totalRecords]) => {
       return res.status(200).json({
         success: true,
