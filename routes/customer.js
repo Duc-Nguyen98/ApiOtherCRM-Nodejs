@@ -3,15 +3,15 @@ const router = express.Router();
 const customerModel = require('../model/schemaCustomer');
 
 
-handleFilterSearch = (param, param2, param3) => {
+handleFilterSearch = (param, param2, param3, param4) => {
   if (param !== '' && param2 !== '') {
-    return { groups: parseInt(param), gender: parseInt(param2), softDelete: 0, name: param3 }
+    return { groups: parseInt(param), gender: parseInt(param2), name: param3, softDelete: param4 }
   } else if (param !== '' && param2 == '') {
-    return { groups: parseInt(param), softDelete: 0, name: param3 }
+    return { groups: parseInt(param), name: param3, softDelete: param4 }
   } else if (param == '' && param2 !== '') {
-    return { gender: parseInt(param2), softDelete: 0, name: param3 }
+    return { gender: parseInt(param2), name: param3, softDelete: param4 }
   } else {
-    return { softDelete: 0, name: param3 }
+    return { name: param3, softDelete: param4 }
   }
 }
 
@@ -36,6 +36,7 @@ router.get('/list', async function (req, res, next) {
   try {
     let group = req.query.group;
     let gender = req.query.gender;
+    let softDelete = 0;
     (group == undefined) ? group = '' : group = group;
     (gender == undefined) ? gender = '' : gender = gender;
 
@@ -49,11 +50,11 @@ router.get('/list', async function (req, res, next) {
     }
 
     const taskOne = await customerModel
-      .find(handleFilterSearch(group, gender, keyword))
+      .find(handleFilterSearch(group, gender, keyword, softDelete))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
-    const taskTwo = await customerModel.countDocuments(handleFilterSearch(group, gender, keyword));
+    const taskTwo = await customerModel.countDocuments(handleFilterSearch(group, gender, keyword, softDelete));
 
     Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
       return res.status(200).json({
@@ -72,32 +73,36 @@ router.get('/list', async function (req, res, next) {
 });
 
 
-// // TODO: METHOD - GET
-// // -u http://localhost:1509/todo/detail/:id
-// // ? Example : http://localhost:1509/customer/detail/60768192e24a5e3718985ec5
-// router.get('/detail/:id', async function (req, res, next) {
-//   try {
-//     const _id = req.params.id;
-//     await userModel
-//       .find({ _id: _id })
-//       .then(data => {
-//         return res.status(200).json({
-//           success: true,
-//           data: data
-//         });
-//       })
-//   } catch (err) {
-//     return res.status(500).json({
-//       success: false,
-//       error: 'Server Error'
-//     });
-//   };
-// });
+// * GET Details users listing. 
+// TODO: METHOD - GET
+// -u http://localhost:1509/mail/task/detail/:id
+// ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
+router.get('/detail/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    await customerModel
+      .findOne({ _id: _id })
+      .then(data => {
+        return res.status(200).json({
+          success: true,
+          data: data
+        });
+      })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
 
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/customer/create
-router.patch('/create', async function (req, res, next) {
+router.post('/create', async function (req, res, next) {
   try {
     const entry = await customerModel.create({
       avatar: req.body?.avatar,
@@ -105,13 +110,19 @@ router.patch('/create', async function (req, res, next) {
       address: req.body?.address,
       email: req.body?.email,
       gender: req.body?.gender,
-      birthDate: req.body?.birthDate,
+      birthDay: req.body?.birthDay,
       telephone: req.body?.telephone,
       note: req.body?.note,
       // lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
       groups: req.body?.groups,
-      created: Date.now(),
-      modified: Date.now(),
+      created: {
+        createBy: "Admin",
+        time: Date.now()
+      },
+      modified: {
+        createBy: "Admin",
+        time: Date.now()
+      },
       softDelete: 0
     })
     return res.status(200).json({
@@ -140,12 +151,15 @@ router.put('/update/:id', async function (req, res, next) {
         address: req.body?.address,
         email: req.body?.email,
         gender: req.body?.gender,
-        birthDate: req.body?.birthDate,
+        birthDay: req.body?.birthDay,
         telephone: req.body?.telephone,
         note: req.body?.note,
         // lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
         groups: req.body?.groups,
-        modified: Date.now(),
+        modified: {
+          createBy: "Admin",
+          time: Date.now()
+        },
       })
     return res.status(200).json({
       success: true,
@@ -161,12 +175,12 @@ router.put('/update/:id', async function (req, res, next) {
 
 
 /* DELETE todo listing deleteSoft Customer */
-// TODO: METHOD - DELETE
+// TODO: METHOD - DELETE SOFT
 // -u http://localhost:1509/customer/delete-soft/:id
-router.delete('/delete-soft/:id', async function (req, res, next) {
+router.patch('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const entry = await customerModel.updateOne({ _id: _id }, { softDelete: 1 });
+    const entry = await customerModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
     return res.status(200).json({
       success: true,
       data: entry
@@ -182,10 +196,10 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/todo/task/delete/:id
-router.delete('/task/delete/:id', async function (req, res, next) {
+router.delete('/delete/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const entry = await customerModel.findByIdAndDelete({ _id: _id });
+    const entry = await customerModel.findOneAndDelete({ _id: _id });
     return res.status(200).json({
       success: true,
       data: entry
@@ -197,6 +211,73 @@ router.delete('/task/delete/:id', async function (req, res, next) {
     });
   };
 });
+
+
+
+router.get('/list/trash', async function (req, res, next) {
+  try {
+    let group = req.query.group;
+    let gender = req.query.gender;
+    let softDelete = 1;
+    (group == undefined) ? group = '' : group = group;
+    (gender == undefined) ? gender = '' : gender = gender;
+
+    let q = req.query.q;
+
+    let keyword = new RegExp(q, 'i');  // 'i' makes it case insensitive
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.perPage)
+    }
+
+    const taskOne = await customerModel
+      .find(handleFilterSearch(group, gender, keyword, softDelete))
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+    const taskTwo = await customerModel.countDocuments(handleFilterSearch(group, gender, keyword, softDelete));
+
+    Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
+      return res.status(200).json({
+        success: true,
+        totalRecords: dataTwo,
+        data: dataOne,
+      });
+    })
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/customer/trash/restore/:id
+
+router.patch('/trash/restore/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+
+    const entry = await customerModel.findOneAndUpdate({ _id: _id }, {
+      softDelete: 0,
+    });
+    return res.status(200).json({
+      success: true,
+      data: entry
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
 
 
 //! CODE API FOR PERMISSION EMPLOYEE
