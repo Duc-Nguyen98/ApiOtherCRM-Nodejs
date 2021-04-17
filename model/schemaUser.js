@@ -22,6 +22,10 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    active: {
+        type: Number,
+        default: 0
+    },
     email: {
         type: String,
         default: ''
