@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const mailModel = require('../model/schemaEMail');
-const ObjectId = require('mongodb').ObjectId;
 
 
 
@@ -232,7 +231,7 @@ router.patch('/task/update/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     const item = await mailModel.findOne({ _id: _id });
-    let labels = item.labels??[];
+    let labels = item.labels ?? [];
     if (labels.includes(req.body?.label)) {
       labels = item.labels.filter(lab => lab != req.body?.label);
     } else {
