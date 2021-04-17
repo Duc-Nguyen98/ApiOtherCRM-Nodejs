@@ -85,6 +85,7 @@ router.post('/create', async function (req, res, next) {
       gender: req.body?.gender,
       birthDate: req.body?.birthDate,
       role: req.body?.role,
+      active: req.body?.active,
       telephone: req.body?.telephone,
       attachments: req.body?.attachments,
       email: req.body?.email,
@@ -152,6 +153,7 @@ router.put('/update/:id', async function (req, res, next) {
       gender: req.body?.gender,
       birthDate: req.body?.birthDate,
       role: req.body?.role,
+      active: req.body?.active,
       telephone: req.body?.telephone,
       attachments: req.body?.attachments,
       email: req.body?.email,
@@ -174,6 +176,32 @@ router.put('/update/:id', async function (req, res, next) {
   };
 });
 
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/active/:id
+
+router.patch('/active/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+
+    const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
+      active: req.body?.active,
+      modified: {
+        createBy: "Admin",
+        time: Date.now()
+      }
+    });
+    return res.status(200).json({
+      success: true,
+      data: entry
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
