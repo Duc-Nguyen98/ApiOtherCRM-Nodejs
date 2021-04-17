@@ -179,24 +179,24 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
   };
 });
 
-// /* DELETE todo listing deleteSoft Record */
-// // TODO: METHOD - DELETE
-// // -u http://localhost:1509/todo/task/delete/:id
-// router.delete('/task/delete/:id', async function (req, res, next) {
-//   try {
-//     const _id = req.params.id;
-//     const entry = await todoModel.findByIdAndDelete({ _id: _id });
-//     return res.status(200).json({
-//       success: true,
-//       data: entry
-//     });
-//   } catch (err) {
-//     return res.status(500).json({
-//       success: false,
-//       error: 'Server Error'
-//     });
-//   };
-// });
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - DELETE
+// -u http://localhost:1509/todo/task/delete/:id
+router.delete('/task/delete/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    const entry = await customerModel.findByIdAndDelete({ _id: _id });
+    return res.status(200).json({
+      success: true,
+      data: entry
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 
 //! CODE API FOR PERMISSION EMPLOYEE
