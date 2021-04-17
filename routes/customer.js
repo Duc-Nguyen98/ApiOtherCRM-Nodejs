@@ -16,8 +16,6 @@ handleFilterSearch = (param, param2, param3) => {
 }
 
 
-
-
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 /* GET home Todo listing. */
 // TODO: METHOD - GET
