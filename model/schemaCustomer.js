@@ -22,7 +22,7 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    birthDate: {
+    birthDay: {
         type: Date,
         default: ''
     },
@@ -35,11 +35,6 @@ const schema = new mongoose.Schema({
         default: ''
     },
 
-    servicesId: {
-        type: mongoose.Types.ObjectId,
-        ref: 'services',
-        default: null,
-    },
     created: {
         type: Object,
         CreateBy: {
