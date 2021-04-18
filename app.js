@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 var logger = require('morgan');
 const mongoose = require('mongoose');
 
+
 var indexRouter = require('./routes/index');
 var todoRouter = require('./routes/todo');
 var emailRouter = require('./routes/email');
@@ -18,14 +19,16 @@ var cors = require('cors')
 
 app.use(cors())
 
+
 // !setup connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || `mongodb+srv://admin:admin@cluster0.ilkgc.mongodb.net/crm_demo?retryWrites=true&w=majority`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
+
 // !setup body-parser 
-//cài đặt bodyparser
+
 var bodyParserJSON = bodyParser.json();
 var bodyParserURLEncoded = bodyParser.urlencoded({ extended: true });
 // configure app.use()
