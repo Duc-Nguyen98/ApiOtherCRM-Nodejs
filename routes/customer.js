@@ -175,7 +175,7 @@ router.put('/update/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Customer */
 // TODO: METHOD - DELETE SOFT
 // -u http://localhost:1509/customer/delete-soft/:id
-router.patch('/delete-soft/:id', async function (req, res, next) {
+router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await customerModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });

@@ -104,7 +104,6 @@ router.post('/create', async function (req, res, next) {
       birthDay: req.body?.birthDay,
       role: req.body?.role,
       telephone: req.body?.telephone,
-      attachments: req.body?.attachments,
       email: req.body?.email,
       account: req.body?.account,
       password: req.body?.password,
@@ -172,9 +171,8 @@ router.put('/update/:id', async function (req, res, next) {
       role: req.body?.role,
       active: req.body?.active,
       telephone: req.body?.telephone,
-      attachments: req.body?.attachments,
       email: req.body?.email,
-      password: req.body?.password,
+      password: "123456",
       modified: {
         createBy: "Admin",
         time: Date.now()
@@ -273,7 +271,7 @@ router.post('/upload/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/user/delete-soft/:id
-router.patch('/delete-soft/:id', async function (req, res, next) {
+router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await userModel.updateOne({ _id: _id }, { softDelete: 1 });
