@@ -112,7 +112,6 @@ router.post('/create', async function (req, res, next) {
       birthDay: req.body?.birthDay,
       telephone: req.body?.telephone,
       note: req.body?.note,
-      // lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
       groups: req.body?.groups,
       created: {
         createBy: "Admin",
