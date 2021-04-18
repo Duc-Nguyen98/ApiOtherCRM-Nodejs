@@ -105,7 +105,6 @@ router.get('/detail/:id', async function (req, res, next) {
 router.post('/create', async function (req, res, next) {
   try {
     const entry = await customerModel.create({
-      avatar: req.body?.avatar,
       name: req.body?.name,
       address: req.body?.address,
       email: req.body?.email,
