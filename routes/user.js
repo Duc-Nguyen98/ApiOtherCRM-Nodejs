@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const userModel = require('../model/schemaUser');
+const multer = require('multer');
 
-let hasFilter = (param, param2, param3, param4, param5) => {
+
+
+
+const hasFilter = (param, param2, param3, param4, param5) => {
   if (param !== null && param2 !== null && param3 !== null) {
     return { gender: param, role: param2, active: param3, softDelete: param5 }
   } else if (param == null && param2 !== null && param3 !== null) {
@@ -147,7 +151,6 @@ router.put('/update/:id', async function (req, res, next) {
     const _id = req.params.id;
 
     const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
-      avatar: req.body?.avatar,
       name: req.body?.name,
       gender: req.body?.gender,
       birthDate: req.body?.birthDate,
@@ -168,6 +171,7 @@ router.put('/update/:id', async function (req, res, next) {
       data: entry
     });
   } catch (err) {
+    console.log(err)
     return res.status(500).json({
       success: false,
       error: 'Server Error'
@@ -194,6 +198,55 @@ router.patch('/active/:id', async function (req, res, next) {
       success: true,
       data: entry
     });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/upload/:id
+
+router.patch('/upload/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    const objectMedia = {};
+
+    const storage = multer.diskStorage({
+      destination: (req, file, callback) => {
+        callback(null, './public/upload/users');
+      },
+      filename: (req, file, callback) => {
+        callback(null, Date.now() + '-' + file.originalname);
+      }
+    });
+
+    const upload = multer({ storage: storage }).any('file');
+
+    upload(req, res, (err) => {
+      if (err) {
+        return res.status(400).send({
+          message: helper.getErrorMessage(err)
+        });
+      }
+
+      let results = req.files.map((file) => {
+        return res.status(200).json({
+          success: true,
+          data: {
+            mediaName: file.filename,
+            origMediaName: file.originalname,
+            mediaSource: `/upload/users/${file.filename}`
+          }
+        });
+      });
+
+    })
+
   } catch (err) {
     return res.status(500).json({
       success: false,
