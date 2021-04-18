@@ -258,7 +258,7 @@ router.patch('/upload/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/user/delete-soft/:id
-router.patch('/delete-soft/:id', async function (req, res, next) {
+router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await userModel.updateOne({ _id: _id }, { softDelete: 1 });
