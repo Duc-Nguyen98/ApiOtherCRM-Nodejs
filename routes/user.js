@@ -8,20 +8,35 @@ const multer = require('multer');
 
 const hasFilter = (param, param2, param3, param4, param5) => {
   if (param !== null && param2 !== null && param3 !== null) {
+
     return { gender: param, role: param2, active: param3, softDelete: param5 }
+
   } else if (param == null && param2 !== null && param3 !== null) {
+
     return { role: param2, active: param3, name: param4, softDelete: param5 }
+
   } else if (param2 == null && param !== null && param3 !== null) {
+
     return { gender: param, active: param3, name: param4, softDelete: param5 }
+
   } else if (param3 == null && param !== null && param2 !== null) {
+
     return { gender: param, role: param2, name: param4, softDelete: param5 }
+
   } else if (param == null && param2 == null && param3 !== null) {
+
     return { active: param3, name: param4, softDelete: param5 }
+
   } else if (param == null && param3 == null && param2 !== null) {
-    return { role: param2, name: param4 }
+
+    return { role: param2, name: param4, softDelete: param5 }
+
   } else if (param2 == null && param3 == null && param !== null) {
+
     return { gender: param, name: param4, softDelete: param5 }
+
   } else {
+
     return { name: param4, softDelete: param5 }
   }
 }
@@ -211,7 +226,7 @@ router.patch('/active/:id', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/upload/:id
 
-router.patch('/upload/:id', async function (req, res, next) {
+router.post('/upload/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
     const objectMedia = {};
