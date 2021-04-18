@@ -101,7 +101,7 @@ router.post('/create', async function (req, res, next) {
     const entry = await userModel.create({
       name: req.body?.name,
       gender: req.body?.gender,
-      birthDate: req.body?.birthDate,
+      birthDay: req.body?.birthDay,
       role: req.body?.role,
       telephone: req.body?.telephone,
       attachments: req.body?.attachments,
@@ -168,7 +168,7 @@ router.put('/update/:id', async function (req, res, next) {
     const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
       name: req.body?.name,
       gender: req.body?.gender,
-      birthDate: req.body?.birthDate,
+      birthDay: req.body?.birthDay,
       role: req.body?.role,
       active: req.body?.active,
       telephone: req.body?.telephone,
