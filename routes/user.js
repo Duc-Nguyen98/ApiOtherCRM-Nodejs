@@ -80,7 +80,6 @@ router.get('/list', async function (req, res, next) {
 router.post('/create', async function (req, res, next) {
   try {
     const entry = await userModel.create({
-      avatar: req.body?.avatar,
       name: req.body?.name,
       gender: req.body?.gender,
       birthDate: req.body?.birthDate,
