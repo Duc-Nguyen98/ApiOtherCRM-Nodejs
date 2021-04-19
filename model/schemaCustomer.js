@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 const schema = new mongoose.Schema({
-
+    idCustomer: {
+        type: Number,
+        default: ''
+    },
     avatar: {
         type: String,
         default: ''

@@ -26,8 +26,8 @@ const schema = new mongoose.Schema({
         default: ''
     },
     role: {
-        type: Number,
-        default: 0
+        type: String,
+        default: ''
     },
     active: {
         type: Number,

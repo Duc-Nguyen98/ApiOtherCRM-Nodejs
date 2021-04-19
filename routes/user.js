@@ -65,6 +65,7 @@ router.get('/list', async function (req, res, next) {
     (gender == undefined || gender == '') ? gender = null : gender = gender;
     (role == undefined || role == '') ? role = null : role = role;
     (active == undefined || active == '') ? active = null : active = active;
+    console.log(gender, role, active, q)
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
@@ -261,7 +262,7 @@ router.post('/upload/:id', async function (req, res, next) {
         var filePath = user.avatar;
 
         if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
+          fs.unlinkSync(filePath);
         }
         const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
           avatar: `upload/users/${file.filename}`,

@@ -17,16 +17,18 @@ handleFilterSearch = (param, param2, param3, param4) => {
 
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
-/* GET home Todo listing. */
-// TODO: METHOD - GET
-// -u http://localhost:1509/todo/
-router.get('/', async function (req, res, next) {
-  res.send({
-    status: 200,
-    message: 'Success API ToDo'
-  })
-});
 
+// TODO: MIDDLEWARE
+idCustomerAuto = async (req, res, next) => {
+  await customerModel.findOne({}, { idCustomer: 1, _id: 0 }).sort({ idCustomer: -1 })
+    .then(data => {
+      AutoId = data.idCustomer + 1;
+      next();
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
 /* GET todo listing view MyTask */
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
@@ -102,9 +104,10 @@ router.get('/detail/:id', async function (req, res, next) {
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/customer/create
-router.post('/create', async function (req, res, next) {
+router.post('/create', idCustomerAuto, async function (req, res, next) {
   try {
     const entry = await customerModel.create({
+      idCustomer: AutoId,
       name: req.body?.name,
       address: req.body?.address,
       email: req.body?.email,
