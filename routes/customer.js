@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const customerModel = require('../model/schemaCustomer');
+const multer = require('multer');
+const fs = require('fs');
 
 
 handleFilterSearch = (param, param2, param3, param4) => {
@@ -147,7 +149,6 @@ router.put('/update/:id', async function (req, res, next) {
     const _id = req.params.id;
     const entry = await customerModel
       .findByIdAndUpdate({ _id: _id }, {
-        avatar: req.body?.avatar,
         name: req.body?.name,
         address: req.body?.address,
         email: req.body?.email,
@@ -166,6 +167,67 @@ router.put('/update/:id', async function (req, res, next) {
       success: true,
       data: entry
     });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
+/* PUT upload Avatar for Customer. */
+// TODO: METHOD - PUT
+// -u http://localhost:1509/customer/upload/:id
+
+router.post('/upload/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+
+    const storage = multer.diskStorage({
+      destination: (req, file, callback) => {
+        callback(null, './public/upload/customers');
+      },
+      filename: (req, file, callback) => {
+        callback(null, Date.now() + '-' + file.originalname);
+      }
+    });
+
+    const upload = multer({ storage: storage }).any('file');
+
+    upload(req, res, (err) => {
+      if (err) {
+        return res.status(400).send({
+          message: err
+        });
+      }
+
+
+
+      let results = req.files.map(async (file) => {
+        const user = await customerModel.findOne({ _id: _id });
+        var filePath = user.avatar;
+
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+        const entry = await customerModel.findByIdAndUpdate({ _id: _id }, {
+          avatar: `upload/customers/${file.filename}`,
+          modified: {
+            createBy: "Admin",
+            time: Date.now()
+          }
+        });
+
+        return res.status(200).json({
+          success: true,
+          data: `upload/customers/${file.filename}`
+        });
+      });
+
+    })
+
   } catch (err) {
     return res.status(500).json({
       success: false,
