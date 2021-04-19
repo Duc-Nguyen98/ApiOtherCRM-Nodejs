@@ -99,6 +99,7 @@ router.get('/list', async function (req, res, next) {
 router.post('/create', async function (req, res, next) {
   try {
     const entry = await userModel.create({
+      idUser: req.body?.idUser,
       name: req.body?.name,
       gender: req.body?.gender,
       birthDay: req.body?.birthDay,
