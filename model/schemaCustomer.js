@@ -23,7 +23,7 @@ const schema = new mongoose.Schema({
         default: 0
     },
     birthDay: {
-        type: Date,
+        type: String,
         default: ''
     },
     telephone: {
