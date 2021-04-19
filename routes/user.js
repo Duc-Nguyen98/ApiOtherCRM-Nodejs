@@ -41,14 +41,20 @@ const hasFilter = (param, param2, param3, param4, param5) => {
   }
 }
 
-//! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
-/* GET home Todo listing. */
 
-/* GET todo listing view MyTask */
-http://localhost:1509/mail/task/?folder=inbox
-// TODO: METHOD - GET
-// -u http://localhost:1509/user?query(paginaiton=)&query(q=)
-// ? Example : http://localhost:1509/user/list?gender=0&role=1&page=1&perPage=10
+//! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
+
+idUserAuto = async (req, res, next) => {
+  await userModel.findOne({}, { idUser: 1, _id: 0 }).sort({ idUser: -1 })
+    .then(data => {
+      AutoId = data.idUser + 1;
+      next();
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
 
 router.get('/list', async function (req, res, next) {
   try {
@@ -96,10 +102,11 @@ router.get('/list', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/user/create
 // ? Example: http://localhost:1509/user/create
-router.post('/create', async function (req, res, next) {
+router.post('/create', idUserAuto, async function (req, res, next) {
   try {
+
     const entry = await userModel.create({
-      idUser: req.body?.idUser,
+      idUser: AutoId,
       name: req.body?.name,
       gender: req.body?.gender,
       birthDay: req.body?.birthDay,
