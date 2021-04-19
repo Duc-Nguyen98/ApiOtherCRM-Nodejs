@@ -14,8 +14,12 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    birthDate: {
+    birthDay: {
         type: Date,
+        default: ''
+    },
+    telephone: {
+        type: String,
         default: ''
     },
     role: {
