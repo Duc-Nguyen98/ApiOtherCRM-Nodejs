@@ -2,8 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../model/schemaUser');
 const multer = require('multer');
-
-
+const fs = require('fs');
 
 
 const hasFilter = (param, param2, param3, param4, param5) => {
@@ -243,18 +242,30 @@ router.post('/upload/:id', async function (req, res, next) {
     upload(req, res, (err) => {
       if (err) {
         return res.status(400).send({
-          message: helper.getErrorMessage(err)
+          message: err
         });
       }
 
-      let results = req.files.map((file) => {
+
+
+      let results = req.files.map(async (file) => {
+        const user = await userModel.findOne({ _id: _id });
+        var filePath = user.avatar;
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+        const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
+          avatar: `upload/users/${file.filename}`,
+          modified: {
+            createBy: "Admin",
+            time: Date.now()
+          }
+        });
+
         return res.status(200).json({
           success: true,
-          data: {
-            mediaName: file.filename,
-            origMediaName: file.originalname,
-            mediaSource: `/upload/users/${file.filename}`
-          }
+          data: `upload/users/${file.filename}`
         });
       });
 
