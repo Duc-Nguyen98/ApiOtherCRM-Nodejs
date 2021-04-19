@@ -294,7 +294,7 @@ router.post('/upload/:id', async function (req, res, next) {
 router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const entry = await userModel.updateOne({ _id: _id }, { softDelete: 1 });
+    const entry = await userModel.updateOne({ _id: _id }, { softDelete: 1, active: 1 });
     return res.status(200).json({
       success: true,
       data: entry
@@ -380,6 +380,7 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 
     const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
       softDelete: 0,
+      active: 0
     });
     return res.status(200).json({
       success: true,
