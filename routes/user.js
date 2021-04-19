@@ -235,7 +235,6 @@ router.patch('/active/:id', async function (req, res, next) {
 router.post('/upload/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const objectMedia = {};
 
     const storage = multer.diskStorage({
       destination: (req, file, callback) => {
