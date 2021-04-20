@@ -13,6 +13,9 @@ var emailRouter = require('./routes/email');
 var customerRouter = require('./routes/customer');
 var userRouter = require('./routes/user');
 
+//? Services cms 
+var smsRouter = require('./routes/services/sms');
+
 var app = express();
 
 var cors = require('cors')
@@ -52,6 +55,8 @@ app.use('/todo', todoRouter);
 app.use('/mail', emailRouter);
 app.use('/customer', customerRouter);
 app.use('/user', userRouter);
+app.use('/services/sms', smsRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
