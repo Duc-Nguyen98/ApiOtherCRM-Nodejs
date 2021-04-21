@@ -13,10 +13,6 @@ const schema = new mongoose.Schema({
         type: Number,
         default: ''
     },
-    category: {
-        type: Number,
-        default: ''
-    },
     name: {
         type: String,
         default: ''
