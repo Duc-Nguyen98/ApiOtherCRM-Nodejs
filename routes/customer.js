@@ -208,9 +208,13 @@ router.post('/upload/:id', async function (req, res, next) {
       let results = req.files.map(async (file) => {
         const user = await customerModel.findOne({ _id: _id });
         var filePath = user.avatar;
-        if (fs.existsSync('./public/' + filePath)) {
-          fs.unlinkSync('./public/' + filePath);
+
+        if (filePath) {
+          if (fs.existsSync('./public/'+filePath)) {
+            fs.unlinkSync('./public/'+filePath);
+          }
         }
+
         const entry = await customerModel.findByIdAndUpdate({ _id: _id }, {
           avatar: `upload/customers/${file.filename}`,
           modified: {
