@@ -31,22 +31,22 @@ idSMSAuto = async (req, res, next) => {
     })
 }
 
-
 sendSms = (telephoneCustomer, content) => {
+  telephoneCustomer = telephoneCustomer.replace(/0/i, '+84')
+
   const client = require('twilio')(
     "AC80ed1b888d269dc287173c2202ec9ace",
     "2a94e9d362710c2a2aa3a51654ff22d8"
   );
-
   client.messages.create({
     from: "+15708730303",
     to: telephoneCustomer,
     body: content
     // to: "+84393177289",
-
     // body: "You just sent an SMS from Node.js using Twilio!"
+  }).then(data => {
+    return data;
   })
-  return "Send SMS Success !";
 }
 
 // /* GET Details users listing. */
@@ -121,24 +121,23 @@ router.get('/list', async function (req, res, next) {
 // // ? Example: http://localhost:1509/user/create
 router.post('/create', idSMSAuto, async function (req, res, next) {
   try {
-
-    // const entry = await cmsModel.create({
-    //   idSMSAuto: AutoId,
-    //   title: req.body?.title,
-    //   type: req.body?.type,
-    //   name: req.body?.name,
-    //   status: req.body?.status,
-    //   telephone: req.body?.telephone,
-    //   content: req.body?.content,
-    //   details: req.body?.details,
-    //   softDelete: 0,
-    // }).then(data => {
-
-    // })
-
-    sendSms("+84393177289", "Test ngay lúc này")
-
-
+    console.log(AutoId)
+    const entry = await cmsModel.create({
+      idServices: AutoId,
+      title: req.body?.title,
+      type: req.body?.type,
+      name: req.body?.name,
+      status: req.body?.status,
+      telephone: req.body?.telephone,
+      content: req.body?.content,
+      details: req.body?.details,
+      softDelete: 0,
+    })
+    return res.status(200).json({
+      success: true,
+      data: entry,
+      detailSms: sendSms(entry.telephone, entry.content)
+    });
 
   } catch (err) {
     console.log(err)
