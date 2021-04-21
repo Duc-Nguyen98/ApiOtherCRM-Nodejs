@@ -149,6 +149,7 @@ router.put('/update/:id', async function (req, res, next) {
     const _id = req.params.id;
     const entry = await customerModel
       .findByIdAndUpdate({ _id: _id }, {
+        avatar: req.body?.avatar,
         name: req.body?.name,
         address: req.body?.address,
         email: req.body?.email,
@@ -156,7 +157,6 @@ router.put('/update/:id', async function (req, res, next) {
         birthDay: req.body?.birthDay,
         telephone: req.body?.telephone,
         note: req.body?.note,
-        // lastTrading: req.body?.lastTrading, // lấy ngày hiện tại của giao dịch mới nhất
         groups: req.body?.groups,
         modified: {
           createBy: "Admin",
@@ -208,8 +208,8 @@ router.post('/upload/:id', async function (req, res, next) {
       let results = req.files.map(async (file) => {
         const user = await customerModel.findOne({ _id: _id });
         var filePath = user.avatar;
-        if (fs.existsSync('./public/'+filePath)) {
-          fs.unlinkSync('./public/'+filePath);
+        if (fs.existsSync('./public/' + filePath)) {
+          fs.unlinkSync('./public/' + filePath);
         }
         const entry = await customerModel.findByIdAndUpdate({ _id: _id }, {
           avatar: `upload/customers/${file.filename}`,
