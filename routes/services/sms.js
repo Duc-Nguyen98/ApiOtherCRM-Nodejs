@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const cmsModel = require('../../model/services/schemaSms');
+const customerModel = require('../../model/schemaCustomer');
+
 
 
 const hasFilter = (param, param2, param3, param4) => {
@@ -33,7 +35,27 @@ idSMSAuto = async (req, res, next) => {
 // /* GET Details users listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/services/sms
-// ? Example: http://localhost:1509/services/sms/list?type=0&status=0&q=
+// ? Example: http://localhost:1509/services/sms/list/customer
+
+
+
+
+router.get('/list/customer', async function (req, res, next) {
+  try {
+    const customers = await customerModel.find({ softDelete: 0 });
+    return res.status(200).json({
+      success: true,
+      customers: customers,
+    });
+
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 router.get('/list', async function (req, res, next) {
   try {
@@ -87,7 +109,6 @@ router.get('/list', async function (req, res, next) {
 //       idSMSAuto: AutoId,
 //       title: req.body?.title,
 //       type: req.body?.type,
-//       category: req.body?.category,
 //       name: req.body?.name,
 //       status: req.body?.status,
 //       telephone: req.body?.telephone,
