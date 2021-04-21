@@ -254,8 +254,6 @@ router.post('/upload/:id', async function (req, res, next) {
         });
       }
 
-
-
       let results = req.files.map(async (file) => {
         const user = await userModel.findOne({ _id: _id });
         var filePath = user.avatar;
