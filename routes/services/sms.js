@@ -121,7 +121,6 @@ router.get('/list', async function (req, res, next) {
 // // ? Example: http://localhost:1509/user/create
 router.post('/create', idSMSAuto, async function (req, res, next) {
   try {
-    console.log(AutoId)
     const entry = await cmsModel.create({
       idServices: AutoId,
       title: req.body?.title,
@@ -140,7 +139,6 @@ router.post('/create', idSMSAuto, async function (req, res, next) {
     });
 
   } catch (err) {
-    console.log(err)
     return res.status(500).json({
       success: false,
       error: 'Server Error'

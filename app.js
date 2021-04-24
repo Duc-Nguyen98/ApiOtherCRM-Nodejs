@@ -15,6 +15,8 @@ var userRouter = require('./routes/user');
 
 //? Services cms 
 var smsRouter = require('./routes/services/sms');
+//? Management Voucher
+var groupVoucherRouter = require('./routes/vouchers/groupVouchers');
 
 var app = express();
 
@@ -56,6 +58,7 @@ app.use('/mail', emailRouter);
 app.use('/customer', customerRouter);
 app.use('/user', userRouter);
 app.use('/services/sms', smsRouter);
+app.use('/voucher/group', groupVoucherRouter);
 
 
 // catch 404 and forward to error handler
