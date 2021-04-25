@@ -58,11 +58,22 @@ router.get('/list', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const groupVouchers = await groupVoucherModel.find(hasFilterGroupVoucher(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
-    return res.status(200).json({
-      success: true,
-      groupVouchers: groupVouchers,
-    });
+    const groupVouchers = await groupVoucherModel
+      .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
+      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 })
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+    const countGroupVoucher = await groupVoucherModel.countDocuments(hasFilterGroupVoucher(classified, status, regex, softDelete));
+
+    Promise.all([groupVouchers, countGroupVoucher]).then(([groupVouchers, countGroupVoucher]) => {
+      return res.status(200).json({
+        success: true,
+        groupVouchers: groupVouchers,
+        countGroupVoucher: countGroupVoucher
+      });
+    })
+
 
   } catch (err) {
     console.log(err)
@@ -95,11 +106,22 @@ router.get('/trash', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const groupVouchers = await groupVoucherModel.find(hasFilterGroupVoucher(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
-    return res.status(200).json({
-      success: true,
-      groupVouchers: groupVouchers,
-    });
+    const groupVouchers = await groupVoucherModel
+      .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
+      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 })
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+    const countGroupVoucher = await groupVoucherModel.countDocuments(hasFilterGroupVoucher(classified, status, regex, softDelete));
+
+    Promise.all([groupVouchers, countGroupVoucher]).then(([groupVouchers, countGroupVoucher]) => {
+      return res.status(200).json({
+        success: true,
+        groupVouchers: groupVouchers,
+        countGroupVoucher: countGroupVoucher
+      });
+    })
+
 
   } catch (err) {
     console.log(err)
