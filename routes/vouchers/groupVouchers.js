@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucher');
-// const groupVoucherModel = require('../../model/');
+const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 
 
 
-const hasFilter = (param, param2, param3, param4) => {
+const hasFilterGroupVoucher = (param, param2, param3, param4) => {
   if (param !== null && param2 !== null) {
     return { classified: param, status: param2, title: param3, softDelete: param4 }
   } else if (param == null && param2 !== null) {
@@ -15,6 +15,10 @@ const hasFilter = (param, param2, param3, param4) => {
   } else {
     return { title: param3, softDelete: param4 }
   }
+}
+
+const hasFilterVoucherItems = (param, param2, param3) => {
+  return { voucherCode: param, softDelete: param2, idGroupVoucher: param3 }
 }
 
 
@@ -54,10 +58,10 @@ router.get('/list', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const vouchers = await groupVoucherModel.find(hasFilter(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
+    const groupVouchers = await groupVoucherModel.find(hasFilterGroupVoucher(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
     return res.status(200).json({
       success: true,
-      vouchers: vouchers,
+      groupVouchers: groupVouchers,
     });
 
   } catch (err) {
@@ -68,6 +72,8 @@ router.get('/list', async function (req, res, next) {
     });
   };
 });
+
+
 
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/trash
@@ -89,10 +95,10 @@ router.get('/trash', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const vouchers = await groupVoucherModel.find(hasFilter(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
+    const groupVouchers = await groupVoucherModel.find(hasFilterGroupVoucher(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
     return res.status(200).json({
       success: true,
-      vouchers: vouchers,
+      groupVouchers: groupVouchers,
     });
 
   } catch (err) {
@@ -228,6 +234,112 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
   };
 });
 
+
+
+//! VOUCHER ITEMS
+
+// /* GET List Group Voucher listing. */
+// TODO: METHOD - GET
+// -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
+// ? Example: http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
+
+router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next) {
+  try {
+    let idGroupVoucher = req.params.idGroupVoucher;
+    let status = req.query.status;
+    let softDelete = 0;
+    let q = req.query.q;
+
+    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+
+    (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
+    (status == undefined || status == '') ? status = null : status = status;
+
+
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.perPage)
+    }
+
+
+    const groupVoucherItems = await groupVoucherItemsModel
+      .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
+      .select({ "_id": 0 })
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+
+    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(hasFilterVoucherItems(regex, softDelete, idGroupVoucher));
+
+    Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
+      return res.status(200).json({
+        success: true,
+        groupVoucherItems: groupVoucherItems,
+        countGroupVoucherItems: countGroupVoucherItems,
+      });
+    })
+
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+// /* GET List Group Voucher listing. */
+// TODO: METHOD - GET
+// -u http://localhost:1509/voucher/group/trash/voucher/item/:idGroupVoucher
+// ? Example: http://localhost:1509/voucher/group/trash/voucher/item/:idGroupVoucher
+
+router.get('/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
+  try {
+    let idGroupVoucher = req.params.idGroupVoucher;
+    let status = req.query.status;
+    let softDelete = 1;
+    let q = req.query.q;
+
+    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+
+    (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
+    (status == undefined || status == '') ? status = null : status = status;
+
+
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.perPage)
+    }
+
+
+    const groupVoucherItems = await groupVoucherItemsModel
+      .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
+      .select({ "_id": 0 })
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+
+    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(hasFilterVoucherItems(regex, softDelete, idGroupVoucher));
+
+    Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
+      return res.status(200).json({
+        success: true,
+        groupVoucherItems: groupVoucherItems,
+        countGroupVoucherItems: countGroupVoucherItems,
+      });
+    })
+
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 
 
