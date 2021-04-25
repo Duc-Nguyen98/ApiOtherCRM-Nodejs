@@ -60,7 +60,7 @@ router.get('/list', async function (req, res, next) {
     }
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
-      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 })
+      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0})
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -108,7 +108,7 @@ router.get('/trash', async function (req, res, next) {
     }
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
-      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 })
+      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
