@@ -290,7 +290,7 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
 });
 
 
-// /* GET List Group Voucher listing. */
+// /* GET List Group Voucher Items Follow IdGroup listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/trash/voucher/item/:idGroupVoucher
 // ? Example: http://localhost:1509/voucher/group/trash/voucher/item/:idGroupVoucher
