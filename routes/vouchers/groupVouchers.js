@@ -54,10 +54,10 @@ router.get('/list', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const customers = await groupVoucherModel.find(hasFilter(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
+    const vouchers = await groupVoucherModel.find(hasFilter(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
     return res.status(200).json({
       success: true,
-      customers: customers,
+      vouchers: vouchers,
     });
 
   } catch (err) {
@@ -89,10 +89,10 @@ router.get('/trash', async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-    const customers = await groupVoucherModel.find(hasFilter(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
+    const vouchers = await groupVoucherModel.find(hasFilter(classified, status, regex, softDelete)).select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0, "_id": 0 });
     return res.status(200).json({
       success: true,
-      customers: customers,
+      vouchers: vouchers,
     });
 
   } catch (err) {
