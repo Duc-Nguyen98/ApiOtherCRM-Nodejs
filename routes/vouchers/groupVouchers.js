@@ -5,6 +5,7 @@ const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schema
 
 
 
+
 const hasFilterGroupVoucher = (param, param2, param3, param4) => {
   if (param !== null && param2 !== null) {
     return { classified: param, status: param2, title: param3, softDelete: param4 }
@@ -429,10 +430,17 @@ router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, ne
     const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(historyVoucherItems(regex, softDelete, idGroupVoucher, status));
 
 
-    Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
+    const typeClassifiedGroup = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher }).select({ classified: 1 });
+
+    // const nameCustomerUsed = await customerModel.findOne({ idUser: idGroupVoucher }).select({ classified: 1 });
+
+
+
+    Promise.all([groupVoucherItems, countGroupVoucherItems, typeClassifiedGroup]).then(([groupVoucherItems, countGroupVoucherItems, typeClassifiedGroup]) => {
       return res.status(200).json({
         success: true,
         groupVoucherItems: groupVoucherItems,
+        typeClassifiedGroup: typeClassifiedGroup,
         countGroupVoucherItems: countGroupVoucherItems,
       });
     })
@@ -445,56 +453,6 @@ router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, ne
     });
   };
 });
-
-// /* GET List Group Voucher listing. */
-// TODO: METHOD - GET
-// -u http://localhost:1509/voucher/group/trash/history/voucher/item/:idGroupVoucher
-// ? Example: http://localhost:1509/voucher/group/trash/history/voucher/item/:idGroupVoucher
-
-router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
-  try {
-    let idGroupVoucher = req.params.idGroupVoucher;
-    let status = req.query.status;
-    let softDelete = 1;
-    let q = req.query.q;
-
-    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
-
-    (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
-    (status == undefined || status == '') ? status = null : status = status;
-
-    //? Begin config Pagination
-    let pagination = {
-      currentPage: parseInt(req.query.page),
-      totalItemsPerPage: parseInt(req.query.perPage)
-    }
-
-    const groupVoucherItems = await groupVoucherItemsModel
-      .find(historyVoucherItems(regex, softDelete, idGroupVoucher, status))
-      .select({ "idGroupVoucher": 0, "nameGroupVoucher": 0, "softDelete": 0, "idVoucher": 0 })
-      .limit(pagination.totalItemsPerPage)
-      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-
-    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(historyVoucherItems(regex, softDelete, idGroupVoucher, status));
-
-    Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
-      return res.status(200).json({
-        success: true,
-        groupVoucherItems: groupVoucherItems,
-        countGroupVoucherItems: countGroupVoucherItems,
-      });
-    })
-
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
-
-
 
 //! CODE API FOR PERMISSION EMPLOYEE
 
