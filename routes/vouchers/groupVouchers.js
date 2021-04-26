@@ -205,7 +205,7 @@ router.put('/edit/:id', async function (req, res, next) {
       scopeApply: req.body?.scopeApply,
       modified: {
         modifyBy: "admin",
-        time: 1619103075
+        time: Date.Now()
       }
     });
     return res.status(200).json({
