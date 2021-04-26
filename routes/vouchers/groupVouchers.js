@@ -60,7 +60,7 @@ router.get('/list', async function (req, res, next) {
     }
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
-      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0})
+      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -173,7 +173,7 @@ router.get('/detail/:id', async function (req, res, next) {
     const _id = req.params.id;
     await groupVoucherModel
       .findOne({ _id: _id })
-      .select({ "_id": 0 })
+
       .then(data => {
         return res.status(200).json({
           success: true,
@@ -188,6 +188,37 @@ router.get('/detail/:id', async function (req, res, next) {
   };
 });
 
+/* EDIT todo listing deleteSoft Record */
+// TODO: METHOD - GET
+// -u http://localhost:1509/voucher/group/edit/:id
+// ? Example: http://localhost:1509/voucher/group/delete-soft/:
+
+router.put('/edit/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, {
+      classified: req.body?.classified,
+      status: req.body?.status,
+      note: req.body?.note,
+      discount: req.body?.discount,
+      timeLine: req.body?.timeLine,
+      scopeApply: req.body?.scopeApply,
+      modified: {
+        modifyBy: "admin",
+        time: 1619103075
+      }
+    });
+    return res.status(200).json({
+      success: true,
+      data: entry
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - GET
@@ -197,7 +228,7 @@ router.get('/detail/:id', async function (req, res, next) {
 router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 }).select({ "_id": 0 });
+    const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
     return res.status(200).json({
       success: true,
       data: entry
@@ -218,7 +249,7 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
 router.delete('/delete/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    const entry = await groupVoucherModel.findOneAndDelete({ _id: _id }).select({ "_id": 0 });
+    const entry = await groupVoucherModel.findOneAndDelete({ _id: _id });
     return res.status(200).json({
       success: true,
       data: entry
@@ -243,7 +274,7 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 
     const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, {
       softDelete: 0,
-    }).select({ "_id": 0 });
+    });
     return res.status(200).json({
       success: true,
       data: entry
@@ -287,7 +318,7 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
 
     const groupVoucherItems = await groupVoucherItemsModel
       .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
-      .select({ "_id": 0 })
+
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -339,7 +370,7 @@ router.get('/trash/voucher/item/:idGroupVoucher', async function (req, res, next
 
     const groupVoucherItems = await groupVoucherItemsModel
       .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
-      .select({ "_id": 0 })
+
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
