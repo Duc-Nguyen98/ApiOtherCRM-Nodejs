@@ -422,7 +422,7 @@ router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, ne
 
     const groupVoucherItems = await groupVoucherItemsModel
       .find(historyVoucherItems(regex, softDelete, idGroupVoucher, status))
-      .select({ "idGroupVoucher": 0, "nameGroupVoucher": 0, "softDelete": 0, "idVoucher": 0 })
+      .select({})
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
