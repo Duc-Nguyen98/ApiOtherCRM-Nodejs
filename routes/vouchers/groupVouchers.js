@@ -21,7 +21,9 @@ const hasFilterVoucherItems = (param, param2, param3) => {
   return { voucherCode: param, softDelete: param2, idGroupVoucher: param3 }
 }
 
-
+const historyVoucherItems = (param, param2, param3, param4) => {
+  return { voucherCode: param, softDelete: param2, idGroupVoucher: param3, status: param4 }
+}
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
 idAutoGroup = async (req, res, next) => {
@@ -291,12 +293,108 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 
 //! VOUCHER ITEMS
 
+// // /* GET List Group Voucher listing. */
+// // TODO: METHOD - GET
+// // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
+// // ? Example: http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
+
+router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next) {
+  try {
+    let idGroupVoucher = req.params.idGroupVoucher;
+    let softDelete = 0;
+    let q = req.query.q;
+
+    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+
+    (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
+
+
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.perPage)
+    }
+
+    const groupVoucherItems = await groupVoucherItemsModel
+      .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
+      .select({ "created": 1, "status": 1, "voucherCode": 1, "idVoucher": 1 })
+
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+
+
+    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(hasFilterVoucherItems(regex, softDelete, idGroupVoucher));
+
+    Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
+      console.log(groupVoucherItems, countGroupVoucherItems)
+      return res.status(200).json({
+        success: true,
+        groupVoucherItems: groupVoucherItems,
+        countGroupVoucherItems: countGroupVoucherItems,
+      });
+    })
+
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+router.get('/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
+  try {
+    let idGroupVoucher = req.params.idGroupVoucher;
+    let softDelete = 1;
+    let q = req.query.q;
+
+    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+
+    (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
+
+
+    //? Begin config Pagination
+    let pagination = {
+      currentPage: parseInt(req.query.page),
+      totalItemsPerPage: parseInt(req.query.perPage)
+    }
+
+    const groupVoucherItems = await groupVoucherItemsModel
+      .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
+      .select({ "created": 1, "status": 1, "voucherCode": 1, "idVoucher": 1 })
+
+      .limit(pagination.totalItemsPerPage)
+      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+
+
+    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(hasFilterVoucherItems(regex, softDelete, idGroupVoucher));
+
+    Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
+      console.log(groupVoucherItems, countGroupVoucherItems)
+      return res.status(200).json({
+        success: true,
+        groupVoucherItems: groupVoucherItems,
+        countGroupVoucherItems: countGroupVoucherItems,
+      });
+    })
+
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
 // /* GET List Group Voucher listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
-// ? Example: http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
+// ? Example: http://localhost:1509/voucher/group/history/voucher/item/:idGroupVoucher
 
-router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next) {
+router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let status = req.query.status;
@@ -315,15 +413,14 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
       totalItemsPerPage: parseInt(req.query.perPage)
     }
 
-
     const groupVoucherItems = await groupVoucherItemsModel
-      .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
-
+      .find(historyVoucherItems(regex, softDelete, idGroupVoucher, status))
+      .select({ "idGroupVoucher": 0, "nameGroupVoucher": 0, "softDelete": 0, "idVoucher": 0 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
+    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(historyVoucherItems(regex, softDelete, idGroupVoucher, status));
 
-    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(hasFilterVoucherItems(regex, softDelete, idGroupVoucher));
 
     Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
       return res.status(200).json({
@@ -342,13 +439,12 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
   };
 });
 
-
-// /* GET List Group Voucher Items Follow IdGroup listing. */
+// /* GET List Group Voucher listing. */
 // TODO: METHOD - GET
-// -u http://localhost:1509/voucher/group/trash/voucher/item/:idGroupVoucher
-// ? Example: http://localhost:1509/voucher/group/trash/voucher/item/:idGroupVoucher
+// -u http://localhost:1509/voucher/group/trash/history/voucher/item/:idGroupVoucher
+// ? Example: http://localhost:1509/voucher/group/trash/history/voucher/item/:idGroupVoucher
 
-router.get('/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
+router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let status = req.query.status;
@@ -360,22 +456,19 @@ router.get('/trash/voucher/item/:idGroupVoucher', async function (req, res, next
     (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
     (status == undefined || status == '') ? status = null : status = status;
 
-
     //? Begin config Pagination
     let pagination = {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
 
-
     const groupVoucherItems = await groupVoucherItemsModel
-      .find(hasFilterVoucherItems(regex, softDelete, idGroupVoucher))
-
+      .find(historyVoucherItems(regex, softDelete, idGroupVoucher, status))
+      .select({ "idGroupVoucher": 0, "nameGroupVoucher": 0, "softDelete": 0, "idVoucher": 0 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
-
-    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(hasFilterVoucherItems(regex, softDelete, idGroupVoucher));
+    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(historyVoucherItems(regex, softDelete, idGroupVoucher, status));
 
     Promise.all([groupVoucherItems, countGroupVoucherItems]).then(([groupVoucherItems, countGroupVoucherItems]) => {
       return res.status(200).json({
