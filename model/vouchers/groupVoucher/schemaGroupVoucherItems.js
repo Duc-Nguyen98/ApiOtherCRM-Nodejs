@@ -13,26 +13,17 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    nameGroupVoucher: {
-        type: String,
-        default: ''
-    },
+
     idCustomersUse: {
         type: Number,
         default: 0
     },
-    nameCustomerUser: {
-        type: String,
-        default: ''
-    },
+
     idLocationUse: {
         type: Number,
         default: 0
     },
-    nameLocationUse: {
-        type: String,
-        default: ''
-    },
+
     status: {
         type: Number,
         default: 0
@@ -49,9 +40,29 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    created: {
+        type: Object,
+        CreateBy: {
+            type: String,
+            default: ''
+        },
+        time: {
+            type: Date,
+            default: ''
+        },
+    },
+    modified: {
+        type: Object,
+        modifiedBy: {
+            type: String,
+            default: ''
+        },
+        time: {
+            type: Date,
+            default: ''
+        },
 
-
-
+    }
 });
 
 module.exports = mongoose.model('group_voucher_items', schema);
