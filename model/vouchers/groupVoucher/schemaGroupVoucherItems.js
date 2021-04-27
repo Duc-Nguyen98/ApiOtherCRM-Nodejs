@@ -29,8 +29,8 @@ const schema = new mongoose.Schema({
         default: 0
     },
     usedDate: {
-        type: Date,
-        default: 0
+        type: String,
+        default: ''
     },
     classified: {
         type: Number,
