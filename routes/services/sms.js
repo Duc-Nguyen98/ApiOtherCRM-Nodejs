@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const cmsModel = require('../../model/services/schemaSms');
-const customerModel = require('../../model/schemaCustomer');
+const customerModel = require('../../model/customer/customer/schemaCustomer');
 
 
 //! FIlter 

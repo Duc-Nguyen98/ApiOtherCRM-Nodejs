@@ -10,7 +10,7 @@ const mongoose = require('mongoose');
 var indexRouter = require('./routes/index');
 var todoRouter = require('./routes/todo');
 var emailRouter = require('./routes/email');
-var customerRouter = require('./routes/customer');
+var customerRouter = require('./routes/customer/customer');
 var userRouter = require('./routes/user');
 
 //? Services cms 

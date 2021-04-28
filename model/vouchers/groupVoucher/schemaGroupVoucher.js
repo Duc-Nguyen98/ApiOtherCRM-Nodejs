@@ -88,6 +88,10 @@ const schema = new mongoose.Schema({
         },
 
     },
+    memberGroup: {
+        type: Array,
+        default: []
+    },
     softDelete: {
         type: Number,
         default: 0
@@ -98,9 +102,20 @@ const schema = new mongoose.Schema({
             type: String,
             default: 'admin'
         },
-        modified: {
-            modifyBy: String,
+        time: {
+            modifyBy: Number,
+            default: 0
+        },
+    },
+    modified: {
+        type: Object,
+        modifyBy: {
+            type: String,
             default: 'admin'
+        },
+        time: {
+            type: Number,
+            default: 0
         },
     }
 });

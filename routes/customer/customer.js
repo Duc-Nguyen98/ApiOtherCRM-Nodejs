@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const customerModel = require('../model/schemaCustomer');
+const customerModel = require('../../model/customer/customer/schemaCustomer');
 const multer = require('multer');
 const fs = require('fs');
 
@@ -210,8 +210,8 @@ router.post('/upload/:id', async function (req, res, next) {
         var filePath = user.avatar;
 
         if (filePath) {
-          if (fs.existsSync('./public/'+filePath)) {
-            fs.unlinkSync('./public/'+filePath);
+          if (fs.existsSync('./public/' + filePath)) {
+            fs.unlinkSync('./public/' + filePath);
           }
         }
 
