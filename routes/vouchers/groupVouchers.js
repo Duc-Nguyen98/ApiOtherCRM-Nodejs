@@ -186,7 +186,7 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
     const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Deleted Soft Successfully"
     });
   } catch (err) {
     return res.status(500).json({
@@ -207,7 +207,7 @@ router.delete('/delete/:id', async function (req, res, next) {
     const entry = await groupVoucherModel.findOneAndDelete({ _id: _id });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Deleted Successfully"
     });
   } catch (err) {
     return res.status(500).json({
@@ -232,7 +232,7 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
     });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Successful Recovery"
     });
   } catch (err) {
     return res.status(500).json({
@@ -501,7 +501,7 @@ router.post('/create', idAutoGroup, async function (req, res, next) {
 
     return res.status(200).json({
       success: true,
-      data: groupVoucher
+      message: "Successfully Created"
     });
 
   } catch (err) {
@@ -550,7 +550,7 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
     const entry = await groupVoucherItemsModel.insertMany(arrayDataVoucher)
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Successfully Created"
     });
 
 
@@ -587,7 +587,8 @@ router.put('/update/:id', async function (req, res, next) {
 
     return res.status(200).json({
       success: true,
-      data: entry
+      data: entry,
+      message: "Update Successful"
     });
   } catch (err) {
     console.log(err)
@@ -633,7 +634,7 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher
     const entry = await groupVoucherItemsModel.insertMany(arrayDataVoucher)
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Successfully Created"
     });
   } catch (err) {
     console.log(err)
@@ -653,7 +654,7 @@ router.delete('/delete/many/voucher', async function (req, res, next) {
     const entry = await groupVoucherItemsModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
       return res.status(200).json({
         success: true,
-        data: result
+        message: "Deleted Successfully"
       });
     })
   } catch (err) {
