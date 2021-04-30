@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucher');
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
+const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
+const shopModel = require('../../model/schemaShop');
 
 
 const hasFilterGroupVoucher = (param, param2, param3, param4) => {
@@ -167,6 +169,39 @@ router.get('/detail/:id', async function (req, res, next) {
         });
       })
   } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+router.get('/list/customer', async function (req, res, next) {
+  try {
+    const listGroupCustomer = await groupCustomerModel.find({ status: 0, softDelete: 0 }).select({ "idGroupCustomer": 1, "avatarGroup": 1, "title": 1, "_id": 1 })
+    return res.status(200).json({
+      success: true,
+      listGroupCustomer: listGroupCustomer,
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+router.get('/list/shop', async function (req, res, next) {
+  try {
+    const listShop = await shopModel.find({ status: 0, softDelete: 0 }).select({ "idShop": 1, "avatar": 1, "name": 1, "_id": 1 })
+    return res.status(200).json({
+      success: true,
+      listShop: listShop,
+    });
+  } catch (err) {
+    console.log(err)
     return res.status(500).json({
       success: false,
       error: 'Server Error'
@@ -665,6 +700,10 @@ router.patch('/delete/many/voucher', async function (req, res, next) {
     });
   };
 });
+
+
+
+
 
 
 
