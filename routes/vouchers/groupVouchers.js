@@ -646,9 +646,9 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher
 });
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
-// -u http://localhost:1509/update/:id
+// -u http://localhost:1509/delete/many/voucher
 
-router.delete('/delete/many/voucher', async function (req, res, next) {
+router.patch('/delete/many/voucher', async function (req, res, next) {
   try {
     let obj = req.body.VoucherIdArray;
     const entry = await groupVoucherItemsModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
