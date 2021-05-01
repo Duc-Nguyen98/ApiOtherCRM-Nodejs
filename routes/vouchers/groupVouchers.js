@@ -622,7 +622,6 @@ router.put('/update/:id', async function (req, res, next) {
 
     return res.status(200).json({
       success: true,
-      data: entry,
       message: "Update Successful"
     });
   } catch (err) {
