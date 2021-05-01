@@ -7,11 +7,11 @@ const schema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: null
+        default: ''
     },
     name: {
         type: String,
-        default: null
+        default: ''
     },
     status: {
         type: Number,
@@ -19,31 +19,31 @@ const schema = new mongoose.Schema({
     },
     ownerShop: {
         type: String,
-        default: null
+        default: ''
     },
     address: {
         type: String,
-        default: null
+        default: ''
     },
     note: {
         type: String,
         default: 'ANT-CVV Note Shop'
     },
     telephone: {
-        type: String,
-        default: null
+        type: Number,
+        default: 0
     },
     telephoneShop: {
-        type: String,
-        default: null
+        type: Number,
+        default: 0
     },
     fax: {
-        type: String,
-        default: null
+        type: Number,
+        default: 0
     },
     mail: {
         type: String,
-        default: null
+        default: ''
     },
     region: {
         type: Number,
@@ -51,11 +51,11 @@ const schema = new mongoose.Schema({
     },
     fanpage: {
         type: String,
-        default: null
+        default: ''
     },
     website: {
         type: String,
-        default: null
+        default: ''
     },
     softDelete: {
         type: Number,

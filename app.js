@@ -12,6 +12,7 @@ var todoRouter = require('./routes/todo');
 var emailRouter = require('./routes/email');
 var customerRouter = require('./routes/customer/customer');
 var userRouter = require('./routes/user');
+var shopRouter = require('./routes/shop');
 
 //? Services cms 
 var smsRouter = require('./routes/services/sms');
@@ -57,6 +58,7 @@ app.use('/todo', todoRouter);
 app.use('/mail', emailRouter);
 app.use('/customer', customerRouter);
 app.use('/user', userRouter);
+app.use('/shop', shopRouter);
 app.use('/services/sms', smsRouter);
 app.use('/voucher/group', groupVoucherRouter);
 
