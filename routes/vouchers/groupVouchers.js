@@ -288,9 +288,8 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let softDelete = 0;
-    let statusVoucher = 0;
+    let status = { $lt: 2 };
     let q = req.query.q;
-
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
@@ -304,65 +303,12 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
     }
 
     const groupVoucherItems = await groupVoucherItemsModel
-      .find(voucherItems(regex, softDelete, idGroupVoucher, statusVoucher))
+      .find(voucherItems(regex, softDelete, idGroupVoucher, status))
       .select({ "created": 1, "status": 1, "voucherCode": 1, "idVoucher": 1, "_id": 1 })
 
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-
-
-
-    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(voucherItems(regex, softDelete, idGroupVoucher, statusVoucher));
-
-    const typeClassifiedGroup = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher }).select({ classified: 1 });
-
-    Promise.all([groupVoucherItems, countGroupVoucherItems, typeClassifiedGroup]).then(([groupVoucherItems, countGroupVoucherItems, typeClassifiedGroup]) => {
-      console.log(typeClassifiedGroup)
-      return res.status(200).json({
-        success: true,
-        groupVoucherItems: groupVoucherItems,
-        typeClassifiedGroup: typeClassifiedGroup,
-        countGroupVoucherItems: countGroupVoucherItems,
-      });
-    })
-
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
-router.get('/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
-  try {
-    let idGroupVoucher = req.params.idGroupVoucher;
-    let softDelete = 1;
-    let statusVoucher = 0;
-    let q = req.query.q;
-
-
-    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
-
-    (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
-
-
-    //? Begin config Pagination
-    let pagination = {
-      currentPage: parseInt(req.query.page),
-      totalItemsPerPage: parseInt(req.query.perPage)
-    }
-
-    const groupVoucherItems = await groupVoucherItemsModel
-      .find(voucherItems(regex, softDelete, idGroupVoucher, statusVoucher))
-      .select({ "created": 1, "status": 1, "voucherCode": 1, "idVoucher": 1, "_id": 1 })
-
-      .limit(pagination.totalItemsPerPage)
-      .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-
-
-
-    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(voucherItems(regex, softDelete, idGroupVoucher, statusVoucher));
+    const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(voucherItems(regex, softDelete, idGroupVoucher, status));
 
     const typeClassifiedGroup = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher }).select({ classified: 1 });
 
@@ -393,19 +339,13 @@ router.get('/trash/voucher/item/:idGroupVoucher', async function (req, res, next
 router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
-
-    let status = req.query.status;
-    if (status == 0) {
-      status = 1;
-    }
-
+    let status = { $gt: 1 };
     let softDelete = 0;
     let q = req.query.q;
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
     (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
-    (status == undefined || status == '') ? status = null : status = status;
 
 
     //? Begin config Pagination
@@ -453,19 +393,13 @@ router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, ne
 router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
-
-    let status = req.query.status;
-    if (status == 0) {
-      status = 1;
-    }
-
+    let status = { $gt: 1 };
     let softDelete = 1;
     let q = req.query.q;
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
     (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
-    (status == undefined || status == '') ? status = null : status = status;
 
 
     //? Begin config Pagination
@@ -546,7 +480,6 @@ router.post('/create', idAutoGroup, async function (req, res, next) {
     });
   };
 });
-
 
 // // TODO: METHOD - GET
 // // -u http://localhost:1509/voucher/group/create
@@ -700,8 +633,32 @@ router.patch('/delete/many/voucher', async function (req, res, next) {
   };
 });
 
+router.patch('/change/status/many/voucher', async function (req, res, next) {
+  try {
+    let obj = req.body.VoucherIdArray;
+    let status = req.query.status;
+    console.log(obj, status);
+    const entry = await groupVoucherItemsModel.updateMany({ _id: { $in: obj } }, {
+      status: status, modified: {
+        modifyBy: "admin",
+        time: Date.now()
+      }
+    }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        data: result,
+        message: "Deleted Successfully"
+      });
+    })
 
-
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 
 
