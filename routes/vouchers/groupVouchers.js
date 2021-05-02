@@ -5,7 +5,6 @@ const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schema
 const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
 const shopModel = require('../../model/schemaShop');
 
-
 const hasFilterGroupVoucher = (param, param2, param3, param4) => {
   if (param !== null && param2 !== null) {
     return { classified: param, status: param2, title: param3, softDelete: param4 }
@@ -22,7 +21,6 @@ const voucherItems = (param, param2, param3, param4) => {
   return { voucherCode: param, softDelete: param2, idGroupVoucher: param3, status: param4 }
 }
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
-
 
 idAutoGroup = async (req, res, next) => {
   await groupVoucherModel.findOne({}, { idGroupVoucher: 1, _id: 0 }).sort({ idGroupVoucher: -1 })
@@ -44,7 +42,6 @@ idAutoGroupVoucher = async (req, res, next) => {
       console.log(err)
     })
 }
-
 
 updateVoucherAdd = async (req, res, next) => {
   const _id = req.params.id;
@@ -667,9 +664,6 @@ router.patch('/change/status/many/voucher', async function (req, res, next) {
     });
   };
 });
-
-
-
 
 //! CODE API FOR PERMISSION EMPLOYEE
 
