@@ -13,6 +13,7 @@ var emailRouter = require('./routes/email');
 var customerRouter = require('./routes/customer/customer');
 var userRouter = require('./routes/user');
 var shopRouter = require('./routes/shop');
+var homePageRouter = require('./routes/others/homePage');
 
 //? Services cms 
 var smsRouter = require('./routes/services/sms');
@@ -64,6 +65,7 @@ app.use('/shop', shopRouter);
 app.use('/services/sms', smsRouter);
 app.use('/voucher/group', groupVoucherRouter);
 app.use('/customer/group', groupCustomerRouter);
+app.use('/home', homePageRouter);
 
 
 // catch 404 and forward to error handler
