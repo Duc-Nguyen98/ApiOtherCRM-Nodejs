@@ -82,7 +82,8 @@ router.get('/list', async function (req, res, next) {
     }
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
-      // .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0 })
+      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0 })
+      .sort({ "idGroupVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -129,6 +130,7 @@ router.get('/trash', async function (req, res, next) {
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
       .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0 })
+      .sort({ "idGroupVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -288,12 +290,14 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let softDelete = 0;
-    let status = { $lt: 2 };
+    let status = req.query.status;
+
     let q = req.query.q;
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
     (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
+    (status == undefined || status == '' || status == 3 || status == 4 || status == 5) ? status = { $lte: 2 } : status = status;
 
 
     //? Begin config Pagination
@@ -305,7 +309,7 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
     const groupVoucherItems = await groupVoucherItemsModel
       .find(voucherItems(regex, softDelete, idGroupVoucher, status))
       .select({ "created": 1, "status": 1, "voucherCode": 1, "idVoucher": 1, "_id": 1 })
-
+      .sort({ "idVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
     const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(voucherItems(regex, softDelete, idGroupVoucher, status));
@@ -339,13 +343,14 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
 router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
-    let status = { $gt: 1 };
+    let status = req.query.status;
     let softDelete = 0;
     let q = req.query.q;
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
     (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
+    (status == undefined || status == '' || status == 0 || status == 1 || status == 2) ? status = { $gte: 3 } : status = status;
 
 
     //? Begin config Pagination
@@ -357,6 +362,7 @@ router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, ne
     const groupVoucherItems = await groupVoucherItemsModel
       .find(voucherItems(regex, softDelete, idGroupVoucher, status))
       .select({})
+      .sort({ "idVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -393,13 +399,14 @@ router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, ne
 router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
-    let status = { $gt: 1 };
+    let status = req.query.status;
     let softDelete = 1;
     let q = req.query.q;
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
     (idGroupVoucher == undefined || idGroupVoucher == '') ? idGroupVoucher = null : idGroupVoucher = idGroupVoucher;
+    (status == undefined || status == '' || status == 0 || status == 1 || status == 2) ? status = { $gte: 3 } : status = status;
 
 
     //? Begin config Pagination
@@ -411,6 +418,7 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, r
     const groupVoucherItems = await groupVoucherItemsModel
       .find(voucherItems(regex, softDelete, idGroupVoucher, status))
       .select({})
+      .sort({ "idVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
