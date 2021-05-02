@@ -594,6 +594,8 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher
     });
   };
 });
+
+
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
@@ -605,6 +607,31 @@ router.patch('/delete/many/voucher', async function (req, res, next) {
       return res.status(200).json({
         success: true,
         message: "Deleted Successfully"
+      });
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/delete-soft/many/voucher', async function (req, res, next) {
+  try {
+    let obj = req.body.VoucherIdArray;
+    const entry = await groupVoucherItemsModel.updateMany({ _id: { $in: obj } }, {
+      softDelete: 1
+    }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        message: "Delete Soft Successfully"
       });
     })
   } catch (err) {

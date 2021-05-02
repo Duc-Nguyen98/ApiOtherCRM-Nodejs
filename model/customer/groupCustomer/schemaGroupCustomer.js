@@ -5,10 +5,6 @@ const schema = new mongoose.Schema({
         type: Number,
         default: ''
     },
-    avatarGroup: {
-        type: String,
-        default: ''
-    },
     title: {
         type: String,
         default: ''

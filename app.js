@@ -18,6 +18,8 @@ var shopRouter = require('./routes/shop');
 var smsRouter = require('./routes/services/sms');
 //? Management Voucher
 var groupVoucherRouter = require('./routes/vouchers/groupVouchers');
+// groupCustomer 
+var groupCustomerRouter = require('./routes/customer/groupCustomer');
 
 var app = express();
 
@@ -61,6 +63,7 @@ app.use('/user', userRouter);
 app.use('/shop', shopRouter);
 app.use('/services/sms', smsRouter);
 app.use('/voucher/group', groupVoucherRouter);
+app.use('/customer/group', groupCustomerRouter);
 
 
 // catch 404 and forward to error handler
