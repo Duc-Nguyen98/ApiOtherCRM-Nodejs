@@ -288,6 +288,31 @@ router.post('/create', idAutoGroup, async function (req, res, next) {
   };
 });
 
+// * GET Details users listing. 
+// TODO: METHOD - GET
+// -u http://localhost:1509/mail/task/detail/:id
+// ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
+router.get('/detail/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    await groupVoucherModel
+      .findOne({ _id: _id })
+      .then(data => {
+        return res.status(200).json({
+          success: true,
+          data: data
+        });
+      })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
 
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH

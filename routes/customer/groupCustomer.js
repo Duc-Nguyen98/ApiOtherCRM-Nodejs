@@ -6,13 +6,13 @@ const fs = require('fs');
 
 handleFilterSearch = (param, param2, param3, param4) => {
     if (param !== '' && param2 !== '') {
-        return { status: parseInt(param), star: parseInt(param2), name: param3, softDelete: param4 }
+        return { status: parseInt(param), star: parseInt(param2), title: param3, softDelete: param4 }
     } else if (param !== '' && param2 == '') {
-        return { status: parseInt(param), name: param3, softDelete: param4 }
+        return { status: parseInt(param), title: param3, softDelete: param4 }
     } else if (param == '' && param2 !== '') {
-        return { star: parseInt(param2), name: param3, softDelete: param4 }
+        return { star: parseInt(param2), title: param3, softDelete: param4 }
     } else {
-        return { name: param3, softDelete: param4 }
+        return { title: param3, softDelete: param4 }
     }
 }
 
@@ -44,6 +44,7 @@ router.get('/list', async function (req, res, next) {
         (star == undefined || star == '') ? star = '' : star = star;
 
         let q = req.query.q;
+        console.log(status, star)
 
         let keyword = new RegExp(q, 'i');  // 'i' makes it case insensitive
         //? Begin config Pagination
