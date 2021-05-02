@@ -79,7 +79,7 @@ router.get('/list', async function (req, res, next) {
     }
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
-      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0 })
+      .select()
       .sort({ "idGroupVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
@@ -126,7 +126,7 @@ router.get('/trash', async function (req, res, next) {
     }
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
-      .select({ "discount": 0, "timeLine": 0, "scopeApply": 0, "modified": 0, "note": 0 })
+      .select()
       .sort({ "idGroupVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
@@ -140,8 +140,6 @@ router.get('/trash', async function (req, res, next) {
         countGroupVoucher: countGroupVoucher
       });
     })
-
-
   } catch (err) {
     console.log(err)
     return res.status(500).json({
@@ -151,22 +149,67 @@ router.get('/trash', async function (req, res, next) {
   };
 });
 
-// /* GET Details users listing. */
-// // TODO: METHOD - GET
-// // -u http://localhost:1509/services/sms/detail/:id
-// // ? Example: http://localhost:1509/services/sms/detail/606f591f41340a452c5e8376
-router.get('/detail/:id', async function (req, res, next) {
+
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - GET
+// -u http://localhost:1509/voucher/group/delete-soft/:id
+// ? Example: http://localhost:1509/voucher/group/delete-soft/:
+
+router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
-    await groupVoucherModel
-      .findOne({ _id: _id })
+    const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
+    return res.status(200).json({
+      success: true,
+      message: "Deleted Soft Successfully"
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
-      .then(data => {
-        return res.status(200).json({
-          success: true,
-          data: data
-        });
-      })
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/voucher/group//trash/restore/:id
+// ? Example: http://localhost:1509/voucher/group/trash/restore/6084868594ca7c92289c2bad
+
+router.patch('/trash/restore/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+
+    const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, {
+      softDelete: 0,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Successful Recovery"
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - DELETE
+// -u http://localhost:1509/voucher/group/delete/:id
+// ? Example: http://localhost:1509/voucher/group/delete/:
+
+router.delete('/delete/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    const entry = await groupVoucherModel.findOneAndDelete({ _id: _id });
+    return res.status(200).json({
+      success: true,
+      message: "Deleted Successfully"
+    });
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -209,40 +252,34 @@ router.get('/list/shop', async function (req, res, next) {
 });
 
 
-/* DELETE todo listing deleteSoft Record */
+/* GET Details users listing. */
 // TODO: METHOD - GET
-// -u http://localhost:1509/voucher/group/delete-soft/:id
-// ? Example: http://localhost:1509/voucher/group/delete-soft/:
+// -u http://localhost:1509/voucher/group/create
+// ? Example: http://localhost:1509/voucher/group/create
+router.post('/create', idAutoGroup, async function (req, res, next) {
 
-router.delete('/delete-soft/:id', async function (req, res, next) {
   try {
-    const _id = req.params.id;
-    const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
+    const groupVoucher = await groupVoucherModel.create({
+      idGroupVoucher: AutoId,
+      title: req.body?.title,
+      note: req.body?.note,
+      status: req.body?.status,
+      scopeApply: req.body?.scopeApply,
+      softDelete: 0,
+      created: {
+        createBy: "admin",
+        time: Date.now()
+      },
+      modified: {
+        modifyBy: "admin",
+        time: Date.now()
+      }
+    })
     return res.status(200).json({
       success: true,
-      message: "Deleted Soft Successfully"
+      message: "Successfully Created"
     });
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
 
-/* DELETE todo listing deleteSoft Record */
-// TODO: METHOD - DELETE
-// -u http://localhost:1509/voucher/group/delete/:id
-// ? Example: http://localhost:1509/voucher/group/delete/:
-
-router.delete('/delete/:id', async function (req, res, next) {
-  try {
-    const _id = req.params.id;
-    const entry = await groupVoucherModel.findOneAndDelete({ _id: _id });
-    return res.status(200).json({
-      success: true,
-      message: "Deleted Successfully"
-    });
   } catch (err) {
     return res.status(500).json({
       success: false,
@@ -254,21 +291,30 @@ router.delete('/delete/:id', async function (req, res, next) {
 
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
-// -u http://localhost:1509/voucher/group//trash/restore/:id
-// ? Example: http://localhost:1509/voucher/group/trash/restore/6084868594ca7c92289c2bad
+// -u http://localhost:1509/update/:id
 
-router.patch('/trash/restore/:id', async function (req, res, next) {
+router.put('/update/:id', async function (req, res, next) {
   try {
     const _id = req.params.id;
 
-    const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, {
-      softDelete: 0,
+    const entry = await groupVoucherModel.findByIdAndUpdate({ _id: _id }, {
+      note: req.body?.note,
+      title: req.body?.title,
+      note: req.body?.note,
+      status: req.body?.status,
+      scopeApply: req.body?.scopeApply,
+      modified: {
+        createBy: "Admin",
+        time: Date.now()
+      }
     });
+
     return res.status(200).json({
       success: true,
-      message: "Successful Recovery"
+      message: "Update Successful"
     });
   } catch (err) {
+    console.log(err)
     return res.status(500).json({
       success: false,
       error: 'Server Error'
@@ -276,7 +322,8 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
   };
 });
 
-//! VOUCHER ITEMS
+
+// //! VOUCHER ITEMS
 
 // // /* GET List Group Voucher listing. */
 // // TODO: METHOD - GET
@@ -305,7 +352,7 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
 
     const groupVoucherItems = await groupVoucherItemsModel
       .find(voucherItems(regex, softDelete, idGroupVoucher, status))
-      .select({ "created": 1, "status": 1, "voucherCode": 1, "idVoucher": 1, "_id": 1 })
+      .select()
       .sort({ "idVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
@@ -332,10 +379,10 @@ router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next)
   };
 });
 
-// /* GET List Group Voucher listing. */
-// TODO: METHOD - GET
-// -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
-// ? Example: http://localhost:1509/voucher/group/history/voucher/item/:idGroupVoucher
+// // /* GET List Group Voucher listing. */
+// // TODO: METHOD - GET
+// // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
+// // ? Example: http://localhost:1509/voucher/group/history/voucher/item/:idGroupVoucher
 
 router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, next) {
   try {
@@ -446,54 +493,15 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, r
 });
 
 
-/* GET Details users listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/create
 // ? Example: http://localhost:1509/voucher/group/create
-router.post('/create', idAutoGroup, async function (req, res, next) {
-  try {
-    const groupVoucher = await groupVoucherModel.create({
-      idGroupVoucher: AutoId,
-      title: req.body?.title,
-      note: req.body?.note,
-      classified: req.body?.classified,
-      status: req.body?.status,
-      discount: req.body?.discount,
-      timeLine: req.body?.timeLine,
-      scopeApply: req.body?.scopeApply,
-      memberGroup: req.body?.memberGroup,
-      softDelete: 0,
-      created: {
-        createBy: "admin",
-        time: Date.now()
-      },
-      modified: {
-        modifyBy: "admin",
-        time: Date.now()
-      }
-    })
-
-    return res.status(200).json({
-      success: true,
-      message: "Successfully Created"
-    });
-
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
-
-// // TODO: METHOD - GET
-// // -u http://localhost:1509/voucher/group/create
-// // ? Example: http://localhost:1509/voucher/group/create
 router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (req, res, next) {
   try {
 
-    // let obj = { "voucherCode": ["D9FXADKBAS8NO47109", "D9FXADKBAS8NO47108"] };
     let obj = req.body.voucherCode;
+    let discount = req.body.discount;
+    let timeLine = req.body.timeLine;
     let arrayDataVoucher = [];
     await obj.forEach(function (item, index) {
       let objectData = {
@@ -507,6 +515,8 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
         nameLocationUse: null,
         usedDate: null,
         softDelete: 0,
+        discount: discount,
+        timeLine: timeLine,
         created: {
           createBy: "admin",
           time: Date.now()
@@ -518,7 +528,6 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
       }
       arrayDataVoucher.push(objectData)
     });
-    // console.log(arrayDataVoucher)
 
     const entry = await groupVoucherItemsModel.insertMany(arrayDataVoucher)
     return res.status(200).json({
@@ -536,41 +545,6 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
   };
 });
 
-/* PATCH todo listing change isStarred isComplete. */
-// TODO: METHOD - PATCH
-// -u http://localhost:1509/update/:id
-
-router.put('/update/:id', async function (req, res, next) {
-  try {
-    const _id = req.params.id;
-
-    const entry = await groupVoucherModel.findByIdAndUpdate({ _id: _id }, {
-      note: req.body?.note,
-      classified: req.body?.classified,
-      status: req.body?.status,
-      discount: req.body?.discount,
-      timeLine: req.body?.timeLine,
-      scopeApply: req.body?.scopeApply,
-      memberGroup: req.body?.memberGroup,
-      modified: {
-        createBy: "Admin",
-        time: Date.now()
-      }
-    });
-
-    return res.status(200).json({
-      success: true,
-      message: "Update Successful"
-    });
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
-
 
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
@@ -579,6 +553,8 @@ router.put('/update/:id', async function (req, res, next) {
 router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher, async function (req, res, next) {
   try {
     let obj = req.body.voucherCode;
+    let discount = req.body.discount;
+    let timeLine = req.body.timeLine;
     let arrayDataVoucher = [];
     await obj.forEach(function (item, index) {
       let objectData = {
@@ -592,6 +568,8 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher
         nameLocationUse: null,
         usedDate: null,
         softDelete: 0,
+        discount: discount,
+        timeLine: timeLine,
         created: {
           createBy: "admin",
           time: Date.now()
@@ -642,7 +620,6 @@ router.patch('/change/status/many/voucher', async function (req, res, next) {
   try {
     let obj = req.body.VoucherIdArray;
     let status = req.query.status;
-    console.log(obj, status);
     const entry = await groupVoucherItemsModel.updateMany({ _id: { $in: obj } }, {
       status: status, modified: {
         modifyBy: "admin",
@@ -651,8 +628,7 @@ router.patch('/change/status/many/voucher', async function (req, res, next) {
     }, (err, result) => {
       return res.status(200).json({
         success: true,
-        data: result,
-        message: "Deleted Successfully"
+        message: "Changed Status Successfully"
       });
     })
 

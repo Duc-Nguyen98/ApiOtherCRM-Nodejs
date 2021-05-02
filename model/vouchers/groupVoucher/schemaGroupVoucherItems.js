@@ -23,7 +23,14 @@ const schema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-
+    nameCustomerUse: {
+        type: String,
+        default: ''
+    },
+    nameLocationUse: {
+        type: String,
+        default: ''
+    },
     status: {
         type: Number,
         default: 0
@@ -39,6 +46,34 @@ const schema = new mongoose.Schema({
     softDelete: {
         type: Number,
         default: 0
+    },
+    discount: {
+        PercentAMaximum: {
+            percent: {
+                type: Number,
+                default: 0
+            },
+            maximumMoney: {
+                type: Number,
+                default: 0
+            }
+        },
+        reduction: {
+            money: Number,
+            default: 0
+        }
+    },
+    timeLine: {
+        effective: {
+            release: {
+                type: String,
+                default: ''
+            },
+            expiration: {
+                type: String,
+                default: ''
+            }
+        }
     },
     created: {
         type: Object,

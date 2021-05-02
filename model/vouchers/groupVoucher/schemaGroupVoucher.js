@@ -9,10 +9,7 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    classified: {
-        type: Number,
-        default: 0
-    },
+
     status: {
         type: Number,
         default: 0
@@ -21,77 +18,34 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    discount: {
-        type: Object,
-        percent: {
-            type: Number,
-            default: 0
-        },
-        maximumMoney: {
-            type: Number,
-            default: 0
-        },
-        reductionMoney: {
-            type: Number,
-            default: 0
-        }
-    },
-    timeLine: {
-        type: Object,
-        effective: {
-            type: Object,
-            release: {
-                type: Date,
-                default: 0
-            },
-            expiration: {
-                type: Date,
-                default: 0
-            }
-        },
-        expiry: {
-            type: Object,
-            number: {
-                type: Number,
-                default: 0
-            },
-            type: {
-                type: Number,
-                default: 0
-            }
-        },
 
-    },
     scopeApply: {
         type: Object,
-        location: {
+        shop: {
             type: Object,
             all: {
                 type: Number,
                 default: 0
             },
-            listLocation: {
+            listShop: {
                 type: Array,
                 default: []
             }
         },
-        expiry: {
+        customer: {
             type: Object,
-            number: {
+            all: {
                 type: Number,
                 default: 0
             },
-            listGroupCustomer: {
+            listCustomer: {
                 type: Array,
                 default: []
             }
         },
 
     },
-    memberGroup: {
-        type: Array,
-        default: []
-    },
+
     softDelete: {
         type: Number,
         default: 0
