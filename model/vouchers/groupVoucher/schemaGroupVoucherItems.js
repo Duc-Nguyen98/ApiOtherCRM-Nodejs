@@ -64,15 +64,13 @@ const schema = new mongoose.Schema({
         }
     },
     timeLine: {
-        effective: {
-            release: {
-                type: String,
-                default: ''
-            },
-            expiration: {
-                type: String,
-                default: ''
-            }
+        release: {
+            type: String,
+            default: ''
+        },
+        expiration: {
+            type: String,
+            default: ''
         }
     },
     created: {
