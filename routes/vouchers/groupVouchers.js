@@ -548,6 +548,7 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
     let obj = req.body.voucherCode;
     let discount = req.body.discount;
     let timeLine = req.body.timeLine;
+    let classified = req.body.classified;
     let arrayDataVoucher = [];
     await obj.forEach(function (item, index) {
       let objectData = {
@@ -557,6 +558,7 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
         idCustomersUse: null,
         idLocationUse: null,
         status: 0,
+        classified: classified,
         nameCustomerUse: null,
         nameLocationUse: null,
         usedDate: null,
@@ -601,6 +603,7 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher
     let obj = req.body.voucherCode;
     let discount = req.body.discount;
     let timeLine = req.body.timeLine;
+    let classified = req.body.classified;
     let arrayDataVoucher = [];
     await obj.forEach(function (item, index) {
       let objectData = {
@@ -610,6 +613,7 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher
         idCustomersUse: null,
         idLocationUse: null,
         status: 0,
+        classified: classified,
         nameCustomerUse: null,
         nameLocationUse: null,
         usedDate: null,
