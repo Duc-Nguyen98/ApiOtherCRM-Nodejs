@@ -5,23 +5,26 @@ const multer = require('multer');
 const fs = require('fs');
 
 
-handleFilterSearch = (param, param2, param3, param4) => {
+const handleFilterSearch = (param, param2, param3, param4) => {
     if (param !== '' && param2 !== '') {
         return { status: parseInt(param), region: parseInt(param2), name: param3, softDelete: param4 }
     } else if (param !== '' && param2 == '') {
         return { status: parseInt(param), name: param3, softDelete: param4 }
     } else if (param == '' && param2 !== '') {
         return { region: parseInt(param2), name: param3, softDelete: param4 }
-    } else {
+    } else if (param != '') {
         return { name: param3, softDelete: param4 }
+    } else {
+        return { softDelete: param4 }
     }
+    return
 }
 
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
 // TODO: MIDDLEWARE
-idShopAuto = async (req, res, next) => {
+const idShopAuto = async (req, res, next) => {
     await shopModel.findOne({}, { idShop: 1, _id: 0 }).sort({ idShop: -1 })
         .then(data => {
             AutoId = data.idShop + 1;
