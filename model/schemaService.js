@@ -5,21 +5,25 @@ const schema = new mongoose.Schema({
         type: Number,
         default: ''
     },
-    title: {
+    idCustomer: {
         type: String,
         default: ''
     },
-    type: {
+    idGroupVoucher: {
         type: Number,
         default: ''
     },
-    name: {
+    idVoucher: {
         type: String,
         default: ''
     },
-    status: {
+    titleGroupVoucher: {
         type: Number,
         default: 0
+    },
+    nameCustomer: {
+        type: String,
+        default: ''
     },
     mailCustomer: {
         type: String,
@@ -33,13 +37,49 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    discount: {
+        type: Object,
+        PercentAMaximum: {
+            type: Object,
+            percent: {
+                type: Number,
+                default: 0
+            }
+            , maximumMoney: {
+                type: Number,
+                default: 0
+            },
+        },
+
+    },
+    timeLine: {
+        type: Object,
+        release: {
+            type: String,
+            default: ''
+        },
+        expiration: {
+            type: String,
+            default: ''
+        }
+    },
     details: {
         type: Object,
-        createBy: {
+        sendBy: {
             type: String,
             default: ''
         },
         dateSent: {
+            type: String,
+            default: ''
+        }
+    },
+    created: {
+        createBy: {
+            type: String,
+            default: 'admin'
+        },
+        time: {
             type: Date,
             default: ''
         }

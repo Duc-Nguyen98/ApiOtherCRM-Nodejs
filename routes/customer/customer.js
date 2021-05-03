@@ -5,7 +5,7 @@ const multer = require('multer');
 const fs = require('fs');
 
 
-handleFilterSearch = (param, param2, param3, param4) => {
+const handleFilterSearch = (param, param2, param3, param4) => {
   if (param !== '' && param2 !== '') {
     return { groups: parseInt(param), gender: parseInt(param2), name: param3, softDelete: param4 }
   } else if (param !== '' && param2 == '') {
@@ -21,7 +21,7 @@ handleFilterSearch = (param, param2, param3, param4) => {
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
 // TODO: MIDDLEWARE
-idCustomerAuto = async (req, res, next) => {
+const idCustomerAuto = async (req, res, next) => {
   await customerModel.findOne({}, { idCustomer: 1, _id: 0 }).sort({ idCustomer: -1 })
     .then(data => {
       AutoId = data.idCustomer + 1;
@@ -41,8 +41,8 @@ router.get('/list', async function (req, res, next) {
     let group = req.query.group;
     let gender = req.query.gender;
     let softDelete = 0;
-    (group == undefined) ? group = '' : group = group;
-    (gender == undefined) ? gender = '' : gender = gender;
+    (group == undefined || group == '') ? group = '' : group = group;
+    (gender == undefined || gender == '') ? gender = '' : gender = gender;
 
     let q = req.query.q;
 
@@ -55,8 +55,10 @@ router.get('/list', async function (req, res, next) {
 
     const taskOne = await customerModel
       .find(handleFilterSearch(group, gender, keyword, softDelete))
+      .sort({ idCustomer: -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+    console.log(taskOne)
 
     const taskTwo = await customerModel.countDocuments(handleFilterSearch(group, gender, keyword, softDelete));
 

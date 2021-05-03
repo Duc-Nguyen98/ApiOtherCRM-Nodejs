@@ -43,7 +43,7 @@ const hasFilter = (param, param2, param3, param4, param5) => {
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
-idUserAuto = async (req, res, next) => {
+const idUserAuto = async (req, res, next) => {
   await userModel.findOne({}, { idUser: 1, _id: 0 }).sort({ idUser: -1 })
     .then(data => {
       AutoId = data.idUser + 1;
@@ -259,8 +259,8 @@ router.post('/upload/:id', async function (req, res, next) {
         var filePath = user.avatar;
 
         if (filePath) {
-          if (fs.existsSync('./public/'+filePath)) {
-            fs.unlinkSync('./public/'+filePath);
+          if (fs.existsSync('./public/' + filePath)) {
+            fs.unlinkSync('./public/' + filePath);
           }
         }
 

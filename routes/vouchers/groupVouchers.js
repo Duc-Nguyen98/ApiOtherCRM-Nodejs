@@ -24,7 +24,7 @@ const voucherItems = (param, param2, param3, param4) => {
 }
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
-idAutoGroup = async (req, res, next) => {
+const idAutoGroup = async (req, res, next) => {
   await groupVoucherModel.findOne({}, { idGroupVoucher: 1, _id: 0 }).sort({ idGroupVoucher: -1 })
     .then(data => {
       AutoId = data.idGroupVoucher + 1;
@@ -34,7 +34,7 @@ idAutoGroup = async (req, res, next) => {
       console.log(err)
     })
 }
-idAutoGroupVoucher = async (req, res, next) => {
+const idAutoGroupVoucher = async (req, res, next) => {
   await groupVoucherItemsModel.findOne({}, { idVoucher: 1, _id: 0 }).sort({ idVoucher: -1 })
     .then(data => {
       AutoIdVoucher = data.idVoucher + 1;
@@ -45,7 +45,7 @@ idAutoGroupVoucher = async (req, res, next) => {
     })
 }
 
-updateVoucherAdd = async (req, res, next) => {
+const updateVoucherAdd = async (req, res, next) => {
   const _id = req.params.id;
 
   const entry = await groupVoucherModel

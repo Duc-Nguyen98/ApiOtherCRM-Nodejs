@@ -5,7 +5,7 @@ const customerModel = require('../../model/customer/customer/schemaCustomer');
 const fs = require('fs');
 
 
-handleFilterSearch = (param, param2, param3, param4) => {
+const handleFilterSearch = (param, param2, param3, param4) => {
     if (param !== '' && param2 !== '') {
         return { status: parseInt(param), star: parseInt(param2), title: param3, softDelete: param4 }
     } else if (param !== '' && param2 == '') {
@@ -21,7 +21,7 @@ handleFilterSearch = (param, param2, param3, param4) => {
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
 // TODO: MIDDLEWARE
-idGroupCustomerAuto = async (req, res, next) => {
+const idGroupCustomerAuto = async (req, res, next) => {
     await groupCustomerModel.findOne({}, { idGroupCustomer: 1, _id: 0 }).sort({ idGroupCustomer: -1 })
         .then(data => {
             AutoId = data.idGroupCustomer + 1;

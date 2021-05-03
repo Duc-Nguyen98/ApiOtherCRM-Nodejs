@@ -6,7 +6,7 @@ let isImportant = true;
 let isDeleted = true;
 let isCompleted = true;
 
-let hasFilter = (task, keyword) => {
+const hasFilter = (task, keyword) => {
   switch (task) {
     case 'important':
       return { isImportant: isImportant, isDeleted: !isDeleted, title: keyword }

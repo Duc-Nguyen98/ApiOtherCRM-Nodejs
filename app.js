@@ -16,7 +16,7 @@ var shopRouter = require('./routes/shop');
 var homePageRouter = require('./routes/others/homePage');
 
 //? Services cms 
-var smsRouter = require('./routes/services/sms');
+var servicesRouter = require('./routes/service');
 //? Management Voucher
 var groupVoucherRouter = require('./routes/vouchers/groupVouchers');
 // groupCustomer 
@@ -62,7 +62,7 @@ app.use('/mail', emailRouter);
 app.use('/customer', customerRouter);
 app.use('/user', userRouter);
 app.use('/shop', shopRouter);
-app.use('/services/sms', smsRouter);
+app.use('/services', servicesRouter);
 app.use('/voucher/group', groupVoucherRouter);
 app.use('/customer/group', groupCustomerRouter);
 app.use('/home', homePageRouter);
