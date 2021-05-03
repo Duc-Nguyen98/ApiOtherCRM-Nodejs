@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
+const customerModel = require('../../model/customer/customer/schemaCustomer');
 const fs = require('fs');
 
 
@@ -55,6 +56,7 @@ router.get('/list', async function (req, res, next) {
 
         const taskOne = await groupCustomerModel
             .find(handleFilterSearch(status, star, keyword, softDelete))
+            .sort({ idGroupCustomer: -1 })
             .limit(pagination.totalItemsPerPage)
             .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -75,6 +77,70 @@ router.get('/list', async function (req, res, next) {
         });
     };
 });
+/* GET todo listing view MyTask */
+// TODO: METHOD - GET
+// -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
+// ? Example : http://localhost:1509/user/list?group=&gender=&q=&sort=title-desc&page=1&perPage=10
+router.get('/list/trash', async function (req, res, next) {
+
+    try {
+        let status = req.query.status;
+        let star = req.query.star;
+        let softDelete = 1;
+        (status == undefined || status == '') ? status = '' : status = status;
+        (star == undefined || star == '') ? star = '' : star = star;
+
+        let q = req.query.q;
+        console.log(status, star)
+
+        let keyword = new RegExp(q, 'i');  // 'i' makes it case insensitive
+        //? Begin config Pagination
+        let pagination = {
+            currentPage: parseInt(req.query.page),
+            totalItemsPerPage: parseInt(req.query.perPage)
+        }
+
+        const taskOne = await groupCustomerModel
+            .find(handleFilterSearch(status, star, keyword, softDelete))
+            .sort({ idGroupCustomer: -1 })
+            .limit(pagination.totalItemsPerPage)
+            .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+        const taskTwo = await groupCustomerModel.countDocuments(handleFilterSearch(status, star, keyword, softDelete));
+
+        Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
+            return res.status(200).json({
+                success: true,
+                totalRecords: dataTwo,
+                data: dataOne,
+            });
+        })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+router.get('/list/customer', async function (req, res, next) {
+    try {
+        const listCustomer = await customerModel.find({ softDelete: 0 }).select({ "avatar": 1, "idCustomer": 1, "name": 1, "_id": 1 })
+        return res.status(200).json({
+            success: true,
+            listCustomer: listCustomer,
+        });
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
 
 
 // * GET Details users listing. 
@@ -102,22 +168,114 @@ router.get('/detail/:id', async function (req, res, next) {
 
 
 
+/* DELETE todo listing deleteSoft Customer */
+// TODO: METHOD - DELETE SOFT
+// -u http://localhost:1509/customer/delete-soft/:id
+router.patch('/delete-soft/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+        const entry = await groupCustomerModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
+        return res.status(200).json({
+            success: true,
+            message: "Deleted Soft Successfully"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - DELETE
+// -u http://localhost:1509/todo/task/delete/:id
+router.delete('/delete/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+        const entry = await groupCustomerModel.findOneAndDelete({ _id: _id });
+        return res.status(200).json({
+            success: true,
+            message: "Deleted Soft Successfully"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/customer/trash/restore/:id
+
+router.patch('/trash/restore/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+
+        const entry = await groupCustomerModel.findOneAndUpdate({ _id: _id }, {
+            softDelete: 0,
+        });
+        return res.status(200).json({
+            success: true,
+            message: "Restored Successfully"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+
+/* PUT todo listing. update an record */
+// TODO: METHOD - PUT
+// -u http://localhost:1509/todo/update/:id
+router.put('/update/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+        const entry = await groupCustomerModel
+            .findByIdAndUpdate({ _id: _id }, {
+                title: req.body?.title,
+                memberCustomer: req.body?.memberCustomer,
+                status: req.body?.status,
+                note: req.body?.note,
+                modified: {
+                    createBy: "Admin",
+                    time: Date.now()
+                },
+            })
+        return res.status(200).json({
+            success: true,
+            data: entry
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+
+
 
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/customer/create
-router.post('/create', idCustomerAuto, async function (req, res, next) {
+router.post('/create', idGroupCustomerAuto, async function (req, res, next) {
     try {
         const entry = await groupCustomerModel.create({
-            idCustomer: AutoId,
-            name: req.body?.name,
-            address: req.body?.address,
-            email: req.body?.email,
-            gender: req.body?.gender,
-            birthDay: req.body?.birthDay,
-            telephone: req.body?.telephone,
+            idGroupCustomer: AutoId,
+            title: req.body?.title,
+            status: req.body?.status,
             note: req.body?.note,
-            groups: req.body?.groups,
+            star: req.body?.star,
             created: {
                 createBy: "Admin",
                 time: Date.now()
@@ -141,208 +299,119 @@ router.post('/create', idCustomerAuto, async function (req, res, next) {
 
 });
 
-/* PUT todo listing. update an record */
-// TODO: METHOD - PUT
-// -u http://localhost:1509/todo/update/:id
-router.put('/update/:id', async function (req, res, next) {
-    try {
-        const _id = req.params.id;
-        const entry = await groupCustomerModel
-            .findByIdAndUpdate({ _id: _id }, {
-                avatar: req.body?.avatar,
-                name: req.body?.name,
-                address: req.body?.address,
-                email: req.body?.email,
-                gender: req.body?.gender,
-                birthDay: req.body?.birthDay,
-                telephone: req.body?.telephone,
-                note: req.body?.note,
-                groups: req.body?.groups,
-                modified: {
-                    createBy: "Admin",
-                    time: Date.now()
-                },
-            })
-        return res.status(200).json({
-            success: true,
-            data: entry
-        });
-    } catch (err) {
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
-
-
-
-/* PUT upload Avatar for Customer. */
-// TODO: METHOD - PUT
-// -u http://localhost:1509/customer/upload/:id
-
-router.post('/upload/:id', async function (req, res, next) {
-    try {
-        const _id = req.params.id;
-
-        const storage = multer.diskStorage({
-            destination: (req, file, callback) => {
-                callback(null, './public/upload/customers');
-            },
-            filename: (req, file, callback) => {
-                callback(null, Date.now() + '-' + file.originalname);
-            }
-        });
-
-        const upload = multer({ storage: storage }).any('file');
-
-        upload(req, res, (err) => {
-            if (err) {
-                return res.status(400).send({
-                    message: err
-                });
-            }
-
-
-
-            let results = req.files.map(async (file) => {
-                const user = await groupCustomerModel.findOne({ _id: _id });
-                var filePath = user.avatar;
-
-                if (filePath) {
-                    if (fs.existsSync('./public/' + filePath)) {
-                        fs.unlinkSync('./public/' + filePath);
-                    }
-                }
-
-                const entry = await groupCustomerModel.findByIdAndUpdate({ _id: _id }, {
-                    avatar: `upload/customers/${file.filename}`,
-                    modified: {
-                        createBy: "Admin",
-                        time: Date.now()
-                    }
-                });
-
-                return res.status(200).json({
-                    success: true,
-                    data: `upload/customers/${file.filename}`
-                });
-            });
-
-        })
-
-    } catch (err) {
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
-
-
-/* DELETE todo listing deleteSoft Customer */
-// TODO: METHOD - DELETE SOFT
-// -u http://localhost:1509/customer/delete-soft/:id
-router.delete('/delete-soft/:id', async function (req, res, next) {
-    try {
-        const _id = req.params.id;
-        const entry = await groupCustomerModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
-        return res.status(200).json({
-            success: true,
-            data: entry
-        });
-    } catch (err) {
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
-
-/* DELETE todo listing deleteSoft Record */
-// TODO: METHOD - DELETE
-// -u http://localhost:1509/todo/task/delete/:id
-router.delete('/delete/:id', async function (req, res, next) {
-    try {
-        const _id = req.params.id;
-        const entry = await groupCustomerModel.findOneAndDelete({ _id: _id });
-        return res.status(200).json({
-            success: true,
-            data: entry
-        });
-    } catch (err) {
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
-
-
-
-router.get('/list/trash', async function (req, res, next) {
-    try {
-        let group = req.query.group;
-        let gender = req.query.gender;
-        let softDelete = 1;
-        (group == undefined) ? group = '' : group = group;
-        (gender == undefined) ? gender = '' : gender = gender;
-
-        let q = req.query.q;
-
-        let keyword = new RegExp(q, 'i');  // 'i' makes it case insensitive
-        //? Begin config Pagination
-        let pagination = {
-            currentPage: parseInt(req.query.page),
-            totalItemsPerPage: parseInt(req.query.perPage)
-        }
-
-        const taskOne = await groupCustomerModel
-            .find(handleFilterSearch(group, gender, keyword, softDelete))
-            .limit(pagination.totalItemsPerPage)
-            .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-
-        const taskTwo = await groupCustomerModel.countDocuments(handleFilterSearch(group, gender, keyword, softDelete));
-
-        Promise.all([taskOne, taskTwo]).then(([dataOne, dataTwo]) => {
-            return res.status(200).json({
-                success: true,
-                totalRecords: dataTwo,
-                data: dataOne,
-            });
-        })
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
 
 
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
-// -u http://localhost:1509/customer/trash/restore/:id
+// -u http://localhost:1509/delete/many/voucher
 
-router.patch('/trash/restore/:id', async function (req, res, next) {
+router.patch('/delete/many/group', async function (req, res, next) {
     try {
-        const _id = req.params.id;
-
-        const entry = await groupCustomerModel.findOneAndUpdate({ _id: _id }, {
-            softDelete: 0,
-        });
-        return res.status(200).json({
-            success: true,
-            data: entry
-        });
+        let obj = req.body.GroupCustomerIdArray;
+        const entry = await groupCustomerModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Deleted Successfully"
+            });
+        })
     } catch (err) {
+        console.log(err)
         return res.status(500).json({
             success: false,
             error: 'Server Error'
         });
     };
 });
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/change-star/many/group', async function (req, res, next) {
+    try {
+        let obj = req.body.GroupCustomerIdArray;
+        let statusStar = req.body.statusStar
+        console.log(statusStar)
+        const entry = await groupCustomerModel.updateMany({ _id: { $in: obj } }, {
+            star: statusStar
+        }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Changed Star Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/restore/many/group', async function (req, res, next) {
+    try {
+        let obj = req.body.GroupCustomerIdArray;
+        const entry = await groupCustomerModel.updateMany({ _id: { $in: obj } }, {
+            softDelete: 0
+        }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Delete-Soft Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/delete-soft/many/group', async function (req, res, next) {
+    try {
+        let obj = req.body.GroupCustomerIdArray;
+        const entry = await groupCustomerModel.updateMany({ _id: { $in: obj } }, {
+            softDelete: 1
+        }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Delete-Soft Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+var moment = require('moment'); // require
+
 const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucher');
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
@@ -55,6 +57,25 @@ updateVoucherAdd = async (req, res, next) => {
     })
 
 }
+
+
+checkVoucherExpired = async (req, res, next) => {
+  let todayDate = moment(new Date()).format("YYYY-MM-DD");
+  try {
+    const entry = await groupVoucherItemsModel.updateMany({ "timeLine.effective.expiration": { $lt: todayDate } }, {
+      status: 2,
+    }, (err, result) => {
+      next();
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+}
+
 
 // /* GET List Group Voucher listing. */
 // TODO: METHOD - GET
@@ -355,7 +376,7 @@ router.put('/update/:id', async function (req, res, next) {
 // // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 // // ? Example: http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 
-router.get('/list/voucher/item/:idGroupVoucher', async function (req, res, next) {
+router.get('/list/voucher/item/:idGroupVoucher', checkVoucherExpired, async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let softDelete = 0;
