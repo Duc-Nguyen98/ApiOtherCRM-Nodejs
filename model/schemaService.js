@@ -6,7 +6,7 @@ const schema = new mongoose.Schema({
         default: ''
     },
     idCustomer: {
-        type: String,
+        type: Number,
         default: ''
     },
     idGroupVoucher: {
@@ -14,12 +14,12 @@ const schema = new mongoose.Schema({
         default: ''
     },
     idVoucher: {
-        type: String,
+        type: Number,
         default: ''
     },
     titleGroupVoucher: {
-        type: Number,
-        default: 0
+        type: String,
+        default: ''
     },
     nameCustomer: {
         type: String,

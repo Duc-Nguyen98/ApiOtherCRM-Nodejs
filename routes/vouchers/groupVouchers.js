@@ -650,6 +650,75 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
+router.patch('/delete/many/group', async function (req, res, next) {
+  try {
+    let obj = req.body.GroupIdArray;
+    const entry = await groupVoucherModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        message: "Deleted Groups Successfully"
+      });
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/delete-soft/many/group', async function (req, res, next) {
+  try {
+    let obj = req.body.GroupIdArray;
+    const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+      softDelete: 1
+    }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        message: "Delete Soft Groups Successfully"
+      });
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+router.patch('/restore/many/group', async function (req, res, next) {
+  try {
+    let obj = req.body.GroupIdArray;
+    const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+      softDelete: 0
+    }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        message: "Restore Groups Successfully"
+      });
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
 router.patch('/delete/many/voucher', async function (req, res, next) {
   try {
     let obj = req.body.VoucherIdArray;

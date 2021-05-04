@@ -2,27 +2,24 @@ const express = require('express');
 const router = express.Router();
 const servicesModel = require('../model/schemaService');
 const customerModel = require('../model/customer/customer/schemaCustomer');
+const { parse } = require('node-xlsx');
 
 
 //! FIlter 
 
-const hasFilter = (param, param2, param3, param4) => {
-    if (param !== null && param2 !== null) {
-        return { type: param, status: param2, title: param3, softDelete: param4 }
-    } else if (param == null && param2 !== null) {
-        return { status: param2, title: param3, softDelete: param4 }
-    } else if (param !== null && param2 == null) {
-        return { type: param, title: param3, softDelete: param4 }
+const hasFilter = (param, param2, param3) => {
+    if (param !== null) {
+        return { type: parseInt(param), titleGroupVoucher: param2, softDelete: parseInt(param3) }
     } else {
-        return { title: param3, softDelete: param4 }
+        return { titleGroupVoucher: param2, softDelete: param3 }
     }
 }
 
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
-idSMSAuto = async (req, res, next) => {
-    await cmsModel.findOne({}, { idServices: 1, _id: 0 }).sort({ idServices: -1 })
+const idServicesAuto = async (req, res, next) => {
+    await servicesModel.findOne({}, { idServices: 1, _id: 0 }).sort({ idServices: -1 })
         .then(data => {
             AutoId = data.idServices + 1;
             next();
@@ -32,7 +29,7 @@ idSMSAuto = async (req, res, next) => {
         })
 }
 
-sendSms = (telephoneCustomer, content) => {
+const sendSms = (telephoneCustomer, content) => {
     telephoneCustomer = telephoneCustomer.replace(/0/i, '+84')
 
     const client = require('twilio')(
@@ -50,41 +47,13 @@ sendSms = (telephoneCustomer, content) => {
     })
 }
 
-// /* GET Details users listing. */
-// TODO: METHOD - GET
-// -u http://localhost:1509/services/sms
-// ? Example: http://localhost:1509/services/sms/list/customer
-
-
-
-
-// router.get('/list/customer', async function (req, res, next) {
-//     try {
-//         const customers = await customerModel.find({ softDelete: 0 });
-//         return res.status(200).json({
-//             success: true,
-//             customers: customers,
-//         });
-
-//     } catch (err) {
-//         console.log(err)
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
 
 router.get('/list', async function (req, res, next) {
     try {
         let type = req.query.type;
-        let status = req.query.status;
         let softDelete = 0;
         let q = req.query.q;
         (type == undefined || type == '') ? type = null : type = type;
-        (status == undefined || status == '') ? status = null : status = status;
-        console.log(type, status, q)
-
         let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
         //? Begin config Pagination
@@ -93,20 +62,83 @@ router.get('/list', async function (req, res, next) {
             totalItemsPerPage: parseInt(req.query.perPage)
         }
 
-        const users = await cmsModel
-            .find(hasFilter(type, status, regex, softDelete))
+        const services = await servicesModel
+            .find(hasFilter(type, regex, softDelete))
+            .sort({ idServices: -1 })
             .limit(pagination.totalItemsPerPage)
             .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
 
-        const totalRecords = await cmsModel.countDocuments(hasFilter(type, status, regex, softDelete));
-        Promise.all([users, totalRecords]).then(([users, totalRecords]) => {
+        const totalRecords = await servicesModel.countDocuments(hasFilter(type, regex, softDelete));
+        Promise.all([services, totalRecords]).then(([services, totalRecords]) => {
             return res.status(200).json({
                 success: true,
                 totalRecords: totalRecords,
-                users: users,
+                services: services,
             });
         })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+router.get('/list/trash', async function (req, res, next) {
+    try {
+        let type = req.query.type;
+        let softDelete = 1;
+        let q = req.query.q;
+        (type == undefined || type == '') ? type = null : type = type;
+        let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+
+        //? Begin config Pagination
+        let pagination = {
+            currentPage: parseInt(req.query.page),
+            totalItemsPerPage: parseInt(req.query.perPage)
+        }
+
+        const services = await servicesModel
+            .find(hasFilter(type, regex, softDelete))
+            .sort({ idServices: -1 })
+            .limit(pagination.totalItemsPerPage)
+            .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+
+        const totalRecords = await servicesModel.countDocuments(hasFilter(type, regex, softDelete));
+        Promise.all([services, totalRecords]).then(([services, totalRecords]) => {
+            return res.status(200).json({
+                success: true,
+                totalRecords: totalRecords,
+                services: services,
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+// /* GET Details users listing. */
+// TODO: METHOD - GET
+// -u http://localhost:1509/services/sms
+// ? Example: http://localhost:1509/services/sms/list/customer
+
+
+router.get('/list/customer', async function (req, res, next) {
+    try {
+        const customers = await customerModel.find({ softDelete: 0 }).select({ "idCustomer": 1, "name": 1, "avatar": 1 });
+        return res.status(200).json({
+            success: true,
+            customers: customers,
+        });
+
     } catch (err) {
         console.log(err)
         return res.status(500).json({
@@ -122,7 +154,7 @@ router.get('/list', async function (req, res, next) {
 // // ? Example: http://localhost:1509/user/create
 // router.post('/create', idSMSAuto, async function (req, res, next) {
 //     try {
-//         const entry = await cmsModel.create({
+//         const entry = await servicesModel.create({
 //             idServices: AutoId,
 //             title: req.body?.title,
 //             type: req.body?.type,
@@ -147,133 +179,165 @@ router.get('/list', async function (req, res, next) {
 //     };
 // });
 
-// /* GET Details users listing. */
-// // TODO: METHOD - GET
-// // -u http://localhost:1509/services/sms/detail/:id
-// // ? Example: http://localhost:1509/services/sms/detail/606f591f41340a452c5e8376
-// router.get('/detail/:id', async function (req, res, next) {
-//     try {
-//         const _id = req.params.id;
-//         await cmsModel
-//             .findOne({ _id: _id })
-//             .then(data => {
-//                 return res.status(200).json({
-//                     success: true,
-//                     data: data
-//                 });
-//             })
-//     } catch (err) {
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
+/* GET Details users listing. */
+// TODO: METHOD - GET
+// -u http://localhost:1509/services/sms/detail/:id
+// ? Example: http://localhost:1509/services/sms/detail/606f591f41340a452c5e8376
+router.get('/detail/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+        await servicesModel
+            .findOne({ _id: _id })
+            .then(data => {
+                return res.status(200).json({
+                    success: true,
+                    data: data
+                });
+            })
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 
-// /* DELETE todo listing deleteSoft Record */
-// // TODO: METHOD - DELETE
-// // -u http://localhost:1509/services/sms/delete-soft/:id
-// router.delete('/delete-soft/:id', async function (req, res, next) {
-//     try {
-//         const _id = req.params.id;
-//         const entry = await cmsModel.updateOne({ _id: _id }, { softDelete: 1 });
-//         return res.status(200).json({
-//             success: true,
-//             data: entry
-//         });
-//     } catch (err) {
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - DELETE
+// -u http://localhost:1509/services/sms/delete-soft/:id
+router.delete('/delete-soft/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+        const entry = await servicesModel.updateOne({ _id: _id }, { softDelete: 1 });
+        return res.status(200).json({
+            success: true,
+            message: "Delete-Soft Successfully"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
-// /* DELETE todo listing deleteSoft Record */
-// // TODO: METHOD - DELETE
-// // -u http://localhost:1509/services/sms/delete/:id
-// router.delete('/delete/:id', async function (req, res, next) {
-//     try {
-//         const _id = req.params.id;
-//         const entry = await cmsModel.findByIdAndDelete({ _id: _id });
-//         return res.status(200).json({
-//             success: true,
-//             data: entry
-//         });
-//     } catch (err) {
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
-
-
-// router.get('/list/trash', async function (req, res, next) {
-//     try {
-//         let type = req.query.type;
-//         let status = req.query.status;
-//         let softDelete = 1;
-//         let q = req.query.q;
-//         (type == undefined || type == '') ? type = null : type = type;
-//         (status == undefined || status == '') ? status = null : status = status;
-//         console.log(type, status, q)
-
-//         let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
-
-//         //? Begin config Pagination
-//         let pagination = {
-//             currentPage: parseInt(req.query.page),
-//             totalItemsPerPage: parseInt(req.query.perPage)
-//         }
-
-//         const users = await cmsModel
-//             .find(hasFilter(type, status, regex, softDelete))
-//             .limit(pagination.totalItemsPerPage)
-//             .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - DELETE
+// -u http://localhost:1509/services/sms/delete/:id
+router.delete('/delete/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+        const entry = await servicesModel.findByIdAndDelete({ _id: _id });
+        return res.status(200).json({
+            success: true,
+            message: "Delete Successfully"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 
-//         const totalRecords = await cmsModel.countDocuments(hasFilter(type, status, regex, softDelete));
-//         Promise.all([users, totalRecords]).then(([users, totalRecords]) => {
-//             return res.status(200).json({
-//                 success: true,
-//                 totalRecords: totalRecords,
-//                 users: users,
-//             });
-//         })
-//     } catch (err) {
-//         console.log(err)
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/services/sms/trash/restore/:id
+
+router.patch('/trash/restore/:id', async function (req, res, next) {
+    try {
+        const _id = req.params.id;
+
+        const entry = await servicesModel.findOneAndUpdate({ _id: _id }, {
+            softDelete: 0,
+        });
+        return res.status(200).json({
+            success: true,
+            message: "Restore Successfully"
+        });
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/delete-soft/many/services', async function (req, res, next) {
+    try {
+        let obj = req.body.ServicesIdArray;
+        const entry = await servicesModel.updateMany({ _id: { $in: obj } }, {
+            softDelete: 1
+        }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Delete-Soft Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 
-// /* PATCH todo listing change isStarred isComplete. */
-// // TODO: METHOD - PATCH
-// // -u http://localhost:1509/services/sms/trash/restore/:id
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
 
-// router.patch('/trash/restore/:id', async function (req, res, next) {
-//     try {
-//         const _id = req.params.id;
+router.patch('/trash/restore/many/services', async function (req, res, next) {
+    try {
+        let obj = req.body.ServicesIdArray;
+        const entry = await servicesModel.updateMany({ _id: { $in: obj } }, {
+            softDelete: 0
+        }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Restore Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
-//         const entry = await cmsModel.findOneAndUpdate({ _id: _id }, {
-//             softDelete: 0,
-//         });
-//         return res.status(200).json({
-//             success: true,
-//             data: entry
-//         });
-//     } catch (err) {
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/trash/delete/many/services', async function (req, res, next) {
+    try {
+        let obj = req.body.ServicesIdArray;
+        const entry = await servicesModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Deleted Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
 
 
 
