@@ -787,6 +787,73 @@ router.patch('/change/status/many/voucher', async function (req, res, next) {
   };
 });
 
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - GET
+// -u http://localhost:1509/voucher/group/delete-soft/:id
+// ? Example: http://localhost:1509/voucher/group/delete-soft/:
+http://localhost:1509/voucher/group/voucher-items/delete-soft/6084a25a94ca7c92289c2bb0
+router.delete('/voucher-items/delete-soft/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    const entry = await groupVoucherItemsModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
+    return res.status(200).json({
+      success: true,
+      message: "Deleted Soft Successfully"
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - GET
+// -u http://localhost:1509/voucher/group/delete-soft/:id
+// ? Example: http://localhost:1509/voucher/group/delete-soft/:
+router.patch('/trash/voucher-items/restore/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    const entry = await groupVoucherItemsModel.findOneAndUpdate({ _id: _id }, { softDelete: 0 });
+    return res.status(200).json({
+      success: true,
+      message: "Restore Successfully"
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - GET
+// -u http://localhost:1509/voucher/group/delete-soft/:id
+// ? Example: http://localhost:1509/voucher/group/delete-soft/:
+router.delete('/trash/voucher-items/delete/:id', async function (req, res, next) {
+  try {
+    const _id = req.params.id;
+    const entry = await groupVoucherItemsModel.findOneAndDelete({ _id: _id });
+    return res.status(200).json({
+      success: true,
+      message: "Restore Successfully"
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
+
+
+
 //! CODE API FOR PERMISSION EMPLOYEE
 
 module.exports = router;
