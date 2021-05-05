@@ -23,7 +23,7 @@ const hasFilter = (param, param2, param3) => {
 const idServicesAuto = async (req, res, next) => {
     await servicesModel.findOne({}, { idServices: 1, _id: 0 }).sort({ idServices: -1 })
         .then(data => {
-            AutoId = data.idServices + 1;
+            (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idServices + 1;
             next();
         })
         .catch(err => {

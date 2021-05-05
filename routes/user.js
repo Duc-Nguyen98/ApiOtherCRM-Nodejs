@@ -46,7 +46,7 @@ const hasFilter = (param, param2, param3, param4, param5) => {
 const idUserAuto = async (req, res, next) => {
   await userModel.findOne({}, { idUser: 1, _id: 0 }).sort({ idUser: -1 })
     .then(data => {
-      AutoId = data.idUser + 1;
+      (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idUser + 1;
       next();
     })
     .catch(err => {

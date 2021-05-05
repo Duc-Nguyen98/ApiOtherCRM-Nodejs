@@ -27,7 +27,7 @@ const voucherItems = (param, param2, param3, param4) => {
 const idAutoGroup = async (req, res, next) => {
   await groupVoucherModel.findOne({}, { idGroupVoucher: 1, _id: 0 }).sort({ idGroupVoucher: -1 })
     .then(data => {
-      AutoId = data.idGroupVoucher + 1;
+      (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idGroupVoucher + 1;
       next();
     })
     .catch(err => {
@@ -37,7 +37,7 @@ const idAutoGroup = async (req, res, next) => {
 const idAutoGroupVoucher = async (req, res, next) => {
   await groupVoucherItemsModel.findOne({}, { idVoucher: 1, _id: 0 }).sort({ idVoucher: -1 })
     .then(data => {
-      AutoIdVoucher = data.idVoucher + 1;
+      (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idVoucher + 1;
       next();
     })
     .catch(err => {

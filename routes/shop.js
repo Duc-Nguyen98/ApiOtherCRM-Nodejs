@@ -25,9 +25,10 @@ const handleFilterSearch = (param, param2, param3, param4) => {
 
 // TODO: MIDDLEWARE
 const idShopAuto = async (req, res, next) => {
+
     await shopModel.findOne({}, { idShop: 1, _id: 0 }).sort({ idShop: -1 })
         .then(data => {
-            AutoId = data.idShop + 1;
+            (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idShop + 1;
             next();
         })
         .catch(err => {

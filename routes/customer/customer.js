@@ -24,7 +24,7 @@ const handleFilterSearch = (param, param2, param3, param4) => {
 const idCustomerAuto = async (req, res, next) => {
   await customerModel.findOne({}, { idCustomer: 1, _id: 0 }).sort({ idCustomer: -1 })
     .then(data => {
-      AutoId = data.idCustomer + 1;
+      (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idCustomer + 1;
       next();
     })
     .catch(err => {
