@@ -52,6 +52,28 @@ const schema = new mongoose.Schema({
         },
 
     },
+    scopeApply: {
+        shop: {
+            all: {
+                type: Number,
+                default: 0
+            },
+            listShop: {
+                type: Array,
+                default: []
+            }
+        },
+        customer: {
+            all: {
+                type: Number,
+                default: 0
+            },
+            listCustomer: {
+                type: Array,
+                default: []
+            }
+        }
+    },
     timeLine: {
         type: Object,
         release: {
@@ -69,18 +91,8 @@ const schema = new mongoose.Schema({
             type: String,
             default: ''
         },
-        dateSent: {
-            type: String,
-            default: ''
-        }
-    },
-    created: {
-        createBy: {
-            type: String,
-            default: 'admin'
-        },
         time: {
-            type: Date,
+            type: String,
             default: ''
         }
     },

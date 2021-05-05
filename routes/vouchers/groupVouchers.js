@@ -545,45 +545,17 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, r
 router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (req, res, next) {
   try {
 
-    let obj = req.body.voucherCode;
-    let discount = req.body.discount;
-    let timeLine = req.body.timeLine;
-    let classified = req.body.classified;
-    let arrayDataVoucher = [];
+    let obj = req.body;
     await obj.forEach(function (item, index) {
-      let objectData = {
-        idVoucher: AutoIdVoucher + index,
-        idGroupVoucher: AutoId,
-        voucherCode: item,
-        idCustomersUse: null,
-        idLocationUse: null,
-        status: 0,
-        classified: classified,
-        nameCustomerUse: null,
-        nameLocationUse: null,
-        usedDate: null,
-        softDelete: 0,
-        discount: discount,
-        timeLine: timeLine,
-        created: {
-          createBy: "admin",
-          time: Date.now()
-        },
-        modified: {
-          modifyBy: "admin",
-          time: Date.now()
-        }
-      }
-      arrayDataVoucher.push(objectData)
-    });
-
-    const entry = await groupVoucherItemsModel.insertMany(arrayDataVoucher)
+      item.idVoucher = AutoIdVoucher + index;
+      item.idGroupVoucher = AutoId;
+    })
+    const entry = await groupVoucherItemsModel.insertMany(obj)
     return res.status(200).json({
       success: true,
-      message: "Successfully Created"
+      message: "Successfully Created",
+      data: entry
     });
-
-
   } catch (err) {
     console.log(err)
     return res.status(500).json({
@@ -600,38 +572,14 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
 
 router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher, async function (req, res, next) {
   try {
-    let obj = req.body.voucherCode;
-    let discount = req.body.discount;
-    let timeLine = req.body.timeLine;
-    let classified = req.body.classified;
-    let arrayDataVoucher = [];
+    let obj = req.body;
+    let idGroupVoucher = req.params.id;
     await obj.forEach(function (item, index) {
-      let objectData = {
-        idVoucher: AutoIdVoucher + index,
-        idGroupVoucher: idGroupVoucher.idGroupVoucher,
-        voucherCode: item,
-        idCustomersUse: null,
-        idLocationUse: null,
-        status: 0,
-        classified: classified,
-        nameCustomerUse: null,
-        nameLocationUse: null,
-        usedDate: null,
-        softDelete: 0,
-        discount: discount,
-        timeLine: timeLine,
-        created: {
-          createBy: "admin",
-          time: Date.now()
-        },
-        modified: {
-          modifyBy: "admin",
-          time: Date.now()
-        }
-      }
-      arrayDataVoucher.push(objectData)
-    });
-    const entry = await groupVoucherItemsModel.insertMany(arrayDataVoucher)
+      item.idVoucher = AutoIdVoucher + index;
+      item.idGroupVoucher = idGroupVoucher;
+    })
+
+    const entry = await groupVoucherItemsModel.insertMany(obj)
     return res.status(200).json({
       success: true,
       message: "Successfully Created"

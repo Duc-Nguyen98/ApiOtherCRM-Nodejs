@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const servicesModel = require('../model/schemaService');
 const customerModel = require('../model/customer/customer/schemaCustomer');
+const groupVoucherModel = require('../model/vouchers/groupVoucher/schemaGroupVoucher');
+const voucherItemsModel = require('../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 const { parse } = require('node-xlsx');
 
 
@@ -29,22 +31,80 @@ const idServicesAuto = async (req, res, next) => {
         })
 }
 
-const sendSms = (telephoneCustomer, content) => {
-    telephoneCustomer = telephoneCustomer.replace(/0/i, '+84')
 
+
+const sendSms = (telephoneCustomer, content) => {
+    let swapTelephone = telephoneCustomer.replace(/0/i, '+84');
+    console.log(swapTelephone)
     const client = require('twilio')(
         "AC80ed1b888d269dc287173c2202ec9ace",
         "2a94e9d362710c2a2aa3a51654ff22d8"
     );
     client.messages.create({
         from: "+15708730303",
-        to: telephoneCustomer,
+        to: swapTelephone,
         body: content
         // to: "+84393177289",
         // body: "You just sent an SMS from Node.js using Twilio!"
     }).then(data => {
         return data;
+    }).catch(err => {
+        console.log(err);
     })
+}
+
+
+
+const checkIdCustomer = async (req, res, next) => {
+    let idCustomer = req.body.idCustomer;
+    let idGroupVoucher = req.body.idGroupVoucher;
+    let classifiedVoucher = req.body.classifiedVoucher;
+    const dataCustomer = await customerModel.findOne({ idCustomer: idCustomer })
+        .select({ idCustomer: 1, telephone: 1, email: 1, name: 1 });
+
+    const dataGroupVoucher = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher })
+        .select({ idGroupVoucher: 1, title: 1, scopeApply: 1 });
+
+    const dataVoucherItem = await voucherItemsModel.findOne({ idGroupVoucher: idGroupVoucher, softDelete: 0, classified: classifiedVoucher, status: 1 })
+        .select({ idVoucher: 1, voucherCode: 1, discount: 1, timeLine: 1 });
+
+
+    Promise.all([dataCustomer, dataGroupVoucher, dataVoucherItem]).then(([dataCustomer, dataGroupVoucher, dataVoucherItem]) => {
+
+        // console.log(dataCustomer.telephone, dataGroupVoucher, dataVoucherItem, req.body)
+
+        const entry = servicesModel.create({
+            idServices: AutoId,
+            idCustomer: dataCustomer.idCustomer,
+            idGroupVoucher: dataGroupVoucher.idGroupVoucher,
+            idVoucher: dataVoucherItem.idVoucher,
+            titleGroupVoucher: dataGroupVoucher.titleGroupVoucher,
+            scopeApply: dataGroupVoucher.scopeApply,
+            type: req.body?.type,
+            telephone: dataCustomer.telephone,
+            mailCustomer: dataCustomer.mailCustomer,
+            voucherCode: dataVoucherItem.voucherCode,
+            content: req.body?.content,
+            discount: dataVoucherItem.discount,
+            timeLine: dataVoucherItem.timeLine,
+            details: {
+                sendBy: "Admin",
+                time: Date.now()
+            }
+        })
+        // return res.status(200).json({
+        //     success: true,
+        //     data: entry,
+        //     detailSms: sendSms(entry.telephone, entry.content)
+        // });
+
+        sendSms("0393177289", req.body.content)
+
+
+    })
+
+
+
 }
 
 
@@ -148,36 +208,54 @@ router.get('/list/customer', async function (req, res, next) {
     };
 });
 
-// /* GET Details users listing. */
-// // TODO: METHOD - GET
-// // -u http://localhost:1509/user/create
-// // ? Example: http://localhost:1509/user/create
-// router.post('/create', idSMSAuto, async function (req, res, next) {
-//     try {
-//         const entry = await servicesModel.create({
-//             idServices: AutoId,
-//             title: req.body?.title,
-//             type: req.body?.type,
-//             name: req.body?.name,
-//             status: req.body?.status,
-//             telephone: req.body?.telephone,
-//             content: req.body?.content,
-//             details: req.body?.details,
-//             softDelete: 0,
-//         })
-//         return res.status(200).json({
-//             success: true,
-//             data: entry,
-//             detailSms: sendSms(entry.telephone, entry.content)
-//         });
+/* GET Details users listing. */
+// TODO: METHOD - GET
+// -u http://localhost:1509/user/create
+// ? Example: http://localhost:1509/user/create
+router.post('/create', idServicesAuto, checkIdCustomer, async function (req, res, next) {
+    try {
+        console.log(entry)
+        // sendSms("+84393177289", "You just sent an SMS from Node.js using Twilio!")
 
-//     } catch (err) {
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
+
+        // const entry = await servicesModel.create({
+        //     idServices: AutoId,
+        //     idCustomer: req.body?.idCustomer,
+        //     idGroupVoucher: req.body?.idGroupVoucher,
+        //     idVoucher: req.body?.idVoucher,
+        //     titleGroupVoucher: req.body?.titleGroupVoucher,
+        //     type: req.body?.type,
+        //     telephone: req.body?.telephone,
+        //     mailCustomer: req.body?.mailCustomer,
+        //     voucherCode: req.body?.voucherCode,
+        //     content: req.body?.content,
+        //     discount: req.body?.discount,
+        //     timeLine: req.body?.timeLine,
+        //     details: {
+        //         sendBy: "Admin",
+        //         time: Date.now()
+        //     }
+        // })
+        // return res.status(200).json({
+        //     success: true,
+        //     data: entry,
+        //     detailSms: sendSms(entry.telephone, entry.content)
+        // });
+
+        return res.status(200).json({
+            success: true,
+            message: "Create Successfully"
+
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 /* GET Details users listing. */
 // TODO: METHOD - GET
