@@ -142,6 +142,7 @@ router.post('/create', idShopAuto, async function (req, res, next) {
             message: "Created Successfully"
         });
     } catch (err) {
+        console.log(err)
         return res.status(500).json({
             success: false,
             error: 'Server Error'
@@ -189,7 +190,6 @@ router.put('/update/:id', async function (req, res, next) {
 });
 
 
-
 /* PUT upload Avatar for Customer. */
 // TODO: METHOD - PUT
 // -u http://localhost:1509/customer/upload/:id
@@ -215,7 +215,6 @@ router.post('/upload/:id', async function (req, res, next) {
                     message: err
                 });
             }
-
             let results = req.files.map(async (file) => {
                 const user = await shopModel.findOne({ _id: _id });
                 var filePath = user.avatar;

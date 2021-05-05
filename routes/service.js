@@ -71,7 +71,6 @@ const sendMail = () => {
         .catch(error => console.log(error.message))
 }
 
-sendMail()
 
 const checkIdCustomer = async (req, res, next) => {
     let idCustomer = req.body.idCustomer;

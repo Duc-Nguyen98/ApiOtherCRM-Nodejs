@@ -27,14 +27,14 @@ const voucherItems = (param, param2, param3, param4) => {
 const idAutoGroup = async (req, res, next) => {
   await groupVoucherModel.findOne({}, { idGroupVoucher: 1, _id: 0 }).sort({ idGroupVoucher: -1 })
     .then(data => {
-      (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idGroupVoucher + 1;
+      (data == null || data == '' || data == undefined) ? AutoIdGroup = 10000 : AutoIdGroup = data.idGroupVoucher + 1;
       next();
     })
     .catch(err => {
       console.log(err)
     })
 }
-const idAutoGroupVoucher = async (req, res, next) => {
+const idAutoVoucher = async (req, res, next) => {
   await groupVoucherItemsModel.findOne({}, { idVoucher: 1, _id: 0 }).sort({ idVoucher: -1 })
     .then(data => {
       (data == null || data == '' || data == undefined) ? AutoIdVoucher = 10000 : AutoIdVoucher = data.idVoucher + 1;
@@ -281,7 +281,7 @@ router.post('/create', idAutoGroup, async function (req, res, next) {
 
   try {
     const groupVoucher = await groupVoucherModel.create({
-      idGroupVoucher: AutoId,
+      idGroupVoucher: AutoIdGroup,
       title: req.body?.title,
       note: req.body?.note,
       status: req.body?.status,
@@ -542,13 +542,13 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, r
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/create
 // ? Example: http://localhost:1509/voucher/group/create
-router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (req, res, next) {
+router.post('/create/voucher', idAutoGroup, idAutoVoucher, async function (req, res, next) {
   try {
 
     let obj = req.body;
     await obj.forEach(function (item, index) {
       item.idVoucher = AutoIdVoucher + index;
-      item.idGroupVoucher = (AutoId + 1);
+      item.idGroupVoucher = (AutoIdGroup + 1);
     })
     const entry = await groupVoucherItemsModel.insertMany(obj)
     return res.status(200).json({
@@ -570,7 +570,7 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/update/:id
 
-router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoGroupVoucher, async function (req, res, next) {
+router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoVoucher, async function (req, res, next) {
   try {
     let obj = req.body;
     let idGroupVoucher = req.params.id;
