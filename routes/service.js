@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const sgMail = require('@sendgrid/mail')
 const servicesModel = require('../model/schemaService');
 const customerModel = require('../model/customer/customer/schemaCustomer');
 const groupVoucherModel = require('../model/vouchers/groupVoucher/schemaGroupVoucher');
@@ -53,7 +54,24 @@ const sendSms = (telephoneCustomer, content) => {
     })
 }
 
+const sendMail = () => {
+    const API_KEY = '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';
+    sgMail.setApiKey(API_KEY);
 
+    const message = {
+        to: 'ducsimax1998@gmail.com,ducnin1999@gmail.com',
+        from: 'ducnin1998@gmail.com',
+        subject: 'Hello from sendgrid',
+        text: 'Hello from sendgrid',
+        html: '<h1>Happy BirthDay </h1>'
+    }
+
+    sgMail.send(message)
+        .then(response => console.log('Email sent...!'))
+        .catch(error => console.log(error.message))
+}
+
+sendMail()
 
 const checkIdCustomer = async (req, res, next) => {
     let idCustomer = req.body.idCustomer;
@@ -73,32 +91,34 @@ const checkIdCustomer = async (req, res, next) => {
 
         // console.log(dataCustomer.telephone, dataGroupVoucher, dataVoucherItem, req.body)
 
-        const entry = servicesModel.create({
-            idServices: AutoId,
-            idCustomer: dataCustomer.idCustomer,
-            idGroupVoucher: dataGroupVoucher.idGroupVoucher,
-            idVoucher: dataVoucherItem.idVoucher,
-            titleGroupVoucher: dataGroupVoucher.titleGroupVoucher,
-            scopeApply: dataGroupVoucher.scopeApply,
-            type: req.body?.type,
-            telephone: dataCustomer.telephone,
-            mailCustomer: dataCustomer.mailCustomer,
-            voucherCode: dataVoucherItem.voucherCode,
-            content: req.body?.content,
-            discount: dataVoucherItem.discount,
-            timeLine: dataVoucherItem.timeLine,
-            details: {
-                sendBy: "Admin",
-                time: Date.now()
-            }
-        })
+        // const entry = servicesModel.create({
+        //     idServices: AutoId,
+        //     idCustomer: dataCustomer.idCustomer,
+        //     idGroupVoucher: dataGroupVoucher.idGroupVoucher,
+        //     idVoucher: dataVoucherItem.idVoucher,
+        //     titleGroupVoucher: dataGroupVoucher.titleGroupVoucher,
+        //     scopeApply: dataGroupVoucher.scopeApply,
+        //     type: req.body?.type,
+        //     telephone: dataCustomer.telephone,
+        //     mailCustomer: dataCustomer.mailCustomer,
+        //     voucherCode: dataVoucherItem.voucherCode,
+        //     content: req.body?.content,
+        //     discount: dataVoucherItem.discount,
+        //     timeLine: dataVoucherItem.timeLine,
+        //     details: {
+        //         sendBy: "Admin",
+        //         time: Date.now()
+        //     }
+        // })
+
         // return res.status(200).json({
         //     success: true,
         //     data: entry,
         //     detailSms: sendSms(entry.telephone, entry.content)
         // });
 
-        sendSms("0393177289", req.body.content)
+        // sendSms("0393177289", req.body.content)
+        sendMail()
 
 
     })
