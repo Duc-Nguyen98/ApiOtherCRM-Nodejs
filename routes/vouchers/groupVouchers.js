@@ -37,7 +37,7 @@ const idAutoGroup = async (req, res, next) => {
 const idAutoGroupVoucher = async (req, res, next) => {
   await groupVoucherItemsModel.findOne({}, { idVoucher: 1, _id: 0 }).sort({ idVoucher: -1 })
     .then(data => {
-      (data == null || data == '' || data == undefined) ? AutoId = 10000 : AutoId = data.idVoucher + 1;
+      (data == null || data == '' || data == undefined) ? AutoIdVoucher = 10000 : AutoIdVoucher = data.idVoucher + 1;
       next();
     })
     .catch(err => {
@@ -548,7 +548,7 @@ router.post('/create/voucher', idAutoGroup, idAutoGroupVoucher, async function (
     let obj = req.body;
     await obj.forEach(function (item, index) {
       item.idVoucher = AutoIdVoucher + index;
-      item.idGroupVoucher = AutoId;
+      item.idGroupVoucher = (AutoId + 1);
     })
     const entry = await groupVoucherItemsModel.insertMany(obj)
     return res.status(200).json({

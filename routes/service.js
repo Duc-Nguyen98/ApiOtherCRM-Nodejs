@@ -59,11 +59,11 @@ const sendMail = () => {
     sgMail.setApiKey(API_KEY);
 
     const message = {
-        to: 'ducsimax1998@gmail.com,ducnin1999@gmail.com',
+        to: 'nguyendiemly99@gmail.com',
         from: 'ducnin1998@gmail.com',
         subject: 'Hello from sendgrid',
         text: 'Hello from sendgrid',
-        html: '<h1>Happy BirthDay </h1>'
+        html: '<h1>Anh Yêu EM !!!!!!!!!!!!!!/h1>'
     }
 
     sgMail.send(message)

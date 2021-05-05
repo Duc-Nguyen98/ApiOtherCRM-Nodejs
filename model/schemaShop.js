@@ -30,11 +30,11 @@ const schema = new mongoose.Schema({
         default: 'ANT-CVV Note Shop'
     },
     telephone: {
-        type: Number,
+        type: String,
         default: 0
     },
     telephoneShop: {
-        type: Number,
+        type: String,
         default: 0
     },
     fax: {
