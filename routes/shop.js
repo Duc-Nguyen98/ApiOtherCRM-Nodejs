@@ -374,6 +374,55 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 
 
 
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/delete-soft/many/shop', async function (req, res, next) {
+    try {
+        let obj = req.body.shopIdArray;
+        const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+            softDelete: 1
+        }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Delete Soft Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
+router.patch('/restore/many/shop', async function (req, res, next) {
+    try {
+        let obj = req.body.shopIdArray;
+        const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+            softDelete: 0
+        }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Restore Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
 
 //! CODE API FOR PERMISSION EMPLOYEE
 
