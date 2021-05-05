@@ -382,7 +382,7 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 router.patch('/delete-soft/many/shop', async function (req, res, next) {
     try {
         let obj = req.body.shopIdArray;
-        const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+        const entry = await shopModel.updateMany({ _id: { $in: obj } }, {
             softDelete: 1
         }, (err, result) => {
             return res.status(200).json({
@@ -406,7 +406,7 @@ router.patch('/delete-soft/many/shop', async function (req, res, next) {
 router.patch('/restore/many/shop', async function (req, res, next) {
     try {
         let obj = req.body.shopIdArray;
-        const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+        const entry = await shopModel.updateMany({ _id: { $in: obj } }, {
             softDelete: 0
         }, (err, result) => {
             return res.status(200).json({
