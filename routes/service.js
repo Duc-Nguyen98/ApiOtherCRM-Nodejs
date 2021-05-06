@@ -14,7 +14,7 @@ const hasFilter = (param, param2, param3) => {
     if (param !== null) {
         return { type: parseInt(param), titleGroupVoucher: param2, softDelete: parseInt(param3) }
     } else {
-        return {titleGroupVoucher: param2, softDelete: param3}
+        return { titleGroupVoucher: param2, softDelete: param3 }
     }
 }
 
@@ -101,8 +101,9 @@ const checkIdGroupVoucher = async (req, res, next) => {
 const checkVoucherItems = async (req, res, next) => {
     let idGroupVoucher = req.body.idGroupVoucher;
     let voucherCode = req.body.voucherCode;
-    const entry = await voucherItemsModel.find({ idGroupVoucher: idGroupVoucher, voucherCode: voucherCode }).then(data => {
+    const entry = await voucherItemsModel.findOne({ idGroupVoucher: idGroupVoucher, voucherCode: voucherCode }).then(data => {
         infoVoucherCode = data;
+        console.log(infoVoucherCode);
         next();
     }).catch(err => {
         return err
@@ -110,6 +111,54 @@ const checkVoucherItems = async (req, res, next) => {
 }
 
 
+/* GET Details users listing. */
+// TODO: METHOD - GET
+// -u http://localhost:1509/user/create
+// ? Example: http://localhost:1509/user/create
+router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
+    try {
+
+        console.log(dataCustomer, dataGroupVoucher, infoVoucherCode)
+        // sendSms("+84393177289", "You just sent an SMS from Node.js using Twilio!")
+        let typeService = req.body.type;
+        let contentService = req.body.content;
+
+        // const serviceCreate = await servicesModel.create({
+        //     idServices: AutoId,
+        //     idCustomer: dataCustomer.idCustomer,
+        //     idGroupVoucher: dataGroupVoucher.title,
+        //     idVoucher: infoVoucherCode.idVoucher,
+        //     titleGroupVoucher: dataGroupVoucher.titleGroupVoucher,
+        //     type: typeService,
+        //     scopeApply: dataGroupVoucher.scopeApply,
+        //     telephone: dataCustomer.telephone,
+        //     mailCustomer: dataCustomer.email,
+        //     voucherCode: infoVoucherCode.voucherCode,
+        //     content: contentService,
+        //     discount: infoVoucherCode.discount,
+        //     timeLine: infoVoucherCode.timeLine,
+        //     details: {
+        //         sendBy: "Admin",
+        //         time: Date.now()
+        //     }
+        // })
+        // const change
+
+
+        return res.status(200).json({
+            success: true,
+            message: "Create Successfully"
+
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 
 
@@ -190,10 +239,6 @@ router.get('/list/trash', async function (req, res, next) {
 });
 
 
-// /* GET Details users listing. */
-// TODO: METHOD - GET
-// -u http://localhost:1509/services/sms
-// ? Example: http://localhost:1509/services/sms/list/customer
 
 
 router.get('/list/customer', async function (req, res, next) {
@@ -202,73 +247,6 @@ router.get('/list/customer', async function (req, res, next) {
         return res.status(200).json({
             success: true,
             customers: customers,
-        });
-
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
-
-
-router.get('/list/customer', async function (req, res, next) {
-    try {
-        const customers = await customerModel.find({ softDelete: 0 }).select({ "idCustomer": 1, "name": 1, "avatar": 1 });
-        return res.status(200).json({
-            success: true,
-            customers: customers,
-        });
-
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
-/* GET Details users listing. */
-// TODO: METHOD - GET
-// -u http://localhost:1509/user/create
-// ? Example: http://localhost:1509/user/create
-router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
-    try {
-
-        console.log(dataCustomer, dataGroupVoucher, infoVoucherCode)
-        // sendSms("+84393177289", "You just sent an SMS from Node.js using Twilio!")
-
-
-        // const entry = await servicesModel.create({
-        //     idServices: AutoId,
-        //     idCustomer: req.body?.idCustomer,
-        //     idGroupVoucher: req.body?.idGroupVoucher,
-        //     idVoucher: req.body?.idVoucher,
-        //     titleGroupVoucher: req.body?.titleGroupVoucher,
-        //     type: req.body?.type,
-        //     telephone: req.body?.telephone,
-        //     mailCustomer: req.body?.mailCustomer,
-        //     voucherCode: req.body?.voucherCode,
-        //     content: req.body?.content,
-        //     discount: req.body?.discount,
-        //     timeLine: req.body?.timeLine,
-        //     details: {
-        //         sendBy: "Admin",
-        //         time: Date.now()
-        //     }
-        // })
-        // return res.status(200).json({
-        //     success: true,
-        //     data: entry,
-        //     detailSms: sendSms(entry.telephone, entry.content)
-        // });
-
-        return res.status(200).json({
-            success: true,
-            message: "Create Successfully"
-
         });
 
     } catch (err) {
