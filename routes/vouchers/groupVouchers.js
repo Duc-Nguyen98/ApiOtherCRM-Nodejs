@@ -611,10 +611,9 @@ router.delete('/delete/:idGroupVoucher', async function (req, res, next) {
 
 router.patch('/delete/many/group', async function (req, res, next) {
   try {
-    let obj = req.body.idGroupVoucher;
+    let obj = req.body.GroupIdArray;
     const group = await groupVoucherModel.deleteMany({ idGroupVoucher: { $in: obj } }, (err, result) => { });
     const voucherItems = await groupVoucherItemsModel.deleteMany({ idGroupVoucher: { $in: obj } }, (err, result) => { });
-
 
     Promise.all([group, voucherItems]).then(([group, voucherItems]) => {
       return res.status(200).json({
@@ -638,7 +637,7 @@ router.patch('/delete/many/group', async function (req, res, next) {
 router.patch('/delete-soft/many/group', async function (req, res, next) {
   try {
     let obj = req.body.GroupIdArray;
-    const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+    const entry = await groupVoucherModel.updateMany({ idGroupVoucher: { $in: obj } }, {
       softDelete: 1
     }, (err, result) => {
       return res.status(200).json({
@@ -658,7 +657,7 @@ router.patch('/delete-soft/many/group', async function (req, res, next) {
 router.patch('/restore/many/group', async function (req, res, next) {
   try {
     let obj = req.body.GroupIdArray;
-    const entry = await groupVoucherModel.updateMany({ _id: { $in: obj } }, {
+    const entry = await groupVoucherModel.updateMany({ idGroupVoucher: { $in: obj } }, {
       softDelete: 0
     }, (err, result) => {
       return res.status(200).json({
