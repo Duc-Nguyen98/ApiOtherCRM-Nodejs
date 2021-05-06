@@ -14,10 +14,9 @@ const hasFilter = (param, param2, param3) => {
     if (param !== null) {
         return { type: parseInt(param), titleGroupVoucher: param2, softDelete: parseInt(param3) }
     } else {
-        return { titleGroupVoucher: param2, softDelete: param3 }
+        return {titleGroupVoucher: param2, softDelete: param3}
     }
 }
-
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 

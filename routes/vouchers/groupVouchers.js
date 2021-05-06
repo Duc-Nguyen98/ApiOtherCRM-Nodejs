@@ -49,7 +49,7 @@ const updateVoucherAdd = async (req, res, next) => {
   const _id = req.params.id;
 
   const entry = await groupVoucherModel
-    .findOne({ _id: _id })
+    .findOne({ idGroupVoucher: _id })
     .select({ "idGroupVoucher": 1 })
     .then(data => {
       idGroupVoucher = data;
@@ -544,12 +544,12 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, r
 // ? Example: http://localhost:1509/voucher/group/create
 router.post('/create/voucher', idAutoGroup, idAutoVoucher, async function (req, res, next) {
   try {
-
     let obj = req.body;
     await obj.forEach(function (item, index) {
       item.idVoucher = AutoIdVoucher + index;
       item.idGroupVoucher = (AutoIdGroup + 1);
     })
+
     const entry = await groupVoucherItemsModel.insertMany(obj)
     return res.status(200).json({
       success: true,
