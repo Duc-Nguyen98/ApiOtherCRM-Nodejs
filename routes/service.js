@@ -73,57 +73,44 @@ const sendMail = () => {
 
 const checkIdCustomer = async (req, res, next) => {
     let idCustomer = req.body.idCustomer;
-    let idGroupVoucher = req.body.idGroupVoucher;
-    let classifiedVoucher = req.body.classifiedVoucher;
-    const dataCustomer = await customerModel.findOne({ idCustomer: idCustomer })
-        .select({ idCustomer: 1, telephone: 1, email: 1, name: 1 });
+    // let idGroupVoucher = req.body.idGroupVoucher;
+    // let classifiedVoucher = req.body.classifiedVoucher;
+    const entry = await customerModel.findOne({ idCustomer: idCustomer })
+        .select({ idCustomer: 1, telephone: 1, email: 1, name: 1 }).then(data => {
+            dataCustomer = data;
+            next();
 
-    const dataGroupVoucher = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher })
-        .select({ idGroupVoucher: 1, title: 1, scopeApply: 1 });
-
-    const dataVoucherItem = await voucherItemsModel.findOne({ idGroupVoucher: idGroupVoucher, softDelete: 0, classified: classifiedVoucher, status: 1 })
-        .select({ idVoucher: 1, voucherCode: 1, discount: 1, timeLine: 1 });
-
-
-    Promise.all([dataCustomer, dataGroupVoucher, dataVoucherItem]).then(([dataCustomer, dataGroupVoucher, dataVoucherItem]) => {
-
-        // console.log(dataCustomer.telephone, dataGroupVoucher, dataVoucherItem, req.body)
-
-        // const entry = servicesModel.create({
-        //     idServices: AutoId,
-        //     idCustomer: dataCustomer.idCustomer,
-        //     idGroupVoucher: dataGroupVoucher.idGroupVoucher,
-        //     idVoucher: dataVoucherItem.idVoucher,
-        //     titleGroupVoucher: dataGroupVoucher.titleGroupVoucher,
-        //     scopeApply: dataGroupVoucher.scopeApply,
-        //     type: req.body?.type,
-        //     telephone: dataCustomer.telephone,
-        //     mailCustomer: dataCustomer.mailCustomer,
-        //     voucherCode: dataVoucherItem.voucherCode,
-        //     content: req.body?.content,
-        //     discount: dataVoucherItem.discount,
-        //     timeLine: dataVoucherItem.timeLine,
-        //     details: {
-        //         sendBy: "Admin",
-        //         time: Date.now()
-        //     }
-        // })
-
-        // return res.status(200).json({
-        //     success: true,
-        //     data: entry,
-        //     detailSms: sendSms(entry.telephone, entry.content)
-        // });
-
-        // sendSms("0393177289", req.body.content)
-        sendMail()
-
-
-    })
-
-
-
+        }).catch(err => {
+            return err
+        })
 }
+
+const checkIdGroupVoucher = async (req, res, next) => {
+    let idGroupVoucher = req.body.idGroupVoucher;
+    const entry = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher })
+        .select({ idGroupVoucher: 1, title: 1, scopeApply: 1 }).then(data => {
+            dataGroupVoucher = data;
+            next();
+
+        }).catch(err => {
+            return err
+        })
+}
+
+
+const checkVoucherItems = async (req, res, next) => {
+    let idGroupVoucher = req.body.idGroupVoucher;
+    let voucherCode = req.body.voucherCode;
+    const entry = await voucherItemsModel.find({ idGroupVoucher: idGroupVoucher, voucherCode: voucherCode }).then(data => {
+        infoVoucherCode = data;
+        next();
+    }).catch(err => {
+        return err
+    })
+}
+
+
+
 
 
 router.get('/list', async function (req, res, next) {
@@ -226,13 +213,31 @@ router.get('/list/customer', async function (req, res, next) {
     };
 });
 
+
+router.get('/list/customer', async function (req, res, next) {
+    try {
+        const customers = await customerModel.find({ softDelete: 0 }).select({ "idCustomer": 1, "name": 1, "avatar": 1 });
+        return res.status(200).json({
+            success: true,
+            customers: customers,
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 /* GET Details users listing. */
 // TODO: METHOD - GET
 // -u http://localhost:1509/user/create
 // ? Example: http://localhost:1509/user/create
-router.post('/create', idServicesAuto, checkIdCustomer, async function (req, res, next) {
+router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
     try {
-        console.log(entry)
+
+        console.log(dataCustomer, dataGroupVoucher, infoVoucherCode)
         // sendSms("+84393177289", "You just sent an SMS from Node.js using Twilio!")
 
 

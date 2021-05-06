@@ -218,27 +218,6 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 });
 
 
-/* DELETE todo listing deleteSoft Record */
-// TODO: METHOD - DELETE
-// -u http://localhost:1509/voucher/group/delete/:id
-// ? Example: http://localhost:1509/voucher/group/delete/:
-
-router.delete('/delete/:id', async function (req, res, next) {
-  try {
-    const _id = req.params.id;
-    const entry = await groupVoucherModel.findOneAndDelete({ _id: _id });
-    return res.status(200).json({
-      success: true,
-      message: "Deleted Successfully"
-    });
-  } catch (err) {
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-});
-
 
 router.get('/list/customer', async function (req, res, next) {
   try {
@@ -545,9 +524,10 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, r
 router.post('/create/voucher', idAutoGroup, idAutoVoucher, async function (req, res, next) {
   try {
     let obj = req.body;
+    console.log(AutoIdGroup);
     await obj.forEach(function (item, index) {
       item.idVoucher = AutoIdVoucher + index;
-      item.idGroupVoucher = (AutoIdGroup + 1);
+      item.idGroupVoucher = AutoIdGroup - 1;
     })
 
     const entry = await groupVoucherItemsModel.insertMany(obj)
@@ -563,7 +543,9 @@ router.post('/create/voucher', idAutoGroup, idAutoVoucher, async function (req, 
       error: 'Server Error'
     });
   };
+
 });
+
 
 
 /* PATCH todo listing change isStarred isComplete. */
@@ -594,17 +576,50 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoVoucher, asy
 });
 
 
+/* DELETE todo listing deleteSoft Record */
+// TODO: METHOD - DELETE
+// -u http://localhost:1509/voucher/group/delete/:id
+// ? Example: http://localhost:1509/voucher/group/delete/:
+
+router.delete('/delete/:idGroupVoucher', async function (req, res, next) {
+  try {
+    let obj = req.params.idGroupVoucher;
+    const group = await groupVoucherModel.deleteMany({ idGroupVoucher: obj }, (err, result) => { });
+    const voucherItems = await groupVoucherItemsModel.deleteMany({ idGroupVoucher: obj }, (err, result) => { });
+
+
+    Promise.all([group, voucherItems]).then(([group, voucherItems]) => {
+      return res.status(200).json({
+        success: true,
+        message: "Delete Successfully"
+      });
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
 router.patch('/delete/many/group', async function (req, res, next) {
   try {
-    let obj = req.body.GroupIdArray;
-    const entry = await groupVoucherModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
+    let obj = req.body.idGroupVoucher;
+    const group = await groupVoucherModel.deleteMany({ idGroupVoucher: { $in: obj } }, (err, result) => { });
+    const voucherItems = await groupVoucherItemsModel.deleteMany({ idGroupVoucher: { $in: obj } }, (err, result) => { });
+
+
+    Promise.all([group, voucherItems]).then(([group, voucherItems]) => {
       return res.status(200).json({
         success: true,
-        message: "Deleted Groups Successfully"
+        message: "Delete Successfully"
       });
     })
   } catch (err) {
@@ -659,9 +674,6 @@ router.patch('/restore/many/group', async function (req, res, next) {
     });
   };
 });
-
-
-
 
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
