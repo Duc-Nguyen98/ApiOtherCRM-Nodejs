@@ -3,6 +3,7 @@ const router = express.Router();
 const sgMail = require('@sendgrid/mail')
 const servicesModel = require('../model/schemaService');
 const customerModel = require('../model/customer/customer/schemaCustomer');
+const groupCustomerModel = require('../model/customer/groupCustomer/schemaGroupCustomer');
 const groupVoucherModel = require('../model/vouchers/groupVoucher/schemaGroupVoucher');
 const voucherItemsModel = require('../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 const { parse } = require('node-xlsx');
@@ -110,6 +111,47 @@ const checkVoucherItems = async (req, res, next) => {
     })
 }
 
+// !SELECT DATA
+
+router.get('/list/customer', async function (req, res, next) {
+    try {
+        const customers = await customerModel.find({ softDelete: 0 }).select({ "idCustomer": 1, "name": 1, "telephone": 1, "email": 1, "avatar": 1 });
+        return res.status(200).json({
+            success: true,
+            customers: customers,
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+router.get('/list/group-voucher', async function (req, res, next) {
+    try {
+        // {
+        //     "idCustomer": [10002]
+        // }
+        let idCustomer = req.body.idCustomer
+        const groupCustomer = await groupCustomerModel
+            .find({ memberCustomer: { $in: idCustomer }, softDelete: 0 })
+            .select({ "title": 1, "idGroupCustomer": 1 });
+        return res.status(200).json({
+            success: true,
+            groupCustomer: groupCustomer,
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 /* GET Details users listing. */
 // TODO: METHOD - GET
@@ -241,22 +283,6 @@ router.get('/list/trash', async function (req, res, next) {
 
 
 
-router.get('/list/customer', async function (req, res, next) {
-    try {
-        const customers = await customerModel.find({ softDelete: 0 }).select({ "idCustomer": 1, "name": 1, "avatar": 1 });
-        return res.status(200).json({
-            success: true,
-            customers: customers,
-        });
-
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
 
 /* GET Details users listing. */
 // TODO: METHOD - GET
