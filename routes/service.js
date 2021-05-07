@@ -130,6 +130,31 @@ router.get('/list/customer', async function (req, res, next) {
     };
 });
 
+router.get('/list/group-customer', async function (req, res, next) {
+    try {
+        // {
+        //     "idCustomer": [10002]
+        // }
+        let idCustomer = req.body.idCustomer
+        const groupCustomer = await groupCustomerModel
+            .find({ memberCustomer: { $in: idCustomer }, softDelete: 0 })
+            .select({ "title": 1, "idGroupCustomer": 1 });
+        return res.status(200).json({
+            success: true,
+            groupCustomer: groupCustomer,
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+
 router.get('/list/group-voucher', async function (req, res, next) {
     try {
         // {
@@ -152,6 +177,8 @@ router.get('/list/group-voucher', async function (req, res, next) {
         });
     };
 });
+
+
 
 /* GET Details users listing. */
 // TODO: METHOD - GET
@@ -201,6 +228,9 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
         });
     };
 });
+
+
+
 
 
 

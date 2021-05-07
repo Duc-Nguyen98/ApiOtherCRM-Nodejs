@@ -20,30 +20,14 @@ const schema = new mongoose.Schema({
     },
 
     scopeApply: {
-        type: Object,
-        shop: {
-            type: Object,
-            all: {
-                type: Number,
-                default: 0
-            },
-            listShop: {
-                type: Array,
-                default: []
-            }
+        listShop: {
+            type: Array,
+            default: []
         },
-        customer: {
-            type: Object,
-            all: {
-                type: Number,
-                default: 0
-            },
-            listCustomer: {
-                type: Array,
-                default: []
-            }
-        },
-
+        listGroupCustomer: {
+            type: Array,
+            default: []
+        }
     },
 
     softDelete: {
