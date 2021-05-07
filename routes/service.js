@@ -74,8 +74,6 @@ const sendMail = () => {
 
 const checkIdCustomer = async (req, res, next) => {
     let idCustomer = req.body.idCustomer;
-    // let idGroupVoucher = req.body.idGroupVoucher;
-    // let classifiedVoucher = req.body.classifiedVoucher;
     const entry = await customerModel.findOne({ idCustomer: idCustomer })
         .select({ idCustomer: 1, telephone: 1, email: 1, name: 1 }).then(data => {
             dataCustomer = data;
@@ -130,7 +128,7 @@ router.get('/list/customer', async function (req, res, next) {
     };
 });
 
-router.get('/list/group-customer', async function (req, res, next) {
+router.get('/list/customer/group-customer', async function (req, res, next) {
     try {
         // {
         //     "idCustomer": [10002]
@@ -152,21 +150,19 @@ router.get('/list/group-customer', async function (req, res, next) {
         });
     };
 });
-
 
 
 router.get('/list/group-voucher', async function (req, res, next) {
     try {
-        // {
-        //     "idCustomer": [10002]
-        // }
-        let idCustomer = req.body.idCustomer
-        const groupCustomer = await groupCustomerModel
-            .find({ memberCustomer: { $in: idCustomer }, softDelete: 0 })
-            .select({ "title": 1, "idGroupCustomer": 1 });
+
+        let idGroupCustomer = req.body.idGroupCustomer
+        const groupVoucher = await groupVoucherModel
+            .find({ "scopeApply.listGroupCustomer": { $elemMatch: { "value": idGroupCustomer } }, status: 0, softDelete: 0 })
+            .select({ "created": 0, "modified": 0, "softDelete": 0 });
+
         return res.status(200).json({
             success: true,
-            groupCustomer: groupCustomer,
+            groupVoucher: groupVoucher,
         });
 
     } catch (err) {
@@ -178,6 +174,29 @@ router.get('/list/group-voucher', async function (req, res, next) {
     };
 });
 
+
+
+router.get('/list/group-voucher/voucher-items', async function (req, res, next) {
+    try {
+
+        let idGroupVoucher = req.body.idGroupVoucher
+        const voucherItems = await voucherItemsModel
+            .find({ idGroupVoucher: idGroupVoucher, status: 1, softDelete: 0 })
+            .select({ "created": 0, "modified": 0, "softDelete": 0 });
+
+        return res.status(200).json({
+            success: true,
+            voucherItems: voucherItems,
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 
 /* GET Details users listing. */
