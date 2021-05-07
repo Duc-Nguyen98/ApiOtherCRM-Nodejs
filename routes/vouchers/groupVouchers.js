@@ -6,6 +6,8 @@ const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroup
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
 const shopModel = require('../../model/schemaShop');
+const checkAuthentication = require('../../utils/checkAuthentication');
+
 
 const hasFilterGroupVoucher = (param, param2, param3, param4) => {
   if (param !== null && param2 !== null) {
@@ -82,7 +84,7 @@ checkVoucherExpired = async (req, res, next) => {
 // -u http://localhost:1509/voucher/group/list
 // ? Example: http://localhost:1509/voucher/group/list
 
-router.get('/list', async function (req, res, next) {
+router.get('/list', checkAuthentication, async function (req, res, next) {
   try {
     let classified = req.query.classified;
     let status = req.query.status;
@@ -129,7 +131,7 @@ router.get('/list', async function (req, res, next) {
 // -u http://localhost:1509/voucher/group/trash
 // ? Example: http://localhost:1509/voucher/group/trash
 
-router.get('/trash', async function (req, res, next) {
+router.get('/trash', checkAuthentication, async function (req, res, next) {
   try {
     let classified = req.query.classified;
     let status = req.query.status;
@@ -176,7 +178,7 @@ router.get('/trash', async function (req, res, next) {
 // -u http://localhost:1509/voucher/group/delete-soft/:id
 // ? Example: http://localhost:1509/voucher/group/delete-soft/:
 
-router.delete('/delete-soft/:id', async function (req, res, next) {
+router.delete('/delete-soft/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await groupVoucherModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
@@ -198,7 +200,7 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
 // -u http://localhost:1509/voucher/group//trash/restore/:id
 // ? Example: http://localhost:1509/voucher/group/trash/restore/6084868594ca7c92289c2bad
 
-router.patch('/trash/restore/:id', async function (req, res, next) {
+router.patch('/trash/restore/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
@@ -219,7 +221,7 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 
 
 
-router.get('/list/customer', async function (req, res, next) {
+router.get('/list/customer', checkAuthentication, async function (req, res, next) {
   try {
     const listGroupCustomer = await groupCustomerModel.find({ status: 0, softDelete: 0 }).select({ "idGroupCustomer": 1, "avatarGroup": 1, "title": 1, "_id": 1 })
     return res.status(200).json({
@@ -235,7 +237,7 @@ router.get('/list/customer', async function (req, res, next) {
   };
 });
 
-router.get('/list/shop', async function (req, res, next) {
+router.get('/list/shop', checkAuthentication, async function (req, res, next) {
   try {
     const listShop = await shopModel.find({ status: 0, softDelete: 0 }).select({ "idShop": 1, "avatar": 1, "name": 1, "_id": 1 })
     return res.status(200).json({
@@ -256,7 +258,7 @@ router.get('/list/shop', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/create
 // ? Example: http://localhost:1509/voucher/group/create
-router.post('/create', idAutoGroup, async function (req, res, next) {
+router.post('/create', idAutoGroup, checkAuthentication, async function (req, res, next) {
 
   try {
     const groupVoucher = await groupVoucherModel.create({
@@ -292,7 +294,7 @@ router.post('/create', idAutoGroup, async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/detail/:id
 // ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
-router.get('/detail/:id', async function (req, res, next) {
+router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     await groupVoucherModel
@@ -318,7 +320,7 @@ router.get('/detail/:id', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/update/:id
 
-router.put('/update/:id', async function (req, res, next) {
+router.put('/update/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
@@ -355,7 +357,7 @@ router.put('/update/:id', async function (req, res, next) {
 // // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 // // ? Example: http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 
-router.get('/list/voucher/item/:idGroupVoucher', checkVoucherExpired, async function (req, res, next) {
+router.get('/list/voucher/item/:idGroupVoucher', checkAuthentication, checkVoucherExpired, async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let softDelete = 0;
@@ -409,7 +411,7 @@ router.get('/list/voucher/item/:idGroupVoucher', checkVoucherExpired, async func
 // // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 // // ? Example: http://localhost:1509/voucher/group/history/voucher/item/:idGroupVoucher
 
-router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, next) {
+router.get('/history/voucher/item/:idGroupVoucher', checkAuthentication, async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let status = req.query.status;
@@ -465,7 +467,7 @@ router.get('/history/voucher/item/:idGroupVoucher', async function (req, res, ne
 // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 // ? Example: http://localhost:1509/voucher/group/history/voucher/item/:idGroupVoucher
 
-router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, res, next) {
+router.get('/history/trash/voucher/item/:idGroupVoucher', checkAuthentication, async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let status = req.query.status;
@@ -521,7 +523,7 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', async function (req, r
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/create
 // ? Example: http://localhost:1509/voucher/group/create
-router.post('/create/voucher', idAutoGroup, idAutoVoucher, async function (req, res, next) {
+router.post('/create/voucher', checkAuthentication, idAutoGroup, idAutoVoucher, async function (req, res, next) {
   try {
     let obj = req.body;
     console.log(AutoIdGroup);
@@ -552,7 +554,7 @@ router.post('/create/voucher', idAutoGroup, idAutoVoucher, async function (req, 
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/update/:id
 
-router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoVoucher, async function (req, res, next) {
+router.post('/update/many/voucher/add/:id', checkAuthentication, updateVoucherAdd, idAutoVoucher, async function (req, res, next) {
   try {
     let obj = req.body;
     let idGroupVoucher = req.params.id;
@@ -581,7 +583,7 @@ router.post('/update/many/voucher/add/:id', updateVoucherAdd, idAutoVoucher, asy
 // -u http://localhost:1509/voucher/group/delete/:id
 // ? Example: http://localhost:1509/voucher/group/delete/:
 
-router.delete('/delete/:idGroupVoucher', async function (req, res, next) {
+router.delete('/delete/:idGroupVoucher', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.params.idGroupVoucher;
     const group = await groupVoucherModel.deleteMany({ idGroupVoucher: obj }, (err, result) => { });
@@ -609,7 +611,7 @@ router.delete('/delete/:idGroupVoucher', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete/many/group', async function (req, res, next) {
+router.patch('/delete/many/group', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.body.GroupIdArray;
     const group = await groupVoucherModel.deleteMany({ idGroupVoucher: { $in: obj } }, (err, result) => { });
@@ -634,7 +636,7 @@ router.patch('/delete/many/group', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete-soft/many/group', async function (req, res, next) {
+router.patch('/delete-soft/many/group', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.body.GroupIdArray;
     const entry = await groupVoucherModel.updateMany({ idGroupVoucher: { $in: obj } }, {
@@ -654,7 +656,7 @@ router.patch('/delete-soft/many/group', async function (req, res, next) {
   };
 });
 
-router.patch('/restore/many/group', async function (req, res, next) {
+router.patch('/restore/many/group', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.body.GroupIdArray;
     const entry = await groupVoucherModel.updateMany({ idGroupVoucher: { $in: obj } }, {
@@ -678,7 +680,7 @@ router.patch('/restore/many/group', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete/many/voucher', async function (req, res, next) {
+router.patch('/delete/many/voucher', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.body.VoucherIdArray;
     const entry = await groupVoucherItemsModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
@@ -701,7 +703,7 @@ router.patch('/delete/many/voucher', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete-soft/many/voucher', async function (req, res, next) {
+router.patch('/delete-soft/many/voucher', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.body.VoucherIdArray;
     const entry = await groupVoucherItemsModel.updateMany({ _id: { $in: obj } }, {
@@ -726,7 +728,7 @@ router.patch('/delete-soft/many/voucher', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/restore/many/voucher', async function (req, res, next) {
+router.patch('/restore/many/voucher', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.body.VoucherIdArray;
     const entry = await groupVoucherItemsModel.updateMany({ _id: { $in: obj } }, {
@@ -746,7 +748,7 @@ router.patch('/restore/many/voucher', async function (req, res, next) {
   };
 });
 
-router.patch('/change/status/many/voucher', async function (req, res, next) {
+router.patch('/change/status/many/voucher', checkAuthentication, async function (req, res, next) {
   try {
     let obj = req.body.VoucherIdArray;
     let status = req.query.status;
@@ -776,7 +778,7 @@ router.patch('/change/status/many/voucher', async function (req, res, next) {
 // -u http://localhost:1509/voucher/group/delete-soft/:id
 // ? Example: http://localhost:1509/voucher/group/delete-soft/:
 http://localhost:1509/voucher/group/voucher-items/delete-soft/6084a25a94ca7c92289c2bb0
-router.delete('/voucher-items/delete-soft/:id', async function (req, res, next) {
+router.delete('/voucher-items/delete-soft/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await groupVoucherItemsModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
@@ -796,7 +798,7 @@ router.delete('/voucher-items/delete-soft/:id', async function (req, res, next) 
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/delete-soft/:id
 // ? Example: http://localhost:1509/voucher/group/delete-soft/:
-router.patch('/trash/voucher-items/restore/:id', async function (req, res, next) {
+router.patch('/trash/voucher-items/restore/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await groupVoucherItemsModel.findOneAndUpdate({ _id: _id }, { softDelete: 0 });
@@ -817,7 +819,7 @@ router.patch('/trash/voucher-items/restore/:id', async function (req, res, next)
 // TODO: METHOD - GET
 // -u http://localhost:1509/voucher/group/delete-soft/:id
 // ? Example: http://localhost:1509/voucher/group/delete-soft/:
-router.delete('/trash/voucher-items/delete/:id', async function (req, res, next) {
+router.delete('/trash/voucher-items/delete/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await groupVoucherItemsModel.findOneAndDelete({ _id: _id });

@@ -232,6 +232,28 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
         // })
         // const change
 
+        const data = {
+            idServices: AutoId,
+            idCustomer: dataCustomer.idCustomer,
+            idGroupVoucher: dataGroupVoucher.idGroupVoucher,
+            idVoucher: infoVoucherCode.idVoucher,
+            titleGroupVoucher: dataGroupVoucher.title,
+            type: typeService,
+            scopeApply: dataGroupVoucher.scopeApply,
+            telephone: dataCustomer.telephone,
+            mailCustomer: dataCustomer.email,
+            voucherCode: infoVoucherCode.voucherCode,
+            content: contentService,
+            discount: infoVoucherCode.discount,
+            timeLine: infoVoucherCode.timeLine,
+            details: {
+                sendBy: "Admin",
+                time: Date.now()
+            }
+        }
+
+        console.log(data)
+
 
         return res.status(200).json({
             success: true,

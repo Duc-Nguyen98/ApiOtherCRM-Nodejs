@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
 const customerModel = require('../../model/customer/customer/schemaCustomer');
+const checkAuthentication = require('../../utils/checkAuthentication');
+
 const fs = require('fs');
 
 
@@ -35,7 +37,7 @@ const idGroupCustomerAuto = async (req, res, next) => {
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
 // ? Example : http://localhost:1509/user/list?group=&gender=&q=&sort=title-desc&page=1&perPage=10
-router.get('/list', async function (req, res, next) {
+router.get('/list', checkAuthentication, async function (req, res, next) {
 
     try {
         let status = req.query.status;
@@ -81,7 +83,7 @@ router.get('/list', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
 // ? Example : http://localhost:1509/user/list?group=&gender=&q=&sort=title-desc&page=1&perPage=10
-router.get('/list/trash', async function (req, res, next) {
+router.get('/list/trash', checkAuthentication, async function (req, res, next) {
 
     try {
         let status = req.query.status;
@@ -125,7 +127,7 @@ router.get('/list/trash', async function (req, res, next) {
 });
 
 
-router.get('/list/customer', async function (req, res, next) {
+router.get('/list/customer', checkAuthentication, async function (req, res, next) {
     try {
         const listCustomer = await customerModel.find({ softDelete: 0 }).select({ "avatar": 1, "idCustomer": 1, "name": 1, "_id": 1 })
         return res.status(200).json({
@@ -141,13 +143,11 @@ router.get('/list/customer', async function (req, res, next) {
     };
 });
 
-
-
 // * GET Details users listing. 
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/detail/:id
 // ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
-router.get('/detail/:id', async function (req, res, next) {
+router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         await groupCustomerModel
@@ -166,12 +166,10 @@ router.get('/detail/:id', async function (req, res, next) {
     };
 });
 
-
-
 /* DELETE todo listing deleteSoft Customer */
 // TODO: METHOD - DELETE SOFT
 // -u http://localhost:1509/customer/delete-soft/:id
-router.patch('/delete-soft/:id', async function (req, res, next) {
+router.patch('/delete-soft/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         const entry = await groupCustomerModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
@@ -190,7 +188,7 @@ router.patch('/delete-soft/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/todo/task/delete/:id
-router.delete('/delete/:id', async function (req, res, next) {
+router.delete('/delete/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         const entry = await groupCustomerModel.findOneAndDelete({ _id: _id });
@@ -206,12 +204,11 @@ router.delete('/delete/:id', async function (req, res, next) {
     };
 });
 
-
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/customer/trash/restore/:id
 
-router.patch('/trash/restore/:id', async function (req, res, next) {
+router.patch('/trash/restore/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
 
@@ -230,12 +227,10 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
     };
 });
 
-
-
 /* PUT todo listing. update an record */
 // TODO: METHOD - PUT
 // -u http://localhost:1509/todo/update/:id
-router.put('/update/:id', async function (req, res, next) {
+router.put('/update/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         const entry = await groupCustomerModel
@@ -245,7 +240,7 @@ router.put('/update/:id', async function (req, res, next) {
                 status: req.body?.status,
                 note: req.body?.note,
                 modified: {
-                    createBy: "Admin",
+                    createBy: `US${userObj.idUser}-${userObj.name}`,
                     time: Date.now()
                 },
             })
@@ -261,14 +256,10 @@ router.put('/update/:id', async function (req, res, next) {
     };
 });
 
-
-
-
-
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/customer/create
-router.post('/create', idGroupCustomerAuto, async function (req, res, next) {
+router.post('/create', checkAuthentication, idGroupCustomerAuto, async function (req, res, next) {
     try {
         const entry = await groupCustomerModel.create({
             idGroupCustomer: AutoId,
@@ -277,11 +268,11 @@ router.post('/create', idGroupCustomerAuto, async function (req, res, next) {
             note: req.body?.note,
             star: req.body?.star,
             created: {
-                createBy: "Admin",
+                createBy: `US${userObj.idUser}-${userObj.name}`,
                 time: Date.now()
             },
             modified: {
-                createBy: "Admin",
+                createBy: `US${userObj.idUser} - ${userObj.name}`,
                 time: Date.now()
             },
             softDelete: 0
@@ -299,13 +290,11 @@ router.post('/create', idGroupCustomerAuto, async function (req, res, next) {
 
 });
 
-
-
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete/many/group', async function (req, res, next) {
+router.patch('/delete/many/group', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.GroupCustomerIdArray;
         const entry = await groupCustomerModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
@@ -327,7 +316,7 @@ router.patch('/delete/many/group', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/change-star/many/group', async function (req, res, next) {
+router.patch('/change-star/many/group', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.GroupCustomerIdArray;
         let statusStar = req.body.statusStar
@@ -349,14 +338,11 @@ router.patch('/change-star/many/group', async function (req, res, next) {
     };
 });
 
-
-
-
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/restore/many/group', async function (req, res, next) {
+router.patch('/restore/many/group', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.GroupCustomerIdArray;
         const entry = await groupCustomerModel.updateMany({ _id: { $in: obj } }, {
@@ -377,14 +363,11 @@ router.patch('/restore/many/group', async function (req, res, next) {
 });
 
 
-
-
-
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete-soft/many/group', async function (req, res, next) {
+router.patch('/delete-soft/many/group', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.GroupCustomerIdArray;
         const entry = await groupCustomerModel.updateMany({ _id: { $in: obj } }, {
@@ -403,16 +386,6 @@ router.patch('/delete-soft/many/group', async function (req, res, next) {
         });
     };
 });
-
-
-
-
-
-
-
-
-
-
 
 
 //! CODE API FOR PERMISSION EMPLOYEE

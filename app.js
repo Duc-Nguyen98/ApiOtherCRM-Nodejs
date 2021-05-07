@@ -46,6 +46,11 @@ app.use(bodyParserURLEncoded);
 
 const db = mongoose.connection;
 
+//-u global jwt
+global.jwt = require("jsonwebtoken");
+
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -66,7 +71,6 @@ app.use('/services', servicesRouter);
 app.use('/voucher/group', groupVoucherRouter);
 app.use('/customer/group', groupCustomerRouter);
 app.use('/home', homePageRouter);
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

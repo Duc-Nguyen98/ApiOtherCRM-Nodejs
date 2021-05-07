@@ -3,6 +3,7 @@ const router = express.Router();
 const userModel = require('../model/schemaUser');
 const multer = require('multer');
 const fs = require('fs');
+const checkAuthentication = require('../utils/checkAuthentication');
 
 
 const hasFilter = (param, param2, param3, param4, param5) => {
@@ -55,8 +56,9 @@ const idUserAuto = async (req, res, next) => {
 }
 
 
-router.get('/list', async function (req, res, next) {
+router.get('/list', checkAuthentication, async function (req, res, next) {
   try {
+
     let gender = req.query.gender;
     let role = req.query.role;
     let active = req.query.active;
@@ -65,7 +67,7 @@ router.get('/list', async function (req, res, next) {
     (gender == undefined || gender == '') ? gender = null : gender = gender;
     (role == undefined || role == '') ? role = null : role = role;
     (active == undefined || active == '') ? active = null : active = active;
-    console.log(gender, role, active, q)
+    // console.log(gender, role, active, q)
 
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
@@ -102,8 +104,9 @@ router.get('/list', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/user/create
 // ? Example: http://localhost:1509/user/create
-router.post('/create', idUserAuto, async function (req, res, next) {
+router.post('/create', checkAuthentication, idUserAuto, async function (req, res, next) {
   try {
+    userObj
 
     const entry = await userModel.create({
       idUser: AutoId,
@@ -118,17 +121,17 @@ router.post('/create', idUserAuto, async function (req, res, next) {
       active: 1,
       softDelete: 0,
       created: {
-        createBy: "Admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       },
       modified: {
-        createBy: "Admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       }
     })
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Create Successfully!"
     });
   } catch (err) {
     console.log(err)
@@ -143,7 +146,7 @@ router.post('/create', idUserAuto, async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/detail/:id
 // ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
-router.get('/detail/:id', async function (req, res, next) {
+router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     await userModel
@@ -168,7 +171,7 @@ router.get('/detail/:id', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/update/:id
 
-router.put('/update/:id', async function (req, res, next) {
+router.put('/update/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
@@ -182,14 +185,14 @@ router.put('/update/:id', async function (req, res, next) {
       email: req.body?.email,
       password: "123456",
       modified: {
-        createBy: "Admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       }
     });
 
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Update Successfully!"
     });
   } catch (err) {
     console.log(err)
@@ -204,20 +207,20 @@ router.put('/update/:id', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/active/:id
 
-router.patch('/active/:id', async function (req, res, next) {
+router.patch('/active/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
     const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
       active: req.body?.active,
       modified: {
-        createBy: "Admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       }
     });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Change Status Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
@@ -232,7 +235,7 @@ router.patch('/active/:id', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/upload/:id
 
-router.post('/upload/:id', async function (req, res, next) {
+router.post('/upload/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
@@ -267,14 +270,14 @@ router.post('/upload/:id', async function (req, res, next) {
         const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
           avatar: `upload/users/${file.filename}`,
           modified: {
-            createBy: "Admin",
+            createBy: `US${userObj.idUser}-${userObj.name}`,
             time: Date.now()
           }
         });
 
         return res.status(200).json({
           success: true,
-          data: `upload/users/${file.filename}`
+          message: "Update Avatar Successfully!"
         });
       });
 
@@ -291,13 +294,13 @@ router.post('/upload/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/user/delete-soft/:id
-router.delete('/delete-soft/:id', async function (req, res, next) {
+router.delete('/delete-soft/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await userModel.updateOne({ _id: _id }, { softDelete: 1, active: 1 });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Delete-Soft Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
@@ -310,13 +313,13 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/user/delete/:id
-router.delete('/delete/:id', async function (req, res, next) {
+router.delete('/delete/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await userModel.findByIdAndDelete({ _id: _id });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Delete Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
@@ -327,7 +330,7 @@ router.delete('/delete/:id', async function (req, res, next) {
 });
 
 
-router.get('/list/trash', async function (req, res, next) {
+router.get('/list/trash', checkAuthentication, async function (req, res, next) {
   try {
     let gender = req.query.gender;
     let role = req.query.role;
@@ -374,17 +377,16 @@ router.get('/list/trash', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/active/:id
 
-router.patch('/trash/restore/:id', async function (req, res, next) {
+router.patch('/trash/restore/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
     const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
-      softDelete: 0,
-      active: 0
+      softDelete: 0
     });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Restore Successfully!"
     });
   } catch (err) {
     return res.status(500).json({

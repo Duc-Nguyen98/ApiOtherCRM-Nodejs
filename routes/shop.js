@@ -3,6 +3,8 @@ const router = express.Router();
 const shopModel = require('../model/schemaShop');
 const multer = require('multer');
 const fs = require('fs');
+const checkAuthentication = require('../utils/checkAuthentication');
+
 
 
 const handleFilterSearch = (param, param2, param3, param4) => {
@@ -39,7 +41,7 @@ const idShopAuto = async (req, res, next) => {
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
 // ? Example : http://localhost:1509/user/list?group=&gender=&q=&sort=title-desc&page=1&perPage=10
-router.get('/list', async function (req, res, next) {
+router.get('/list', checkAuthentication, async function (req, res, next) {
 
     try {
         let status = req.query.status;
@@ -85,7 +87,7 @@ router.get('/list', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/detail/:id
 // ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
-router.get('/detail/:id', async function (req, res, next) {
+router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         await shopModel
@@ -108,7 +110,7 @@ router.get('/detail/:id', async function (req, res, next) {
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/shop/create
-router.post('/create', idShopAuto, async function (req, res, next) {
+router.post('/create', checkAuthentication, idShopAuto, async function (req, res, next) {
     try {
         const entry = await shopModel.create({
             idShop: AutoId,
@@ -128,11 +130,11 @@ router.post('/create', idShopAuto, async function (req, res, next) {
 
 
             created: {
-                createBy: "Admin",
+                createBy: `US${userObj.idUser}-${userObj.name}`,
                 time: Date.now()
             },
             modified: {
-                createBy: "Admin",
+                createBy: `US${userObj.idUser}-${userObj.name}`,
                 time: Date.now()
             },
             softDelete: 0
@@ -154,7 +156,7 @@ router.post('/create', idShopAuto, async function (req, res, next) {
 /* PUT todo listing. update an record */
 // TODO: METHOD - PUT
 // -u http://localhost:1509/todo/update/:id
-router.put('/update/:id', async function (req, res, next) {
+router.put('/update/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         const entry = await shopModel
@@ -173,7 +175,7 @@ router.put('/update/:id', async function (req, res, next) {
                 fanpage: req.body?.fanpage,
                 website: req.body?.website,
                 modified: {
-                    createBy: "Admin",
+                    createBy: `US${userObj.idUser}-${userObj.name}`,
                     time: Date.now()
                 },
             })
@@ -194,7 +196,7 @@ router.put('/update/:id', async function (req, res, next) {
 // TODO: METHOD - PUT
 // -u http://localhost:1509/customer/upload/:id
 
-router.post('/upload/:id', async function (req, res, next) {
+router.post('/upload/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
 
@@ -228,7 +230,7 @@ router.post('/upload/:id', async function (req, res, next) {
                 const entry = await shopModel.findByIdAndUpdate({ _id: _id }, {
                     avatar: `upload/shops/${file.filename}`,
                     modified: {
-                        createBy: "Admin",
+                        createBy: `US${userObj.idUser}-${userObj.name}`,
                         time: Date.now()
                     }
                 });
@@ -253,7 +255,7 @@ router.post('/upload/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Customer */
 // TODO: METHOD - DELETE SOFT
 // -u http://localhost:1509/customer/delete-soft/:id
-router.delete('/delete-soft/:id', async function (req, res, next) {
+router.delete('/delete-soft/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         const entry = await shopModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
@@ -272,7 +274,7 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/todo/task/delete/:id
-router.delete('/delete/:id', async function (req, res, next) {
+router.delete('/delete/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
         const entry = await shopModel.findOneAndDelete({ _id: _id });
@@ -288,7 +290,7 @@ router.delete('/delete/:id', async function (req, res, next) {
     };
 });
 
-router.patch('/delete/many/shop', async function (req, res, next) {
+router.patch('/delete/many/shop', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.shopIdArray;
         const entry = await shopModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
@@ -308,7 +310,7 @@ router.patch('/delete/many/shop', async function (req, res, next) {
 
 
 
-router.get('/list/trash', async function (req, res, next) {
+router.get('/list/trash', checkAuthentication, async function (req, res, next) {
     try {
         let group = req.query.group;
         let gender = req.query.gender;
@@ -353,7 +355,7 @@ router.get('/list/trash', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/customer/trash/restore/:id
 
-router.patch('/trash/restore/:id', async function (req, res, next) {
+router.patch('/trash/restore/:id', checkAuthentication, async function (req, res, next) {
     try {
         const _id = req.params.id;
 
@@ -378,7 +380,7 @@ router.patch('/trash/restore/:id', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete-soft/many/shop', async function (req, res, next) {
+router.patch('/delete-soft/many/shop', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.shopIdArray;
         const entry = await shopModel.updateMany({ _id: { $in: obj } }, {
@@ -402,7 +404,7 @@ router.patch('/delete-soft/many/shop', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
-router.patch('/restore/many/shop', async function (req, res, next) {
+router.patch('/restore/many/shop', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.shopIdArray;
         const entry = await shopModel.updateMany({ _id: { $in: obj } }, {

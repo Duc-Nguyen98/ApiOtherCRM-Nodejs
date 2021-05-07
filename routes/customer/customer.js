@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const customerModel = require('../../model/customer/customer/schemaCustomer');
+const checkAuthentication = require('../../utils/checkAuthentication');
+
 const multer = require('multer');
 const fs = require('fs');
 
@@ -35,7 +37,7 @@ const idCustomerAuto = async (req, res, next) => {
 // TODO: METHOD - GET
 // -u http://localhost:1509/todo/task?query(filter=)&query(q=)&query(sort=)
 // ? Example : http://localhost:1509/user/list?group=&gender=&q=&sort=title-desc&page=1&perPage=10
-router.get('/list', async function (req, res, next) {
+router.get('/list', checkAuthentication, async function (req, res, next) {
 
   try {
     let group = req.query.group;
@@ -83,7 +85,7 @@ router.get('/list', async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/detail/:id
 // ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
-router.get('/detail/:id', async function (req, res, next) {
+router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     await customerModel
@@ -108,7 +110,7 @@ router.get('/detail/:id', async function (req, res, next) {
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/customer/create
-router.post('/create', idCustomerAuto, async function (req, res, next) {
+router.post('/create', checkAuthentication, idCustomerAuto, async function (req, res, next) {
   try {
     const entry = await customerModel.create({
       idCustomer: AutoId,
@@ -121,18 +123,18 @@ router.post('/create', idCustomerAuto, async function (req, res, next) {
       note: req.body?.note,
       groups: req.body?.groups,
       created: {
-        createBy: "Admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       },
       modified: {
-        createBy: "Admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       },
       softDelete: 0
     })
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Created Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
@@ -146,7 +148,7 @@ router.post('/create', idCustomerAuto, async function (req, res, next) {
 /* PUT todo listing. update an record */
 // TODO: METHOD - PUT
 // -u http://localhost:1509/todo/update/:id
-router.put('/update/:id', async function (req, res, next) {
+router.put('/update/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await customerModel
@@ -161,13 +163,13 @@ router.put('/update/:id', async function (req, res, next) {
         note: req.body?.note,
         groups: req.body?.groups,
         modified: {
-          createBy: "Admin",
+          createBy: `US${userObj.idUser}-${userObj.name}`,
           time: Date.now()
         },
       })
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Update Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
@@ -183,7 +185,7 @@ router.put('/update/:id', async function (req, res, next) {
 // TODO: METHOD - PUT
 // -u http://localhost:1509/customer/upload/:id
 
-router.post('/upload/:id', async function (req, res, next) {
+router.post('/upload/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
@@ -204,9 +206,6 @@ router.post('/upload/:id', async function (req, res, next) {
           message: err
         });
       }
-
-
-
       let results = req.files.map(async (file) => {
         const user = await customerModel.findOne({ _id: _id });
         var filePath = user.avatar;
@@ -220,14 +219,14 @@ router.post('/upload/:id', async function (req, res, next) {
         const entry = await customerModel.findByIdAndUpdate({ _id: _id }, {
           avatar: `upload/customers/${file.filename}`,
           modified: {
-            createBy: "Admin",
+            createBy: `US${userObj.idUser}-${userObj.name}`,
             time: Date.now()
           }
         });
 
         return res.status(200).json({
           success: true,
-          data: `upload/customers/${file.filename}`
+          message: "Upload Avatar Successfully!"
         });
       });
 
@@ -245,13 +244,13 @@ router.post('/upload/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Customer */
 // TODO: METHOD - DELETE SOFT
 // -u http://localhost:1509/customer/delete-soft/:id
-router.delete('/delete-soft/:id', async function (req, res, next) {
+router.delete('/delete-soft/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await customerModel.findOneAndUpdate({ _id: _id }, { softDelete: 1 });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Delete-Soft Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
@@ -264,13 +263,13 @@ router.delete('/delete-soft/:id', async function (req, res, next) {
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/todo/task/delete/:id
-router.delete('/delete/:id', async function (req, res, next) {
+router.delete('/delete/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
     const entry = await customerModel.findOneAndDelete({ _id: _id });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Delete Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
@@ -282,7 +281,7 @@ router.delete('/delete/:id', async function (req, res, next) {
 
 
 
-router.get('/list/trash', async function (req, res, next) {
+router.get('/list/trash', checkAuthentication, async function (req, res, next) {
   try {
     let group = req.query.group;
     let gender = req.query.gender;
@@ -327,16 +326,16 @@ router.get('/list/trash', async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/customer/trash/restore/:id
 
-router.patch('/trash/restore/:id', async function (req, res, next) {
+router.patch('/trash/restore/:id', checkAuthentication, async function (req, res, next) {
   try {
     const _id = req.params.id;
 
     const entry = await customerModel.findOneAndUpdate({ _id: _id }, {
-      softDelete: 0,
+      softDelete: 0
     });
     return res.status(200).json({
       success: true,
-      data: entry
+      message: "Restore Successfully!"
     });
   } catch (err) {
     return res.status(500).json({
