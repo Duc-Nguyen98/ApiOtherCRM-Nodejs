@@ -102,7 +102,6 @@ const checkVoucherItems = async (req, res, next) => {
     let voucherCode = req.body.voucherCode;
     const entry = await voucherItemsModel.findOne({ idGroupVoucher: idGroupVoucher, voucherCode: voucherCode }).then(data => {
         infoVoucherCode = data;
-        console.log(infoVoucherCode);
         next();
     }).catch(err => {
         return err

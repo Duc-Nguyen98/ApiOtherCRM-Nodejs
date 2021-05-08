@@ -26,7 +26,11 @@ var app = express();
 
 var cors = require('cors')
 
-app.use(cors())
+app.use(cors({
+  origin: 'http://localhost:8080', //Chan tat ca cac domain khac ngoai domain nay
+  credentials: true //Để bật cookie HTTP qua CORS
+}))
+
 
 
 // !setup connect to MongoDB
@@ -48,8 +52,6 @@ const db = mongoose.connection;
 
 //-u global jwt
 global.jwt = require("jsonwebtoken");
-
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

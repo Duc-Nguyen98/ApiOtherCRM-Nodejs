@@ -36,6 +36,12 @@ router.post('/login', async function (req, res, next) {
             expiresIn: jwtConfig.refreshTokenExpireTime,
           });
 
+          res.cookie('access_token', token, {
+            maxAge: 365 * 24 * 60 * 60 * 100,
+            httpOnly: true,
+            // secure: true;
+          });
+
           const userData = { ...data._doc, ability: [{action: "manage", subject: "all"}] };
 
           delete userData.password;
