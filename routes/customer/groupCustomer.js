@@ -290,27 +290,7 @@ router.post('/create', checkAuthentication, idGroupCustomerAuto, async function 
 
 });
 
-/* PATCH todo listing change isStarred isComplete. */
-// TODO: METHOD - PATCH
-// -u http://localhost:1509/delete/many/voucher
 
-router.patch('/delete/many/group', checkAuthentication, async function (req, res, next) {
-    try {
-        let obj = req.body.GroupCustomerIdArray;
-        const entry = await groupCustomerModel.deleteMany({ _id: { $in: obj } }, (err, result) => {
-            return res.status(200).json({
-                success: true,
-                message: "Deleted Successfully"
-            });
-        })
-    } catch (err) {
-        console.log(err)
-        return res.status(500).json({
-            success: false,
-            error: 'Server Error'
-        });
-    };
-});
 
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
@@ -342,10 +322,32 @@ router.patch('/change-star/many/group', checkAuthentication, async function (req
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/delete/many/voucher
 
+router.patch('/delete/many/group', checkAuthentication, async function (req, res, next) {
+    try {
+        let obj = req.body.GroupCustomerIdArray;
+        const entry = await groupCustomerModel.deleteMany({ idGroupCustomer: { $in: obj } }, (err, result) => {
+            return res.status(200).json({
+                success: true,
+                message: "Deleted Successfully"
+            });
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/delete/many/voucher
+
 router.patch('/restore/many/group', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.GroupCustomerIdArray;
-        const entry = await groupCustomerModel.updateMany({ _id: { $in: obj } }, {
+        const entry = await groupCustomerModel.updateMany({ idGroupCustomer: { $in: obj } }, {
             softDelete: 0
         }, (err, result) => {
             return res.status(200).json({
@@ -370,7 +372,7 @@ router.patch('/restore/many/group', checkAuthentication, async function (req, re
 router.patch('/delete-soft/many/group', checkAuthentication, async function (req, res, next) {
     try {
         let obj = req.body.GroupCustomerIdArray;
-        const entry = await groupCustomerModel.updateMany({ _id: { $in: obj } }, {
+        const entry = await groupCustomerModel.updateMany({ idGroupCustomer: { $in: obj } }, {
             softDelete: 1
         }, (err, result) => {
             return res.status(200).json({
