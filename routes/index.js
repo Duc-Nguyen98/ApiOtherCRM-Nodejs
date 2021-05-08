@@ -9,25 +9,44 @@ const sgMail = require('@sendgrid/mail')
 !POST login
   -u localhost:xxxx/
 */
+const jwtConfig = {
+  secret: 'dd5f3089-40c3-403d-af14-d0c228b05cb4',
+  refreshTokenSecret: '7c4c1c50-3230-45bf-9eae-c9b2e401c767',
+  expireTime: '10m',
+  refreshTokenExpireTime: '10m',
+}
+
 router.post('/login', async function (req, res, next) {
+  const { account, password } = req.body;
   try {
     await userModel.findOne({
       // account: req.body.account,
       // password: req.body.password,
-      account: req.body.account,
-      password: req.body.password,
+      account: account,
+      password: password,
       active: 0
     })
       .then(data => {
         if (data) {
-          let token = jwt.sign({
+          const token = jwt.sign({
             _id: data._id
-          }, 'mk');
+          }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime });
           res.cookie('token', token);
+
+          const refreshToken = jwt.sign({ _id: data._id }, jwtConfig.refreshTokenSecret, {
+            expiresIn: jwtConfig.refreshTokenExpireTime,
+          });
+
+          const userData = { ...data._doc, ability: [{action: "manage", subject: "all"}] };
+
+          delete userData.password;
+
           return res.status(200).json({
             success: true,
+            userData: userData,
             message: "Login Successfully!",
-            token: token
+            accessToken: token,
+            refreshToken: refreshToken,
           });
         } else {
           return res.status(200).json({
