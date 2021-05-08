@@ -20,9 +20,7 @@ const checkAuthentication = async (req, res, next) => {
         jwt.verify(token,  jwtConfig.secret, (err, user) => {
             console.log(err);
             if (err) return res.sendStatus(403);
-
-            req.user = user;
-
+            userObj = user;
             next();
         })
     } catch (err) {
