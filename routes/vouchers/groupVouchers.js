@@ -266,14 +266,14 @@ router.post('/create', idAutoGroup, checkAuthentication, async function (req, re
       title: req.body?.title,
       note: req.body?.note,
       status: req.body?.status,
-      scopeApply: req.body?.scopeApply,
+      listShop: req.body?.listShop,
       softDelete: 0,
       created: {
-        createBy: "admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       },
       modified: {
-        modifyBy: "admin",
+        modifyBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       }
     })
@@ -329,9 +329,9 @@ router.put('/update/:id', checkAuthentication, async function (req, res, next) {
       title: req.body?.title,
       note: req.body?.note,
       status: req.body?.status,
-      scopeApply: req.body?.scopeApply,
+      listShop: req.body?.listShop,
       modified: {
-        createBy: "Admin",
+        createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       }
     });
@@ -754,7 +754,7 @@ router.patch('/change/status/many/voucher', checkAuthentication, async function 
     let status = req.query.status;
     const entry = await groupVoucherItemsModel.updateMany({ _id: { $in: obj } }, {
       status: status, modified: {
-        modifyBy: "admin",
+        modifyBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
       }
     }, (err, result) => {
