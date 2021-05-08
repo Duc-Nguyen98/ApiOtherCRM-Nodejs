@@ -387,7 +387,6 @@ router.get('/list/voucher/item/:idGroupVoucher', checkAuthentication, checkVouch
     const typeClassifiedGroup = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher }).select({ classified: 1 });
 
     Promise.all([groupVoucherItems, countGroupVoucherItems, typeClassifiedGroup]).then(([groupVoucherItems, countGroupVoucherItems, typeClassifiedGroup]) => {
-      console.log(typeClassifiedGroup)
       return res.status(200).json({
         success: true,
         groupVoucherItems: groupVoucherItems,
