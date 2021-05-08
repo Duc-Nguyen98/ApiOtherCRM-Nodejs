@@ -6,6 +6,7 @@ const checkAuthentication = require('../../utils/checkAuthentication');
 
 const multer = require('multer');
 const fs = require('fs');
+const { CustomerProfilesEntityAssignmentsInstance } = require('twilio/lib/rest/trusthub/v1/customerProfiles/customerProfilesEntityAssignments');
 
 
 const handleFilterSearch = (param, param2, param3, param4) => {
@@ -405,17 +406,9 @@ router.patch('/delete/many/customer', async function (req, res, next) {
   try {
     const obj = req.body.CustomerIdArray;
 
+    const entry = await customerModel.deleteMany({ idCustomer: { $in: obj } }, (err, result) => { })
 
-
-    // const entry = await customerModel.updateMany({ idCustomer: { $in: obj } }, {
-    //   softDelete: 0
-    // }, (err, result) => { })
-
-    const entry2 = await groupCustomerModel.find();
-
-    console.log(entry2)
-
-
+    const entry2 = await groupCustomerModel.updateMany({ memberCustomer: { $in: obj } }, { $pullAll: { memberCustomer: obj } });
     return res.status(200).json({
       success: true,
       message: "Delete Customers Successfully"
