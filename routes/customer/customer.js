@@ -225,6 +225,7 @@ router.post('/upload/:id', checkAuthentication, async function (req, res, next) 
 
         return res.status(200).json({
           success: true,
+          data: `upload/customers/${file.filename}`,
           message: "Upload Avatar Successfully!"
         });
       });
