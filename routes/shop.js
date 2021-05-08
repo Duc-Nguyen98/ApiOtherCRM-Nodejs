@@ -237,7 +237,8 @@ router.post('/upload/:id', checkAuthentication, async function (req, res, next) 
 
                 return res.status(200).json({
                     success: true,
-                    data: `upload/shops/${file.filename}`
+                    data: `upload/shops/${file.filename}`,
+                    message: "Update Avatar Successfully!"
                 });
             });
 
