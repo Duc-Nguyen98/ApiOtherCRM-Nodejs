@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const customerModel = require('../../model/customer/customer/schemaCustomer');
+const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
 const checkAuthentication = require('../../utils/checkAuthentication');
 
 const multer = require('multer');
@@ -344,6 +345,92 @@ router.patch('/trash/restore/:id', checkAuthentication, async function (req, res
     });
   };
 });
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/customer/trash/restore/:id
+
+router.patch('/delete-soft/many/customer', checkAuthentication, async function (req, res, next) {
+  try {
+    const obj = req.body.CustomerIdArray;
+
+    const entry = await customerModel.updateMany({ idCustomer: { $in: obj } }, {
+      softDelete: 1
+    }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        message: "Delete Soft Customers Successfully"
+      });
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/customer/trash/restore/:id
+
+router.patch('/restore/many/customer', checkAuthentication, async function (req, res, next) {
+  try {
+    const obj = req.body.CustomerIdArray;
+
+    const entry = await customerModel.updateMany({ idCustomer: { $in: obj } }, {
+      softDelete: 0
+    }, (err, result) => {
+      return res.status(200).json({
+        success: true,
+        message: "Restore Customers Successfully"
+      });
+    })
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+/* PATCH todo listing change isStarred isComplete. */
+// TODO: METHOD - PATCH
+// -u http://localhost:1509/customer/trash/restore/:id
+
+router.patch('/delete/many/customer', async function (req, res, next) {
+  try {
+    const obj = req.body.CustomerIdArray;
+
+
+
+    // const entry = await customerModel.updateMany({ idCustomer: { $in: obj } }, {
+    //   softDelete: 0
+    // }, (err, result) => { })
+
+    const entry2 = await groupCustomerModel.find();
+
+    console.log(entry2)
+
+
+    return res.status(200).json({
+      success: true,
+      message: "Delete Customers Successfully"
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
+
 
 
 
