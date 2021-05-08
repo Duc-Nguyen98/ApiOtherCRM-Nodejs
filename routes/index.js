@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const userModel = require('../model/schemaUser');
 const sgMail = require('@sendgrid/mail')
+const jwt = require("jsonwebtoken");
 
 
 
@@ -15,7 +16,7 @@ const jwtConfig = {
   expireTime: '7d',
   refreshTokenExpireTime: '10d',
 }
-
+const tokenList = {};
 router.post('/login', async function (req, res, next) {
   const { account, password } = req.body;
   try {
@@ -29,18 +30,19 @@ router.post('/login', async function (req, res, next) {
       .then(data => {
         if (data) {
           const token = jwt.sign({
-            _id: data._id
+            _id: data._id,
+            idUser: data.idUser,
+            name: data.name,
           }, jwtConfig.secret, { expiresIn: jwtConfig.expireTime });
 
-          const refreshToken = jwt.sign({ _id: data._id }, jwtConfig.refreshTokenSecret, {
-            expiresIn: jwtConfig.refreshTokenExpireTime,
+          const refreshToken = jwt.sign({
+            _id: data._id,
+            idUser: data.idUser,
+            name: data.name,
+          }, jwtConfig.refreshTokenSecret, {
+              expiresIn: jwtConfig.refreshTokenExpireTime,
           });
-
-          res.cookie('access_token', token, {
-            maxAge: 365 * 24 * 60 * 60 * 100,
-            httpOnly: true,
-            // secure: true;
-          });
+          tokenList[refreshToken] = data;
 
           const userData = { ...data._doc, ability: [{action: "manage", subject: "all"}] };
 
@@ -77,6 +79,40 @@ router.post('/login', async function (req, res, next) {
   };
 });
 
+/**
+ * Lấy mã token mới sử dụng Refresh token
+ * POST /refresh_token
+ */
+router.post('/refresh_token', async (req, res) => {
+  // User gửi mã Refresh token kèm theo trong body
+  const { refreshToken } = req.body;
+  // Kiểm tra Refresh token có được gửi kèm và mã này có tồn tại trên hệ thống hay không
+  if ((refreshToken) && (refreshToken in tokenList)) {
+    try {
+      // Kiểm tra mã Refresh token
+      await utils.verifyJwtToken(refreshToken, config.refreshTokenSecret);
+      // Lấy lại thông tin user
+      const user = tokenList[refreshToken];
+      // Tạo mới mã token và trả lại cho user
+      const token = jwt.sign(user, config.secret, {
+        expiresIn: config.tokenLife,
+      });
+      const response = {
+        token,
+      }
+      res.status(200).json(response);
+    } catch (err) {
+      console.error(err);
+      res.status(403).json({
+        message: 'Invalid refresh token',
+      });
+    }
+  } else {
+    res.status(400).json({
+      message: 'Invalid request',
+    });
+  }
+});
 /* 
 !GET logout
   -u localhost:xxxx/student/logout

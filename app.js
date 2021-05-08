@@ -51,7 +51,6 @@ app.use(bodyParserURLEncoded);
 const db = mongoose.connection;
 
 //-u global jwt
-global.jwt = require("jsonwebtoken");
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

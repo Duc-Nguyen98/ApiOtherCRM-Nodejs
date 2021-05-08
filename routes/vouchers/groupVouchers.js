@@ -259,7 +259,6 @@ router.get('/list/shop', checkAuthentication, async function (req, res, next) {
 // -u http://localhost:1509/voucher/group/create
 // ? Example: http://localhost:1509/voucher/group/create
 router.post('/create', idAutoGroup, checkAuthentication, async function (req, res, next) {
-
   try {
     const groupVoucher = await groupVoucherModel.create({
       idGroupVoucher: AutoIdGroup,

@@ -60,7 +60,6 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
       .sort({ idCustomer: -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
-    console.log(taskOne)
 
     const taskTwo = await customerModel.countDocuments(handleFilterSearch(group, gender, keyword, softDelete));
 
