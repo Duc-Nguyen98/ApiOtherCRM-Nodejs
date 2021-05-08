@@ -380,7 +380,6 @@ router.patch('/delete-soft/many/customer', checkAuthentication, async function (
 router.patch('/restore/many/customer', checkAuthentication, async function (req, res, next) {
   try {
     const obj = req.body.CustomerIdArray;
-
     const entry = await customerModel.updateMany({ idCustomer: { $in: obj } }, {
       softDelete: 0
     }, (err, result) => {
@@ -405,9 +404,7 @@ router.patch('/restore/many/customer', checkAuthentication, async function (req,
 router.patch('/delete/many/customer', async function (req, res, next) {
   try {
     const obj = req.body.CustomerIdArray;
-
     const entry = await customerModel.deleteMany({ idCustomer: { $in: obj } }, (err, result) => { })
-
     const entry2 = await groupCustomerModel.updateMany({ memberCustomer: { $in: obj } }, { $pullAll: { memberCustomer: obj } });
     return res.status(200).json({
       success: true,
