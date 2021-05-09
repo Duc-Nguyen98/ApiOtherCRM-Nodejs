@@ -3,7 +3,6 @@ const router = express.Router();
 const sgMail = require('@sendgrid/mail')
 const servicesModel = require('../model/schemaService');
 const customerModel = require('../model/customer/customer/schemaCustomer');
-const groupCustomerModel = require('../model/customer/groupCustomer/schemaGroupCustomer');
 const groupVoucherModel = require('../model/vouchers/groupVoucher/schemaGroupVoucher');
 const voucherItemsModel = require('../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 const { parse } = require('node-xlsx');
@@ -87,7 +86,7 @@ const checkIdCustomer = async (req, res, next) => {
 const checkIdGroupVoucher = async (req, res, next) => {
     let idGroupVoucher = req.body.idGroupVoucher;
     const entry = await groupVoucherModel.findOne({ idGroupVoucher: idGroupVoucher })
-        .select({ idGroupVoucher: 1, title: 1, scopeApply: 1 }).then(data => {
+        .select({ idGroupVoucher: 1, title: 1, listShop: 1 }).then(data => {
             dataGroupVoucher = data;
             next();
 
@@ -127,18 +126,15 @@ router.get('/list/customer', async function (req, res, next) {
     };
 });
 
-router.get('/list/customer/group-customer', async function (req, res, next) {
+router.get('/list/group', async function (req, res, next) {
     try {
-        // {
-        //     "idCustomer": [10002]
-        // }
-        let idCustomer = req.body.idCustomer
-        const groupCustomer = await groupCustomerModel
-            .find({ memberCustomer: { $in: idCustomer }, softDelete: 0 })
-            .select({ "title": 1, "idGroupCustomer": 1 });
+        const groupVoucher = await groupVoucherModel
+            .find({ status: 0, softDelete: 0 })
+            .select({ "created": 0, "modified": 0, "softDelete": 0 });
+
         return res.status(200).json({
             success: true,
-            groupCustomer: groupCustomer,
+            groupVoucher: groupVoucher,
         });
 
     } catch (err) {
@@ -150,11 +146,10 @@ router.get('/list/customer/group-customer', async function (req, res, next) {
     };
 });
 
-
 router.get('/list/group-voucher', async function (req, res, next) {
     try {
         const groupVoucher = await groupVoucherModel
-            .find({ status: 0, softDelete: 0 })
+            .find({ status: 1, softDelete: 0 })
             .select({ "created": 0, "modified": 0, "softDelete": 0 });
 
         return res.status(200).json({
@@ -202,53 +197,39 @@ router.get('/list/group-voucher/voucher-items', async function (req, res, next) 
 router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
     try {
 
-        console.log(dataCustomer, dataGroupVoucher, infoVoucherCode)
-        // sendSms("+84393177289", "You just sent an SMS from Node.js using Twilio!")
-        let typeService = req.body.type;
-        let contentService = req.body.content;
-
-        // const serviceCreate = await servicesModel.create({
-        //     idServices: AutoId,
-        //     idCustomer: dataCustomer.idCustomer,
-        //     idGroupVoucher: dataGroupVoucher.title,
-        //     idVoucher: infoVoucherCode.idVoucher,
-        //     titleGroupVoucher: dataGroupVoucher.titleGroupVoucher,
-        //     type: typeService,
-        //     scopeApply: dataGroupVoucher.scopeApply,
-        //     telephone: dataCustomer.telephone,
-        //     mailCustomer: dataCustomer.email,
-        //     voucherCode: infoVoucherCode.voucherCode,
-        //     content: contentService,
-        //     discount: infoVoucherCode.discount,
-        //     timeLine: infoVoucherCode.timeLine,
-        //     details: {
-        //         sendBy: "Admin",
-        //         time: Date.now()
-        //     }
-        // })
-        // const change
+        let typeServices = req.body.typeServices;
+        let dateAutomaticallySent = req.body.dateAutomaticallySent;
+        let titleServices = req.body.titleServices;
+        let content = req.body.content;
 
         const data = {
             idServices: AutoId,
             idCustomer: dataCustomer.idCustomer,
-            idGroupVoucher: dataGroupVoucher.idGroupVoucher,
             idVoucher: infoVoucherCode.idVoucher,
             titleGroupVoucher: dataGroupVoucher.title,
-            type: typeService,
-            scopeApply: dataGroupVoucher.scopeApply,
-            telephone: dataCustomer.telephone,
+            listShop: dataGroupVoucher.listShop,
+            nameCustomer: dataCustomer.name,
+            telephoneCustomer: dataCustomer.telephone,
             mailCustomer: dataCustomer.email,
             voucherCode: infoVoucherCode.voucherCode,
-            content: contentService,
+            typeServices: typeServices,
+            content: content,
+            dateAutomaticallySent: dateAutomaticallySent,
             discount: infoVoucherCode.discount,
             timeLine: infoVoucherCode.timeLine,
             details: {
-                sendBy: "Admin",
+                createBy: "Admin",
                 time: Date.now()
-            }
+            },
+            softDelete: 0
         }
 
         console.log(data)
+
+
+        const serviceCreate = await servicesModel.create(data);
+        const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
+
 
 
         return res.status(200).json({

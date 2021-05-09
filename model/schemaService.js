@@ -9,10 +9,6 @@ const schema = new mongoose.Schema({
         type: Number,
         default: ''
     },
-    idGroupVoucher: {
-        type: Number,
-        default: ''
-    },
     idVoucher: {
         type: Number,
         default: ''
@@ -21,7 +17,18 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    listShop: {
+        type: Array,
+        default: []
+
+    },
+
     nameCustomer: {
+        type: String,
+        default: ''
+    },
+
+    telephoneCustomer: {
         type: String,
         default: ''
     },
@@ -29,13 +36,21 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    telephone: {
+    voucherCode: {
         type: String,
         default: ''
+    },
+    typeServices: {
+        type: Number,
+        default: 0
     },
     content: {
         type: String,
         default: ''
+    },
+    dateAutomaticallySent: {
+        type: Number,
+        default: 0
     },
     discount: {
         type: Object,
@@ -52,42 +67,13 @@ const schema = new mongoose.Schema({
         },
 
     },
-    scopeApply: {
-        shop: {
-            all: {
-                type: Number,
-                default: 0
-            },
-            listShop: {
-                type: Array,
-                default: []
-            }
-        },
-        customer: {
-            all: {
-                type: Number,
-                default: 0
-            },
-            listCustomer: {
-                type: Array,
-                default: []
-            }
-        }
-    },
     timeLine: {
         type: Object,
-        release: {
-            type: String,
-            default: ''
-        },
-        expiration: {
-            type: String,
-            default: ''
-        }
+
     },
     details: {
         type: Object,
-        sendBy: {
+        createBy: {
             type: String,
             default: ''
         },
