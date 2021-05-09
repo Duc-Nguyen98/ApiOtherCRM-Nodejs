@@ -40,11 +40,11 @@ router.post('/login', async function (req, res, next) {
             idUser: data.idUser,
             name: data.name,
           }, jwtConfig.refreshTokenSecret, {
-              expiresIn: jwtConfig.refreshTokenExpireTime,
+            expiresIn: jwtConfig.refreshTokenExpireTime,
           });
           tokenList[refreshToken] = data;
 
-          const userData = { ...data._doc, ability: [{action: "manage", subject: "all"}] };
+          const userData = { ...data._doc, ability: [{ action: "manage", subject: "all" }] };
 
           delete userData.password;
 
@@ -58,7 +58,7 @@ router.post('/login', async function (req, res, next) {
         } else {
           return res.status(200).json({
             success: false,
-            message: "Login Fail!",
+            message: "Login Fail, Please check again Account & Password!",
           });
         }
 

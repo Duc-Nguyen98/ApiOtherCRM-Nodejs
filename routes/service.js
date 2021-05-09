@@ -153,10 +153,8 @@ router.get('/list/customer/group-customer', async function (req, res, next) {
 
 router.get('/list/group-voucher', async function (req, res, next) {
     try {
-
-        let idGroupCustomer = req.body.idGroupCustomer
         const groupVoucher = await groupVoucherModel
-            .find({ "scopeApply.listGroupCustomer": { $elemMatch: { "value": idGroupCustomer } }, status: 0, softDelete: 0 })
+            .find({ status: 0, softDelete: 0 })
             .select({ "created": 0, "modified": 0, "softDelete": 0 });
 
         return res.status(200).json({
@@ -177,10 +175,9 @@ router.get('/list/group-voucher', async function (req, res, next) {
 
 router.get('/list/group-voucher/voucher-items', async function (req, res, next) {
     try {
-
         let idGroupVoucher = req.body.idGroupVoucher
         const voucherItems = await voucherItemsModel
-            .find({ idGroupVoucher: idGroupVoucher, status: 1, softDelete: 0 })
+            .find({ idGroupVoucher: idGroupVoucher, status: 0, softDelete: 0 })
             .select({ "created": 0, "modified": 0, "softDelete": 0 });
 
         return res.status(200).json({
