@@ -403,6 +403,18 @@ const checkVoucherItems = async (req, res, next) => {
     })
 }
 
+function msToTime(duration) {
+    var milliseconds = parseInt((duration % 1000) / 100),
+        seconds = Math.floor((duration / 1000) % 60),
+        minutes = Math.floor((duration / (1000 * 60)) % 60),
+        hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+    hours = (hours < 10 && hours > 0) ? "0" + hours : hours;
+    minutes = (minutes < 10 && minutes > 0) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return `${hours} hours, ${minutes} minutes.`;
+}
 // !SELECT DATA
 
 router.get('/list/customer', async function (req, res, next) {
@@ -472,50 +484,54 @@ router.get('/list/group-voucher/voucher-items/:idGroupVoucher', async function (
 // ? Example: http://localhost:1509/user/create
 router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
     try {
-
         let typeServices = req.body.typeServices;
         let dateAutomaticallySent = req.body.dateAutomaticallySent;
         let titleServices = req.body.titleServices;
         let content = req.body.content;
+        let date = dateAutomaticallySent - (Date.now());
 
-        const data = {
-            idServices: AutoId,
-            idCustomer: dataCustomer.idCustomer,
-            idVoucher: infoVoucherCode.idVoucher,
-            titleServices: titleServices,
-            listShop: dataGroupVoucher.listShop,
-            nameCustomer: dataCustomer.name,
-            telephoneCustomer: dataCustomer.telephone,
-            mailCustomer: dataCustomer.email,
-            voucherCode: infoVoucherCode.voucherCode,
-            typeServices: typeServices,
-            content: content,
-            dateAutomaticallySent: dateAutomaticallySent,
-            discount: infoVoucherCode.discount,
-            timeLine: infoVoucherCode.timeLine,
-            details: {
-                createBy: "Admin",
-                time: Date.now()
-            },
-            statusSend: 0,
-            softDelete: 0
-        }
 
-        const serviceCreate = await servicesModel.create(data);
-        const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
-        if (typeServices == 2) {
-            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        } else if (typeServices == 1) {
-            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        } else {
-            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        }
+        // let diff = (1620643860 - 1620625860); // trái là hạn
+        // console.log(diff)
 
+        // const data = {
+        //     idServices: AutoId,
+        //     idCustomer: dataCustomer.idCustomer,
+        //     idVoucher: infoVoucherCode.idVoucher,
+        //     titleServices: titleServices,
+        //     listShop: dataGroupVoucher.listShop,
+        //     nameCustomer: dataCustomer.name,
+        //     telephoneCustomer: dataCustomer.telephone,
+        //     mailCustomer: dataCustomer.email,
+        //     voucherCode: infoVoucherCode.voucherCode,
+        //     typeServices: typeServices,
+        //     content: content,
+        //     dateAutomaticallySent: dateAutomaticallySent,
+        //     discount: infoVoucherCode.discount,
+        //     timeLine: infoVoucherCode.timeLine,
+        //     details: {
+        //         createBy: "Admin",
+        //         time: Date.now()
+        //     },
+        //     statusSend: 0,
+        //     softDelete: 0
+        // }
+
+        // const serviceCreate = await servicesModel.create(data);
+        // const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
+        // if (typeServices == 2) {
+        //     sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        //     sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        // } else if (typeServices == 1) {
+        //     sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        // } else {
+        //     sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        // }
 
         return res.status(200).json({
             success: true,
-            message: "Create Successfully"
+            message: "Create Successfully",
+            details: `@ISC${AutoId} will be sent automatically after: ${msToTime(date)} `
 
         });
 
