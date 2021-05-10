@@ -5,7 +5,11 @@ const servicesModel = require('../model/schemaService');
 const customerModel = require('../model/customer/customer/schemaCustomer');
 const groupVoucherModel = require('../model/vouchers/groupVoucher/schemaGroupVoucher');
 const voucherItemsModel = require('../model/vouchers/groupVoucher/schemaGroupVoucherItems');
-const { parse } = require('node-xlsx');
+const client = require('twilio')("AC80ed1b888d269dc287173c2202ec9ace", "2a94e9d362710c2a2aa3a51654ff22d8");
+
+
+
+
 
 
 //! FIlter 
@@ -32,29 +36,40 @@ const idServicesAuto = async (req, res, next) => {
 }
 
 
-
-const sendSms = (telephoneCustomer, content) => {
+const sendSms = async (telephoneCustomer, content, titleServices, nameCustomer, voucherCode, discountVoucher, timeLine, shopApply) => {
     let swapTelephone = telephoneCustomer.replace(/0/i, '+84');
-    console.log(swapTelephone)
-    const client = require('twilio')(
-        "AC80ed1b888d269dc287173c2202ec9ace",
-        "2a94e9d362710c2a2aa3a51654ff22d8"
-    );
-    client.messages.create({
-        from: "+15708730303",
-        to: swapTelephone,
-        body: content
-        // to: "+84393177289",
-        // body: "You just sent an SMS from Node.js using Twilio!"
-    }).then(data => {
-        return data;
-    }).catch(err => {
-        console.log(err);
-    })
+    var heroes = [
+        { name: "Batman", franchise: "DC" },
+        { name: "Ironman", franchise: "Marvel" },
+    ];
+    let arrayListShop = [];
+
+    var marvelHeroes = heroes.filter(function (hero) {
+        arrayListShop.push(hero.name);
+    });
+
+
+    for (let index = 0; index < arrayListShop.length; ++index) {
+        console.log(arrayListShop[index]);
+    }
+
+    // console.log(`Sự kiện ${titleServices}.Xin chào ${nameCustomer}, ${content}, Mã giảm giá là: ${voucherCode}, chi tiết áp dụng là: ${discountVoucher}, thời hạn sử dụng của voucher từ ngày ${timeLine.release} đến ngày ${timeLine.expiration}. Lưu ý danh sách các cửa hàng áp dụng khuyến mãi là: ${shopApply}, ANT-CVV xin cảm ơn quý khách đã tin dùng dịch vụ của chúng tôi!`)
+    //     await client.messages.create({
+    //         // to: swapTelephone,
+    //         // body: content
+    //         from: "+15708730303",
+    //         to: swapTelephone,
+    //         body: ,
+    //     }).then(message => {
+    //         console.log(message.sid);
+
+    //     }).catch(err => {
+    //         console.log(err);
+    //     })
+
 }
 
 const sendMail = (to, subject, nameCustomer, voucherCode, discountVoucher, timeLine, shopApply) => {
-    console.log(to, subject, nameCustomer, voucherCode, discountVoucher, timeLine, shopApply)
     const API_KEY = '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';
     sgMail.setApiKey(API_KEY);
 
@@ -62,13 +77,27 @@ const sendMail = (to, subject, nameCustomer, voucherCode, discountVoucher, timeL
         to: to,
         from: 'ducnin1998@gmail.com',
         subject: subject,
-
-        html: `<!DOCTYPE html>
+        html: `
+        <!DOCTYPE html>
 <html lang="en" >
 
 <head>
   <meta charset="UTF-8">
   <title>A Gift For You: Happy Birthday</title>
+
+
+
+
+
+</head>
+
+<body>
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>A Gift For You: Happy Birthday, Smiles Davis</title>
 
 
 
@@ -188,9 +217,9 @@ table td, table th { border-collapse:collapse; font-size:1px; line-height:1px; }
 <tr>
 <td height="15" class="rh5"><img src="http://link.runtastic.com/img/trans.gif" width="1" height="15" style="display:block;"></td>
 </tr>
-<!--<tr>-->
-<!--<td height="1"><img src="http://link.runtastic.com/mo/DsBAbJwFVX_645781705_1432009_14276_682127.gif" height="1" style="display:block;"></td>-->
-<!--</tr>-->
+<tr>
+<td height="1"><img src="http://link.runtastic.com/mo/DsBAbJwFVX_645781705_1432009_14276_682127.gif" height="1" style="display:block;"></td>
+</tr>
 </table>
 </td>
 </tr>
@@ -198,9 +227,9 @@ table td, table th { border-collapse:collapse; font-size:1px; line-height:1px; }
 <td align="center">
 <table cellspacing="0" cellpadding="0" border="0" width="600" bgcolor="#ffffff" class="fw">
 <tr class="sectiongroup_4312 is_mobile_hideable">
-<td><table border="0" cellspacing="0" cellpadding="0" bgcolor="#666EE8" width="100%">
+<td><table border="0" cellspacing="0" cellpadding="0" bgcolor="#007aff" width="100%">
 <tr>
-<td align="center" style="padding-top:15px;"><h3 style="font-size:23px;color:#ffff">Customer Gratitude - ANT-CVV</h3></td>
+<td align="center" style="padding:15px 0;"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_2_64&ems_l=682127" target="_blank"><img src="http://link.runtastic.com/templates/run6en/img/logo6.png" width="165" border="0" style="display:block;"></a></td>
 </tr>
 </table></td>
 </tr><tr class="sectiongroup_4314 is_mobile_hideable">
@@ -212,7 +241,7 @@ table td, table th { border-collapse:collapse; font-size:1px; line-height:1px; }
 </tr><tr class="sectiongroup_4321 is_mobile_hideable">
 <td><table width="100%" cellspacing="0" cellpadding="0" border="0">
 <tbody><tr>
-<td valign="middle" height="245" bgcolor="#D6E9FD">
+<td valign="middle" height="245" bgcolor="#d7eaff">
 <table width="100%" cellspacing="0" cellpadding="0" border="0">
 <tbody><tr>
 <td colspan="3" class="rh10" height="5"><img src="http://link.runtastic.com/img/trans.gif" style="display: block;" width="1" height="5" /></td>
@@ -257,7 +286,7 @@ table td, table th { border-collapse:collapse; font-size:1px; line-height:1px; }
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
 <![endif]-->
-<td class="oltd" align="center"><a class="olcta mcta" style="color: rgb(255, 255, 255); font-weight: normal; text-decoration: none; background-color: #666EE8; border-radius: 26px; padding: 16px 26px; display: block;" target="_blank" href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_11_55&ems_l=682127&d=SEFQUFlCRC1DQ1hULVpBV1Y%3D%7C"><font style="font-size: 15px; color: rgb(255, 255, 255); text-transform: uppercase;" face="Helvetica, Arial, sans-serif"><b>Get My Gift</b></font></a></td>
+<td class="oltd" align="center"><a class="olcta mcta" style="color: rgb(255, 255, 255); font-weight: normal; text-decoration: none; background-color: rgb(0, 122, 255); border-radius: 26px; padding: 16px 26px; display: block;" target="_blank" href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_11_55&ems_l=682127&d=SEFQUFlCRC1DQ1hULVpBV1Y%3D%7C"><font style="font-size: 15px; color: rgb(255, 255, 255); text-transform: uppercase;" face="Helvetica, Arial, sans-serif"><b>Get My Gift</b></font></a></td>
 <!--[if (gte mso 9)|(IE)]>
 </tr>
 </table>
@@ -298,7 +327,19 @@ table td, table th { border-collapse:collapse; font-size:1px; line-height:1px; }
 <td height="27"><img src="http://link.runtastic.com/img/trans.gif" width="1" height="27" style="display:block;"></td>
 </tr>
 <tr class="sectiongroup_4409 is_mobile_hideable">
-<td>
+<td><table cellpadding="0" cellspacing="0" border="0" bgcolor="#eeeff1" width="100%">
+<tr>	<td align="center" style="line-height:20px;" class="lh xxsmall"><font face="Helvetica, Arial, sans-serif" style="font-size:12px; line-height:20px; color:#5f646d;">Let's get in touch:</font></td>	</tr>	<tr>	<td height="15"><img src="http://link.runtastic.com/img/trans.gif" width="1" height="15" style="display:block;"></td>	</tr>	<tr>	<td align="center">	<table cellspacing="0" cellpadding="0" border="0">	<tr>	<td width="32"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_6_65&ems_l=682127" target="_blank"><img src="http://link.runtastic.com/templates/run6en/i/fb.png" width="32" height="32" border="0" style="display:block;"></a></td>	<td width="10"><img src="http://link.runtastic.com/img/trans.gif" width="10" height="1"></td>	<td width="32"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_6_66&ems_l=682127" target="_blank"><img src="http://link.runtastic.com/templates/run6en/i/gp.png" width="32" height="32" border="0" style="display:block;"></a></td>	<td width="10"><img src="http://link.runtastic.com/img/trans.gif" width="10" height="1"></td>	<td width="32"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_6_67&ems_l=682127" target="_blank"><img src="http://link.runtastic.com/templates/run6en/i/tw.png" width="32" height="32" border="0" style="display:block;"></a></td>	<td width="10"><img src="http://link.runtastic.com/img/trans.gif" width="10" height="1"></td>	<td width="32"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_6_68&ems_l=682127" target="_blank"><img src="http://link.runtastic.com/templates/run6en/i/yt.png" width="32" height="32" border="0" style="display:block;"></a></td>	<td width="10"><img src="http://link.runtastic.com/img/trans.gif" width="10" height="1"></td>	<td width="32"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_6_69&ems_l=682127" target="_blank"><img src="http://link.runtastic.com/templates/run6en/i/inst.png" width="32" height="32" border="0" style="display:block;"></a></td>	<td width="10"><img src="http://link.runtastic.com/img/trans.gif" width="10" height="1"></td>	<td width="32"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_6_70&ems_l=682127" target="_blank"><img src="http://link.runtastic.com/templates/run6en/i/b.png" width="32" height="32" border="0" style="display:block;"></a></td>	</tr>	</table>	</td>	</tr>	<tr>	<td height="15"><img src="http://link.runtastic.com/img/trans.gif" width="1" height="15" style="display:block;"></td>	</tr>
+</table></td>
+</tr>
+<tr>	<td align="center" style="line-height:20px;" class="lh xxsmall"><font face="Helvetica, Arial, sans-serif" style="font-size:12px; line-height:20px; color:#2b2c2c;"><a href="#" target="_blank" style="color:#2b2c2c; font-weight:normal; text-decoration:none;"><font style="color:#2b2c2c;"><u>Unsubscribe</u></font></a> | <a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_-1_56&ems_l=682127" target="_blank" style="color:#2b2c2c; font-weight:normal; text-decoration:none;"><font style="color:#2b2c2c;"><u>Legal</u></font></a> | <a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_-1_57&ems_l=682127" target="_blank" style="color:#2b2c2c; font-weight:normal; text-decoration:none;"><font style="color:#2b2c2c;"><u>Privacy Policy</u></font></a><span class="mh"> | </span><span class="break mtop5"><a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_-1_58&ems_l=682127" target="_blank" style="color:#2b2c2c; font-weight:normal; text-decoration:none;"><font style="color:#2b2c2c;"><u>runtastic GmbH</u></font></a> | <a href="http://link.runtastic.com/u/nrd.php?p=DsBAbJwFVX_14276_1432009_-1_59&ems_l=682127" target="_blank" style="color:#2b2c2c; font-weight:normal; text-decoration:none;"><font style="color:#2b2c2c;"><u>Help and Support</u></font></a></span></font></td>	</tr>
+<tr>	<td height="10"><img src="http://link.runtastic.com/img/trans.gif" width="1" height="10" style="display:block;"></td>	</tr>	<tr>	<td align="center" style="line-height:20px;" lang="uri" class="lh la1 xxsmall"><font face="Helvetica, Arial, sans-serif" style="font-size:12px; line-height:20px; color:#2b2c2c;">&copy; runtastic GmbH 2018,<br class="mh"><span class="break mtop5">Plu&#173;ska&#173;ufs&#173;tra&#173;ße 7 · Business Center, </span><span class="break mtop5">4&#173;06&#173;1 Pa&#173;sc&#173;hi&#173;ng bei L&#173;in&#173;z, A&#173;ust&#173;ri&#173;a</span><br class="mh"><span class="break mtop5">FN 33&#173;43&#173;97&#173;k | ATU 65&#173;19&#173;72&#173;99</span></font></td>	</tr>
+<tr>
+<td height="20"><img src="http://link.runtastic.com/img/trans.gif" width="1" height="20" style="display:block;"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
 <div style="display:none; white-space:nowrap; font:15px courier; line-height:0;" class="mh">&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</div>
 </div>
 </body>
@@ -309,12 +350,12 @@ table td, table th { border-collapse:collapse; font-size:1px; line-height:1px; }
 </body>
 
 </html>
+
 `
     }
-
-    // sgMail.send(message)
-    //     .then(response => console.log('Email sent...!'))
-    //     .catch(error => console.log(error.message))
+    sgMail.send(message)
+        .then(response => console.log('Email sent...!'))
+        .catch(error => console.log(error.message))
 }
 
 
@@ -336,7 +377,6 @@ const checkIdGroupVoucher = async (req, res, next) => {
         .select({ idGroupVoucher: 1, title: 1, listShop: 1 }).then(data => {
             dataGroupVoucher = data;
             next();
-
         }).catch(err => {
             return err
         })
@@ -376,7 +416,7 @@ router.get('/list/customer', async function (req, res, next) {
 router.get('/list/group-voucher', async function (req, res, next) {
     try {
         const groupVoucher = await groupVoucherModel
-            .find({ status: 0, softDelete: 0 })
+            .find({ status: 1, softDelete: 0 })
             .select({ "created": 0, "modified": 0, "softDelete": 0 });
 
         return res.status(200).json({
@@ -453,8 +493,15 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
 
         const serviceCreate = await servicesModel.create(data);
         const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
+        if (typeServices == 2) {
+            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        } else if (typeServices == 1) {
+            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        } else {
+            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        }
 
-        sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
 
         return res.status(200).json({
             success: true,
