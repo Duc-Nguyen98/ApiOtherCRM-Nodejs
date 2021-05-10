@@ -13,7 +13,7 @@ const schema = new mongoose.Schema({
         type: Number,
         default: ''
     },
-    titleGroupVoucher: {
+    titleServices: {
         type: String,
         default: ''
     },
@@ -81,6 +81,10 @@ const schema = new mongoose.Schema({
             type: String,
             default: ''
         }
+    },
+    statusSend: {
+        type: Number,
+        default: 0
     },
     softDelete: {
         type: Number,
