@@ -435,9 +435,9 @@ router.get('/list/group-voucher', async function (req, res, next) {
 
 
 
-router.get('/list/group-voucher/voucher-items', async function (req, res, next) {
+router.get('/list/group-voucher/voucher-items/:idGroupVoucher', async function (req, res, next) {
     try {
-        let idGroupVoucher = req.body.idGroupVoucher
+        let idGroupVoucher = req.params.idGroupVoucher;
         const voucherItems = await voucherItemsModel
             .find({ idGroupVoucher: idGroupVoucher, status: 0, softDelete: 0 })
             .select({ "created": 0, "modified": 0, "softDelete": 0 });
