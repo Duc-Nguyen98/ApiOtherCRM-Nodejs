@@ -535,12 +535,12 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
 
 router.get('/list', async function (req, res, next) {
     try {
-        let typeServices = req.query.typeServices;
-        let statusSend = req.query.statusSend;
+        let type = req.query.type;
+        let status = req.query.status;
         let softDelete = 0;
         let q = req.query.q;
-        (typeServices == undefined || typeServices == '') ? typeServices = null : typeServices = typeServices;
-        (statusSend == undefined || statusSend == '') ? statusSend = null : statusSend = statusSend;
+        (type == undefined || type == '') ? type = null : type = type;
+        (status == undefined || status == '') ? status = null : status = status;
         let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
         //? Begin config Pagination
         let pagination = {
@@ -549,14 +549,13 @@ router.get('/list', async function (req, res, next) {
         }
 
         const services = await servicesModel
-            .find(hasFilter(typeServices, statusSend, regex, softDelete))
+            .find(hasFilter(type, status, regex, softDelete))
             .select({ idServices: 1, idCustomer: 1, nameCustomer: 1, titleServices: 1, voucherCode: 1, typeServices: 1, dateAutomaticallySent: 1, statusSend: 1 })
-            .sort({ idServices: -1 })
             .limit(pagination.totalItemsPerPage)
             .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
 
-        const totalRecords = await servicesModel.countDocuments(hasFilter(typeServices, statusSend, regex, softDelete));
+        const totalRecords = await servicesModel.countDocuments(hasFilter(type, status, regex, softDelete));
         Promise.all([services, totalRecords]).then(([services, totalRecords]) => {
             return res.status(200).json({
                 success: true,
@@ -575,12 +574,12 @@ router.get('/list', async function (req, res, next) {
 
 router.get('/list/trash', async function (req, res, next) {
     try {
-        let typeServices = req.query.typeServices;
-        let statusSend = req.query.statusSend;
+        let type = req.query.type;
+        let status = req.query.status;
         let softDelete = 1;
         let q = req.query.q;
-        (typeServices == undefined || typeServices == '') ? typeServices = null : typeServices = typeServices;
-        (statusSend == undefined || statusSend == '') ? statusSend = null : statusSend = statusSend;
+        (type == undefined || type == '') ? type = null : type = type;
+        (status == undefined || status == '') ? status = null : status = status;
         let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
         //? Begin config Pagination
@@ -590,13 +589,14 @@ router.get('/list/trash', async function (req, res, next) {
         }
 
         const services = await servicesModel
-            .find(hasFilter(typeServices, statusSend, regex, softDelete))
-            .sort({ idServices: -1 })
+            .find(hasFilter(type, status, regex, softDelete))
+            .select({ idServices: 1, idCustomer: 1, nameCustomer: 1, titleServices: 1, voucherCode: 1, typeServices: 1, dateAutomaticallySent: 1, statusSend: 1 })
+
             .limit(pagination.totalItemsPerPage)
             .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
 
-        const totalRecords = await servicesModel.countDocuments(hasFilter(typeServices, statusSend, regex, softDelete));
+        const totalRecords = await servicesModel.countDocuments(hasFilter(type, status, regex, softDelete));
         Promise.all([services, totalRecords]).then(([services, totalRecords]) => {
             return res.status(200).json({
                 success: true,
