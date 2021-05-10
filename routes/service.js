@@ -491,42 +491,39 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
         let date = dateAutomaticallySent - (Date.now());
 
 
-        // let diff = (1620643860 - 1620625860); // trái là hạn
-        // console.log(diff)
+        const data = {
+            idServices: AutoId,
+            idCustomer: dataCustomer.idCustomer,
+            idVoucher: infoVoucherCode.idVoucher,
+            titleServices: titleServices,
+            listShop: dataGroupVoucher.listShop,
+            nameCustomer: dataCustomer.name,
+            telephoneCustomer: dataCustomer.telephone,
+            mailCustomer: dataCustomer.email,
+            voucherCode: infoVoucherCode.voucherCode,
+            typeServices: typeServices,
+            content: content,
+            dateAutomaticallySent: dateAutomaticallySent,
+            discount: infoVoucherCode.discount,
+            timeLine: infoVoucherCode.timeLine,
+            details: {
+                createBy: "Admin",
+                time: Date.now()
+            },
+            statusSend: 0,
+            softDelete: 0
+        }
 
-        // const data = {
-        //     idServices: AutoId,
-        //     idCustomer: dataCustomer.idCustomer,
-        //     idVoucher: infoVoucherCode.idVoucher,
-        //     titleServices: titleServices,
-        //     listShop: dataGroupVoucher.listShop,
-        //     nameCustomer: dataCustomer.name,
-        //     telephoneCustomer: dataCustomer.telephone,
-        //     mailCustomer: dataCustomer.email,
-        //     voucherCode: infoVoucherCode.voucherCode,
-        //     typeServices: typeServices,
-        //     content: content,
-        //     dateAutomaticallySent: dateAutomaticallySent,
-        //     discount: infoVoucherCode.discount,
-        //     timeLine: infoVoucherCode.timeLine,
-        //     details: {
-        //         createBy: "Admin",
-        //         time: Date.now()
-        //     },
-        //     statusSend: 0,
-        //     softDelete: 0
-        // }
-
-        // const serviceCreate = await servicesModel.create(data);
-        // const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
-        // if (typeServices == 2) {
-        //     sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        //     sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        // } else if (typeServices == 1) {
-        //     sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        // } else {
-        //     sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        // }
+        const serviceCreate = await servicesModel.create(data);
+        const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
+        if (typeServices == 2) {
+            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        } else if (typeServices == 1) {
+            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        } else {
+            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        }
 
         return res.status(200).json({
             success: true,
