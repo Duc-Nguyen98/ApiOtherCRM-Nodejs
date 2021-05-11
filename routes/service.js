@@ -72,7 +72,7 @@ const sendSms = async (telephoneCustomer, content, titleServices, nameCustomer, 
         to: swapTelephone,
         body: `Sự kiện ${titleServices} của CVV-ANT. Xin chào ${nameCustomer}, ${contentSms}, Mã giảm giá là: ${voucherCode}, chi tiết áp dụng: ${discount}, thời hạn sử dụng của voucher từ ngày ${moment(timeLine.release).format("DD-MM-YYYY")} đến ngày ${moment(timeLine.expiration).format("DD-MM-YYYY")}.Lưu ý danh sách các cửa hàng áp dụng khuyến mãi là: ${listItem}. ANT - CVV xin cảm ơn quý khách đã tin dùng dịch vụ của chúng tôi!`,
     }).then(message => {
-        console.log(message.sid);
+        console.log("SMS sent...!");
 
     }).catch(err => {
         console.log(err);
@@ -462,7 +462,7 @@ router.get('/list/group-voucher/voucher-items/:idGroupVoucher', async function (
     try {
         let idGroupVoucher = req.params.idGroupVoucher;
         const voucherItems = await voucherItemsModel
-            .find({ idGroupVoucher: idGroupVoucher, status: 0, softDelete: 0 })
+            .find({ idGroupVoucher: idGroupVoucher, status: 1, softDelete: 0 })
             .select({ "created": 0, "modified": 0, "softDelete": 0 });
 
         return res.status(200).json({
