@@ -45,6 +45,8 @@ const idServicesAuto = async (req, res, next) => {
 
 
 const sendSms = async (telephoneCustomer, content, titleServices, nameCustomer, voucherCode, discountVoucher, timeLine, shopApply) => {
+
+    let contentSms = content.replace(/(<([^>]+)>)/ig, '')
     let swapTelephone = telephoneCustomer.replace(/0/i, '+84');
     let arrayListShop = [];
     let listItem = ``;
@@ -68,7 +70,7 @@ const sendSms = async (telephoneCustomer, content, titleServices, nameCustomer, 
         // body: content
         from: "+15708730303",
         to: swapTelephone,
-        body: `Sự kiện ${titleServices} của CVV-ANT. Xin chào ${nameCustomer}, ${content}, Mã giảm giá là: ${voucherCode}, chi tiết áp dụng: ${discount}, thời hạn sử dụng của voucher từ ngày ${moment(timeLine.release).format("DD-MM-YYYY")} đến ngày ${moment(timeLine.expiration).format("DD-MM-YYYY")}.Lưu ý danh sách các cửa hàng áp dụng khuyến mãi là: ${listItem}. ANT - CVV xin cảm ơn quý khách đã tin dùng dịch vụ của chúng tôi!`,
+        body: `Sự kiện ${titleServices} của CVV-ANT. Xin chào ${nameCustomer}, ${contentSms}, Mã giảm giá là: ${voucherCode}, chi tiết áp dụng: ${discount}, thời hạn sử dụng của voucher từ ngày ${moment(timeLine.release).format("DD-MM-YYYY")} đến ngày ${moment(timeLine.expiration).format("DD-MM-YYYY")}.Lưu ý danh sách các cửa hàng áp dụng khuyến mãi là: ${listItem}. ANT - CVV xin cảm ơn quý khách đã tin dùng dịch vụ của chúng tôi!`,
     }).then(message => {
         console.log(message.sid);
 
@@ -489,6 +491,7 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
         let titleServices = req.body.titleServices;
         let content = req.body.content;
         let date = dateAutomaticallySent - (Date.now());
+
 
 
         const data = {
