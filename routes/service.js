@@ -65,18 +65,18 @@ const sendSms = async (telephoneCustomer, content, titleServices, nameCustomer, 
 
 
 
-    await client.messages.create({
-        // to: swapTelephone,
-        // body: content
-        from: "+15708730303",
-        to: swapTelephone,
-        body: `Sự kiện ${titleServices} của CVV-ANT. Xin chào ${nameCustomer}, ${contentSms}, Mã giảm giá là: ${voucherCode}, chi tiết áp dụng: ${discount}, thời hạn sử dụng của voucher từ ngày ${moment(timeLine.release).format("DD-MM-YYYY")} đến ngày ${moment(timeLine.expiration).format("DD-MM-YYYY")}.Lưu ý danh sách các cửa hàng áp dụng khuyến mãi là: ${listItem}. ANT - CVV xin cảm ơn quý khách đã tin dùng dịch vụ của chúng tôi!`,
-    }).then(message => {
-        console.log("SMS sent...!");
+    // await client.messages.create({
+    //     // to: swapTelephone,
+    //     // body: content
+    //     from: "+15708730303",
+    //     to: swapTelephone,
+    //     body: `Sự kiện ${titleServices} của CVV-ANT. Xin chào ${nameCustomer}, ${contentSms}, Mã giảm giá là: ${voucherCode}, chi tiết áp dụng: ${discount}, thời hạn sử dụng của voucher từ ngày ${moment(timeLine.release).format("DD-MM-YYYY")} đến ngày ${moment(timeLine.expiration).format("DD-MM-YYYY")}.Lưu ý danh sách các cửa hàng áp dụng khuyến mãi là: ${listItem}. ANT - CVV xin cảm ơn quý khách đã tin dùng dịch vụ của chúng tôi!`,
+    // }).then(message => {
+    //     console.log("SMS sent...!");
 
-    }).catch(err => {
-        console.log(err);
-    })
+    // }).catch(err => {
+    //     console.log(err);
+    // })
 
 }
 
@@ -406,6 +406,7 @@ const checkVoucherItems = async (req, res, next) => {
 }
 
 function msToTime(duration) {
+    duration *= 1000;
     var milliseconds = parseInt((duration % 1000) / 100),
         seconds = Math.floor((duration / 1000) % 60),
         minutes = Math.floor((duration / (1000 * 60)) % 60),
@@ -490,8 +491,8 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
         let dateAutomaticallySent = req.body.dateAutomaticallySent;
         let titleServices = req.body.titleServices;
         let content = req.body.content;
-        let date = (dateAutomaticallySent * 1000) - (Date.now());
-
+        let currentDate = Math.floor(new Date().getTime() / 1000.0);
+        console.log()
 
 
         const data = {
@@ -519,19 +520,20 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
 
         const serviceCreate = await servicesModel.create(data);
         const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
-        if (typeServices == 2) {
-            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        } else if (typeServices == 1) {
-            sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        } else {
-            sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
-        }
+
+        // if (typeServices == 2) {
+        //     sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        //     sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        // } else if (typeServices == 1) {
+        //     sendMail(dataCustomer.email, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        // } else {
+        //     sendSms(dataCustomer.telephone, content, titleServices, dataCustomer.name, infoVoucherCode.voucherCode, infoVoucherCode.discount, infoVoucherCode.timeLine, dataGroupVoucher.listShop);
+        // }
 
         return res.status(200).json({
             success: true,
             message: "Create Successfully",
-            details: `@ISC${AutoId} will be sent automatically after: ${msToTime(date)} `
+            details: `@ISC${AutoId} will be sent automatically after: ${msToTime(dateAutomaticallySent - currentDate)} `
 
         });
 
