@@ -1,30 +1,33 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser')
-var logger = require('morgan');
+const logger = require('morgan');
 const mongoose = require('mongoose');
+const cron = require('node-cron');
 
 
-var indexRouter = require('./routes/index');
-var todoRouter = require('./routes/todo');
-var emailRouter = require('./routes/email');
-var customerRouter = require('./routes/customer/customer');
-var userRouter = require('./routes/user');
-var shopRouter = require('./routes/shop');
-var homePageRouter = require('./routes/others/homePage');
+const indexRouter = require('./routes/index');
+const todoRouter = require('./routes/todo');
+const emailRouter = require('./routes/email');
+const customerRouter = require('./routes/customer/customer');
+const userRouter = require('./routes/user');
+const shopRouter = require('./routes/shop');
+const homePageRouter = require('./routes/others/homePage');
 
 //? Services cms 
-var servicesRouter = require('./routes/service');
+const servicesRouter = require('./routes/service');
 //? Management Voucher
-var groupVoucherRouter = require('./routes/vouchers/groupVouchers');
+const groupVoucherRouter = require('./routes/vouchers/groupVouchers');
 // groupCustomer 
-var groupCustomerRouter = require('./routes/customer/groupCustomer');
+const groupCustomerRouter = require('./routes/customer/groupCustomer');
 
-var app = express();
 
-var cors = require('cors')
+
+const app = express();
+
+const cors = require('cors')
 
 app.use(cors({
   origin: 'http://localhost:8080', //Chan tat ca cac domain khac ngoai domain nay
@@ -88,5 +91,18 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
+// cron.schedule('*/1 * * * *', () => {
+//   let currentDate = Math.floor(Date.now() / 1000);
+//   const services = servicesModel.find({ dateAutomaticallySent: currentDate, softDelete: 0 }).then(data => {
+//     console.log(data)
+//     if (data) {
+
+//     }
+
+//   })
+//   console.log(currentDate)
+// });
 
 module.exports = app;
