@@ -490,7 +490,7 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
         let dateAutomaticallySent = req.body.dateAutomaticallySent;
         let titleServices = req.body.titleServices;
         let content = req.body.content;
-        let date = dateAutomaticallySent - (Date.now());
+        let date = (dateAutomaticallySent * 1000) - (Date.now());
 
 
 
