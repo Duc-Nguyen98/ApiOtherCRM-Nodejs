@@ -11,8 +11,8 @@ const cron = require('node-cron');
 
 //! Cron sec
 cron.schedule('*/1 * * * *', () => {
-    let currentDate = Math.floor(Date.now() / 1000);
-
+    let currentDate = moment(Date.now()).format("X");
+    currentDate = currentDate * 1000;
     const services = servicesModel.find({ dateAutomaticallySent: currentDate, softDelete: 0 }).then(data => {
         if (data.length !== 0) {
             data.forEach((element, index) => {
@@ -99,6 +99,8 @@ const sendSms = async (telephoneCustomer, content, titleServices, nameCustomer, 
 const sendMail = (to, subject, nameCustomer, voucherCode, discountVoucher, timeLine, shopApply, content) => {
     const API_KEY = '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';
     sgMail.setApiKey(API_KEY);
+    let arrayListShop = [];
+    let listItem = ``;
     let discount = ``;
     let shopApplyItems = shopApply.filter(function (hero) {
         arrayListShop.push(hero.title);
@@ -268,13 +270,10 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
 
         const serviceCreate = await servicesModel.create(data);
         const updateVoucherItem = await voucherItemsModel.findOneAndUpdate({ idVoucher: infoVoucherCode.idVoucher, softDelete: 0 }, { status: 3, idCustomersUse: dataCustomer.idCustomer, nameCustomerUse: dataCustomer.name });
-
-
-
         return res.status(200).json({
             success: true,
             message: "Create Successfully",
-            details: `@ISC${AutoId} will be sent automatically after: ${msToTime(dateAutomaticallySent - currentDate)} `
+            details: `@ISC${AutoId} will be sent automatically after: ${msToTime((dateAutomaticallySent / 1000) - currentDate)} `
 
         });
 
