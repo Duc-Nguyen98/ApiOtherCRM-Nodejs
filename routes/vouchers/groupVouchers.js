@@ -103,7 +103,6 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
       .select()
-      .sort({ "idGroupVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -150,7 +149,6 @@ router.get('/trash', checkAuthentication, async function (req, res, next) {
     const groupVouchers = await groupVoucherModel
       .find(hasFilterGroupVoucher(classified, status, regex, softDelete))
       .select()
-      .sort({ "idGroupVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -379,7 +377,6 @@ router.get('/list/voucher/item/:idGroupVoucher', checkAuthentication, checkVouch
     const groupVoucherItems = await groupVoucherItemsModel
       .find(voucherItems(regex, softDelete, idGroupVoucher, status))
       .select()
-      .sort({ "idVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
     const countGroupVoucherItems = await groupVoucherItemsModel.countDocuments(voucherItems(regex, softDelete, idGroupVoucher, status));
@@ -431,7 +428,6 @@ router.get('/history/voucher/item/:idGroupVoucher', checkAuthentication, async f
     const groupVoucherItems = await groupVoucherItemsModel
       .find(voucherItems(regex, softDelete, idGroupVoucher, status))
       .select({})
-      .sort({ "idVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -487,7 +483,6 @@ router.get('/history/trash/voucher/item/:idGroupVoucher', checkAuthentication, a
     const groupVoucherItems = await groupVoucherItemsModel
       .find(voucherItems(regex, softDelete, idGroupVoucher, status))
       .select({})
-      .sort({ "idVoucher": -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
