@@ -25,19 +25,12 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    role: {
-        type: String,
-        default: ''
-    },
+
     active: {
         type: Number,
         default: 0
     },
     email: {
-        type: String,
-        default: ''
-    },
-    account: {
         type: String,
         default: ''
     },

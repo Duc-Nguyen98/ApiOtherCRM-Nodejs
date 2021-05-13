@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const userModel = require('../model/schemaUser');
+const userModel = require('../model/groupUser/schemaUser');
 const multer = require('multer');
 const fs = require('fs');
 const checkAuthentication = require('../utils/checkAuthentication');
