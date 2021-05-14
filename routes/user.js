@@ -2,9 +2,12 @@ const express = require('express');
 const router = express.Router();
 const userModel = require('../model/groupUser/schemaUser');
 const roleModel = require('../model/groupUser/schemaRole');
+const permissionModel = require('../model/groupUser/schemaPermission');
 const multer = require('multer');
 const fs = require('fs');
 const checkAuthentication = require('../utils/checkAuthentication');
+const sgMail = require('@sendgrid/mail')
+
 
 
 const hasFilter = (param, param2, param3, param4, param5) => {
@@ -57,6 +60,19 @@ const checkEmail = async (req, res, next) => {
       } else {
         next();
       }
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
+
+const roleDefault = async (req, res, next) => {
+  let _id = req.body.idRole;
+  await roleModel.findOne({ _id: _id }).select({ _id: 0 })
+    .then(data => {
+      RoleUser = data;
+      next();
     })
     .catch(err => {
       console.log(err)
@@ -124,14 +140,9 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/user/create
 // ? Example: http://localhost:1509/user/create
-router.post('/create', checkAuthentication, checkEmail, idUserAuto, async function (req, res, next) {
+router.post('/create', checkAuthentication, checkEmail, idUserAuto, roleDefault, async function (req, res, next) {
   try {
-    let role = req.body?.role;
-    let objPer = {
-      idUser: AutoId,
-      nameRole: role,
-      permissions: [],
-    };
+
     const entry = await userModel.create({
       idUser: AutoId,
       name: req.body?.name,
@@ -151,12 +162,12 @@ router.post('/create', checkAuthentication, checkEmail, idUserAuto, async functi
         time: Date.now()
       }
     })
-    if (role == 0) {
-      objPer.permissions = [{ action: "create", subject: "customers" }, { action: "read", subject: "customers" }, { action: "create", subject: "voucherItems" }, { action: "read", subject: "voucherItems" }, { action: "create", subject: "services" }, { action: "read", subject: "services" }];
-    } else {
-      objPer.permissions = [{ action: "create", subject: "customers" }, { action: "read", subject: "customers" }, { action: "update", subject: "customers" }, { action: "delete", subject: "customers" }, { action: "create", subject: "groupCustomer" }, { action: "read", subject: "groupCustomer" }, { action: "update", subject: "groupCustomer" }, { action: "delete", subject: "groupCustomer" }, { action: "create", subject: "users" }, { action: "read", subject: "users" }, { action: "update", subject: "users" }, { action: "create", subject: "groupVoucher" }, { action: "read", subject: "groupVoucher" }, { action: "update", subject: "groupVoucher" }, { action: "delete", subject: "groupVoucher" }, { action: "create", subject: "voucherItems" }, { action: "read", subject: "voucherItems" }, { action: "update", subject: "voucherItems" }, { action: "delete", subject: "voucherItems" }, { action: "create", subject: "shop" }, { action: "read", subject: "shop" }, { action: "update", subject: "shop" }, { action: "delete", subject: "shop" }, { action: "create", subject: "services" }, { action: "read", subject: "services" }, { action: "update", subject: "services" }, { action: "delete", subject: "services" }];
-    }
-    const entry2 = await roleModel.create(objPer);
+    const entry2 = await permissionModel.create({
+      idUser: AutoId,
+      nameRole: RoleUser.name,
+      modules: RoleUser.modules,
+      ability: RoleUser.ability
+    })
     return res.status(200).json({
       success: true,
       message: "👋 Create Successfully!"
@@ -199,24 +210,36 @@ router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/update/:id
 
-router.put('/update/:id', checkAuthentication, async function (req, res, next) {
+router.put('/update/:idUser', async function (req, res, next) {
   try {
-    const _id = req.params.id;
+    let idUser = req.params.idUser;
+    let permiss = req.body.permission;
 
-    const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
-      name: req.body?.name,
-      gender: req.body?.gender,
-      birthDay: req.body?.birthDay,
-      role: req.body?.role,
-      active: req.body?.active,
-      telephone: req.body?.telephone,
-      email: req.body?.email,
-      password: req.body?.password,
-      modified: {
-        createBy: `US${userObj.idUser}-${userObj.name}`,
-        time: Date.now()
+    const entry = await userModel.findOneAndUpdate({ idUser: idUser }, {
+      $set: {
+        name: req.body?.name,
+        gender: req.body?.gender,
+        birthDay: req.body?.birthDay,
+        active: req.body?.active,
+        telephone: req.body?.telephone,
+        email: req.body?.email,
+        password: req.body?.password,
+        // modified: {
+        //   createBy: `US${userObj.idUser}-${userObj.name}`,
+        //   time: Date.now()
+        // }
       }
     });
+
+    // const entry2 = await permissionModel.updateOne({ idUser: idUser }),{
+    //   $set: {
+    //     name: permiss.name,
+    //     modules: permiss.modules,
+    //     ability: permiss.ability,
+    //   }
+    // });
+
+
 
     return res.status(200).json({
       success: true,
@@ -342,11 +365,11 @@ router.delete('/delete-soft/:id', checkAuthentication, async function (req, res,
 /* DELETE todo listing deleteSoft Record */
 // TODO: METHOD - DELETE
 // -u http://localhost:1509/user/delete/:id
-router.delete('/delete/:id', checkAuthentication, async function (req, res, next) {
+router.delete('/delete/:idUser', checkAuthentication, async function (req, res, next) {
   try {
     const idUser = req.params.idUser;
     const entry = await userModel.findOneAndDelete({ idUser: idUser });
-    const entry2 = await roleModel.findOneAndDelete({ idUser: idUser });
+    const entry2 = await permissionModel.findOneAndDelete({ idUser: idUser });
 
     return res.status(200).json({
       success: true,
@@ -412,7 +435,7 @@ router.patch('/trash/restore/:id', checkAuthentication, async function (req, res
   try {
     const _id = req.params.id;
 
-    const entry = await userModel.findByIdAndUpdate({ _id: _id }, {
+    const entry = await userModel.findOneAndUpdate({ _id: _id }, {
       softDelete: 0
     });
     return res.status(200).json({
