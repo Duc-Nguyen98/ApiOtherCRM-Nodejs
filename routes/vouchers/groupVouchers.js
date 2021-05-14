@@ -1,12 +1,27 @@
 const express = require('express');
 const router = express.Router();
 var moment = require('moment'); // require
+const cron = require('node-cron');
 
 const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucher');
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 const groupCustomerModel = require('../../model/customer/groupCustomer/schemaGroupCustomer');
 const shopModel = require('../../model/schemaShop');
 const checkAuthentication = require('../../utils/checkAuthentication');
+
+//! Cron sec
+cron.schedule('*/1 * * * *', () => {
+  let currentDate = moment(new Date()).format("YYYY-MM-DD");
+  try {
+    const entry = groupVoucherItemsModel.updateMany({ "timeLine.expiration": { $lt: currentDate }, status: { $lt: 2 } }, { $set: { status: 2 } }).then(data => { })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 
 const hasFilterGroupVoucher = (param, param2, param3, param4) => {
@@ -61,22 +76,7 @@ const updateVoucherAdd = async (req, res, next) => {
 }
 
 
-checkVoucherExpired = async (req, res, next) => {
-  let todayDate = moment(new Date()).format("YYYY-MM-DD");
-  try {
-    const entry = await groupVoucherItemsModel.updateMany({ "timeLine.effective.expiration": { $lt: todayDate } }, {
-      status: 2,
-    }, (err, result) => {
-      next();
-    })
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-}
+
 
 
 // /* GET List Group Voucher listing. */
@@ -354,7 +354,7 @@ router.put('/update/:id', checkAuthentication, async function (req, res, next) {
 // // -u http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 // // ? Example: http://localhost:1509/voucher/group/list/voucher/item/:idGroupVoucher
 
-router.get('/list/voucher/item/:idGroupVoucher', checkAuthentication, checkVoucherExpired, async function (req, res, next) {
+router.get('/list/voucher/item/:idGroupVoucher', checkAuthentication, async function (req, res, next) {
   try {
     let idGroupVoucher = req.params.idGroupVoucher;
     let softDelete = 0;
