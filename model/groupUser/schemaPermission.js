@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 const schema = new mongoose.Schema({
+    idUser: {
+        type: Number,
+        default: ''
+    },
     name: {
         type: String,
         default: ''
@@ -13,6 +17,7 @@ const schema = new mongoose.Schema({
         type: Array,
         default: []
     }
+
 });
 
-module.exports = mongoose.model('roles', schema);
+module.exports = mongoose.model('permissions', schema);

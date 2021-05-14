@@ -6,8 +6,6 @@ const permissionModel = require('../model/groupUser/schemaPermission');
 const multer = require('multer');
 const fs = require('fs');
 const checkAuthentication = require('../utils/checkAuthentication');
-const sgMail = require('@sendgrid/mail')
-
 
 
 const hasFilter = (param, param2, param3, param4, param5) => {
