@@ -9,25 +9,19 @@ const { ConversationsGrant } = require('twilio/lib/jwt/AccessToken');
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
 const checkUserLogin = async (req, res, next) => {
+  // password: req.body.password,
   await userModel.findOne({
     email: req.body.email,
-    password: req.body.password,
-    softDelete: 0
+    softDelete: 0,
+    active: 1,
   }).then(data => {
-    if (data && data.active == 1) {
+    if (data != null) {
       informationUser = data;
       next();
-    }
-    else if (data.active == 0) {
+    } else {
       return res.status(200).json({
         success: false,
-        message: "👋 Login Fail, This account has been stop activity!",
-      });
-    }
-    else {
-      return res.status(200).json({
-        success: false,
-        message: "👋 Login Fail, Please check again Account & Password!",
+        message: "👋 Login Fail, This account has been stop activity or does not exist!",
       });
     }
   })
@@ -87,7 +81,6 @@ router.post('/login', checkUserLogin, checkRoleUserLogin, async function (req, r
     return res.status(200).json({
       success: true,
       userData: userData,
-      // permissions: permissions,
       message: "👋 Login Successfully!",
       accessToken: token,
       refreshToken: refreshToken,
