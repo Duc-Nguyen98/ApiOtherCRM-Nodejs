@@ -167,7 +167,7 @@ router.post('/forgot-password', async (req, res, next) => {
     await userModel.findOne({ email: req.body.gmailForgot }
     ).then(data => {
       if (data) {
-        sendMail(data.name, data.account, data.email, data.password)
+        sendMail(data.name, data.email, data.password)
         return res.status(200).json({
           success: true,
           message: `👋 Hey ${data.name}, please check your email inbox.Thank You!`
