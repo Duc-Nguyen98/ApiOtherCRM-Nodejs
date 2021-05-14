@@ -6,26 +6,6 @@ const sgMail = require('@sendgrid/mail')
 const jwt = require("jsonwebtoken");
 const { ConversationsGrant } = require('twilio/lib/jwt/AccessToken');
 
-
-checkVoucherExpired = async (req, res, next) => {
-  let todayDate = moment(new Date()).format("YYYY-MM-DD");
-  try {
-    const entry = await groupVoucherItemsModel.updateMany({ "timeLine.effective.expiration": { $lt: todayDate } }, {
-      status: 2,
-    }, (err, result) => {
-      next();
-    })
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
-  };
-}
-
-
-
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
 const checkUserLogin = async (req, res, next) => {
@@ -96,14 +76,16 @@ router.post('/login', checkUserLogin, checkRoleUserLogin, async function (req, r
     });
     tokenList[refreshToken] = data;
 
-    const userData = { ...data._doc, ability: [{ action: "manage", subject: "all" }] };
+    const userData = { ...data._doc, role: permissions.nameRole, ability: permissions.permissions };
 
     delete userData.password;
+
+    console.log(permissions, userData)
 
     return res.status(200).json({
       success: true,
       userData: userData,
-      permissions: permissions,
+      // permissions: permissions,
       message: "👋 Login Successfully!",
       accessToken: token,
       refreshToken: refreshToken,

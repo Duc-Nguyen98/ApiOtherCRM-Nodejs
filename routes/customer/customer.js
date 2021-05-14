@@ -24,6 +24,27 @@ const handleFilterSearch = (param, param2, param3, param4) => {
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
+const checkEmail = async (req, res, next) => {
+  let email = req.body?.email;
+  await customerModel.findOne({ email: email })
+    .then(data => {
+      if (data) {
+        return res.status(200).json({
+          success: true,
+          message: "👋 This email address is already used!"
+        });
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
+
+
+
 // TODO: MIDDLEWARE
 const idCustomerAuto = async (req, res, next) => {
   await customerModel.findOne({}, { idCustomer: 1, _id: 0 }).sort({ idCustomer: -1 })
@@ -111,7 +132,7 @@ router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
 /* POST todo listing create a record. */
 // TODO: METHOD - POST
 // -u http://localhost:1509/customer/create
-router.post('/create', checkAuthentication, idCustomerAuto, async function (req, res, next) {
+router.post('/create', checkAuthentication, checkEmail, idCustomerAuto, async function (req, res, next) {
   try {
     const entry = await customerModel.create({
       idCustomer: AutoId,

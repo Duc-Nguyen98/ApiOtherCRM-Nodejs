@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userModel = require('../model/groupUser/schemaUser');
+const roleModel = require('../model/groupUser/schemaRole');
 const multer = require('multer');
 const fs = require('fs');
 const checkAuthentication = require('../utils/checkAuthentication');
@@ -43,6 +44,25 @@ const hasFilter = (param, param2, param3, param4, param5) => {
 
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
+
+const checkEmail = async (req, res, next) => {
+  let email = req.body?.email;
+  await userModel.findOne({ email: email })
+    .then(data => {
+      if (data) {
+        return res.status(200).json({
+          success: true,
+          message: "👋 This email address is already used!"
+        });
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
 
 const idUserAuto = async (req, res, next) => {
   await userModel.findOne({}, { idUser: 1, _id: 0 }).sort({ idUser: -1 })
@@ -104,21 +124,23 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
 // TODO: METHOD - GET
 // -u http://localhost:1509/user/create
 // ? Example: http://localhost:1509/user/create
-router.post('/create', checkAuthentication, idUserAuto, async function (req, res, next) {
+router.post('/create', checkAuthentication, checkEmail, idUserAuto, async function (req, res, next) {
   try {
-    userObj
-
+    let role = req.body?.role;
+    let objPer = {
+      idUser: AutoId,
+      nameRole: role,
+      permissions: [],
+    };
     const entry = await userModel.create({
       idUser: AutoId,
       name: req.body?.name,
       gender: req.body?.gender,
       birthDay: req.body?.birthDay,
-      role: req.body?.role,
       telephone: req.body?.telephone,
       email: req.body?.email,
-      account: req.body?.account,
       password: req.body?.password,
-      active: 1,
+      active: 0,
       softDelete: 0,
       created: {
         createBy: `US${userObj.idUser}-${userObj.name}`,
@@ -129,9 +151,15 @@ router.post('/create', checkAuthentication, idUserAuto, async function (req, res
         time: Date.now()
       }
     })
+    if (role == 0) {
+      objPer.permissions = [{ action: "create", subject: "customers" }, { action: "read", subject: "customers" }, { action: "create", subject: "voucherItems" }, { action: "read", subject: "voucherItems" }, { action: "create", subject: "services" }, { action: "read", subject: "services" }];
+    } else {
+      objPer.permissions = [{ action: "create", subject: "customers" }, { action: "read", subject: "customers" }, { action: "update", subject: "customers" }, { action: "delete", subject: "customers" }, { action: "create", subject: "groupCustomer" }, { action: "read", subject: "groupCustomer" }, { action: "update", subject: "groupCustomer" }, { action: "delete", subject: "groupCustomer" }, { action: "create", subject: "users" }, { action: "read", subject: "users" }, { action: "update", subject: "users" }, { action: "create", subject: "groupVoucher" }, { action: "read", subject: "groupVoucher" }, { action: "update", subject: "groupVoucher" }, { action: "delete", subject: "groupVoucher" }, { action: "create", subject: "voucherItems" }, { action: "read", subject: "voucherItems" }, { action: "update", subject: "voucherItems" }, { action: "delete", subject: "voucherItems" }, { action: "create", subject: "shop" }, { action: "read", subject: "shop" }, { action: "update", subject: "shop" }, { action: "delete", subject: "shop" }, { action: "create", subject: "services" }, { action: "read", subject: "services" }, { action: "update", subject: "services" }, { action: "delete", subject: "services" }];
+    }
+    const entry2 = await roleModel.create(objPer);
     return res.status(200).json({
       success: true,
-      message: "Create Successfully!"
+      message: "👋 Create Successfully!"
     });
   } catch (err) {
     console.log(err)
@@ -183,7 +211,7 @@ router.put('/update/:id', checkAuthentication, async function (req, res, next) {
       active: req.body?.active,
       telephone: req.body?.telephone,
       email: req.body?.email,
-      password: "123456",
+      password: req.body?.password,
       modified: {
         createBy: `US${userObj.idUser}-${userObj.name}`,
         time: Date.now()
@@ -316,8 +344,10 @@ router.delete('/delete-soft/:id', checkAuthentication, async function (req, res,
 // -u http://localhost:1509/user/delete/:id
 router.delete('/delete/:id', checkAuthentication, async function (req, res, next) {
   try {
-    const _id = req.params.id;
-    const entry = await userModel.findByIdAndDelete({ _id: _id });
+    const idUser = req.params.idUser;
+    const entry = await userModel.findOneAndDelete({ idUser: idUser });
+    const entry2 = await roleModel.findOneAndDelete({ idUser: idUser });
+
     return res.status(200).json({
       success: true,
       message: "Delete Successfully!"
