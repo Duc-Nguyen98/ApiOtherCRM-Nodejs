@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 const userModel = require('../model/groupUser/schemaUser');
-const roleModel = require('../model/groupUser/schemaPermission');
+const roleModel = require('../model/groupUser/schemaRole');
 const sgMail = require('@sendgrid/mail')
 const jwt = require("jsonwebtoken");
 const { ConversationsGrant } = require('twilio/lib/jwt/AccessToken');
@@ -55,8 +55,6 @@ const tokenList = {};
 router.post('/login', checkUserLogin, checkRoleUserLogin, async function (req, res, next) {
   try {
     let data = informationUser;
-    let role = permissions.nameRole;
-    0 == role ? role = "employee" : 1 == role ? role = "admin" : role = "super admin";
     const token = jwt.sign({
       _id: data._id,
       idUser: data.idUser,
@@ -72,7 +70,7 @@ router.post('/login', checkUserLogin, checkRoleUserLogin, async function (req, r
     });
     tokenList[refreshToken] = data;
 
-    const userData = { ...data._doc, role: role, ability: permissions.permissions };
+    const userData = { ...data._doc, role: permissions.nameRole, ability: permissions.permissions };
 
     delete userData.password;
 

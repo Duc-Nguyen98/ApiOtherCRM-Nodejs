@@ -1,18 +1,19 @@
 const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 const schema = new mongoose.Schema({
-    name: {
-        type: String,
+    idUser: {
+        type: Number,
         default: ''
     },
-    modules: {
-        type: Array,
-        default: []
+    nameRole: {
+        type: Number,
+        default: ''
     },
-    ability: {
+    permissions: {
         type: Array,
         default: []
     }
+
 });
 
 module.exports = mongoose.model('roles', schema);
