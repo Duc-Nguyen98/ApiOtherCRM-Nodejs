@@ -15,11 +15,11 @@ const checkUserLogin = async (req, res, next) => {
     password: req.body.password,
     softDelete: 0
   }).then(data => {
-    if (data && data.active == 1) {
+    if (data !== null && data.active == 1) {
       informationUser = data;
       next();
     }
-    else if (data.active == 0) {
+    else if (data !== null && data.active == 0) {
       return res.status(200).json({
         success: false,
         message: "👋 Login Fail, This account has been stop activity!",
@@ -35,7 +35,6 @@ const checkUserLogin = async (req, res, next) => {
     .catch(err => {
       console.log(err)
     })
-
 }
 
 const checkRoleUserLogin = async (req, res, next) => {
