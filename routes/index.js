@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const fs = require('fs');
 const userModel = require('../model/groupUser/schemaUser');
 const roleModel = require('../model/groupUser/schemaPermission');
 const sgMail = require('@sendgrid/mail')
@@ -40,6 +41,7 @@ const checkUserLogin = async (req, res, next) => {
 const checkRoleUserLogin = async (req, res, next) => {
   await roleModel.findOne({ idUser: informationUser.idUser }).select({ idUser: 0, _id: 0 })
     .then(data => {
+      // console.log(data)
       permissions = data;
       next();
     })
@@ -78,11 +80,9 @@ router.post('/login', checkUserLogin, checkRoleUserLogin, async function (req, r
     });
     tokenList[refreshToken] = data;
 
-    const userData = { ...data._doc, role: role, ability: permissions.permissions };
+    const userData = { ...data._doc, role: role, ability: permissions };
 
     delete userData.password;
-
-    console.log(permissions, userData)
 
     return res.status(200).json({
       success: true,
