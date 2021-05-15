@@ -210,18 +210,18 @@ router.post('/create', checkAuthentication, checkEmail, idUserAuto, roleDefault,
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/detail/:id
 // ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
-router.get('/detail/:id', checkAuthentication, async function (req, res, next) {
+router.get('/detail/:idUser', async function (req, res, next) {
   try {
-    const _id = req.params.id;
-    await userModel
-      .findOne({ _id: _id })
-      .then(data => {
-        return res.status(200).json({
-          success: true,
-          data: data
-        });
-      })
+    const idUser = req.params.idUser;
+    const entry = await userModel.findOne({ idUser: idUser });
+    const entry2 = await permissionModel.findOne({ idUser: idUser }).select({ _id: 0 });
+    const userData = { ...entry._doc, role: entry2.name, ability: entry2.ability, modules: entry2.modules };
+    return res.status(200).json({
+      success: true,
+      users: userData,
+    });
   } catch (err) {
+    console.log(err)
     return res.status(500).json({
       success: false,
       error: 'Server Error'

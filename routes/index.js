@@ -38,7 +38,7 @@ const checkUserLogin = async (req, res, next) => {
 }
 
 const checkRoleUserLogin = async (req, res, next) => {
-  await roleModel.findOne({ idUser: informationUser.idUser }).select({ idUser: 0, _id: 0 })
+  await roleModel.findOne({ idUser: informationUser.idUser }).select({ _id: 0 })
     .then(data => {
       // console.log(data)
       permissions = data;
