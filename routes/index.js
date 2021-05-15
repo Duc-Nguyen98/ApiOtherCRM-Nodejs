@@ -62,8 +62,6 @@ const tokenList = {};
 router.post('/login', checkUserLogin, checkRoleUserLogin, async function (req, res, next) {
   try {
     let data = informationUser;
-    let role = permissions.nameRole;
-    0 == role ? role = "employee" : 1 == role ? role = "admin" : role = "super admin";
     const token = jwt.sign({
       _id: data._id,
       idUser: data.idUser,
@@ -79,14 +77,13 @@ router.post('/login', checkUserLogin, checkRoleUserLogin, async function (req, r
     });
     tokenList[refreshToken] = data;
 
-    const userData = { ...data._doc, role: role, ability: permissions };
+    const userData = { ...data._doc, role: permissions.name, ability: permissions.ability, modules: permissions.modules };
 
     delete userData.password;
 
     return res.status(200).json({
       success: true,
       userData: userData,
-      // permissions: permissions,
       message: "👋 Login Successfully!",
       accessToken: token,
       refreshToken: refreshToken,
