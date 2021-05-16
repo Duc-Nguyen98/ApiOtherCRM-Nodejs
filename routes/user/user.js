@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const userModel = require('../model/groupUser/schemaUser');
-const roleModel = require('../model/groupUser/schemaRole');
-const permissionModel = require('../model/groupUser/schemaPermission');
+const userModel = require('../../model/groupUser/schemaUser');
+const roleModel = require('../../model/groupUser/schemaRole');
+const permissionModel = require('../../model/groupUser/schemaPermission');
 const multer = require('multer');
 const fs = require('fs');
-const checkAuthentication = require('../utils/checkAuthentication');
+const checkAuthentication = require('../../utils/checkAuthentication');
 const sgMail = require('@sendgrid/mail')
 const faker = require('faker');
 

@@ -12,7 +12,8 @@ const indexRouter = require('./routes/index');
 const todoRouter = require('./routes/todo');
 const emailRouter = require('./routes/email');
 const customerRouter = require('./routes/customer/customer');
-const userRouter = require('./routes/user');
+const userRouter = require('./routes/user/user');
+const roleRouter = require('./routes/user/role');
 const shopRouter = require('./routes/shop');
 const homePageRouter = require('./routes/others/homePage');
 
@@ -70,6 +71,7 @@ app.use('/todo', todoRouter);
 app.use('/mail', emailRouter);
 app.use('/customer', customerRouter);
 app.use('/user', userRouter);
+app.use('/role', roleRouter);
 app.use('/shop', shopRouter);
 app.use('/services', servicesRouter);
 app.use('/voucher/group', groupVoucherRouter);
