@@ -22,8 +22,8 @@ const checkAuthentication = async (req, res, next) => {
             console.log(err);
             if (err) return res.sendStatus(403);
             userObj = user;
-            console.log(new Date(userObj.iat))
-            console.log(new Date(userObj.exp))
+            // console.log(new Date(userObj.iat))
+            // console.log(new Date(userObj.exp))
             next();
         })
     } catch (err) {

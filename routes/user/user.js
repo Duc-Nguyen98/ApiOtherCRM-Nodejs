@@ -238,15 +238,12 @@ router.get('/detail/:idUser', async function (req, res, next) {
 router.put('/update/:idUser', checkAuthentication, async function (req, res, next) {
   try {
     let idUser = req.params.idUser;
-    let permissionUser = req.body.permission;
     const entry = await userModel.findOneAndUpdate({ idUser: idUser }, {
       $set: {
-        name: req.body?.name,
         gender: req.body?.gender,
         birthDay: req.body?.birthDay,
         active: req.body?.active,
         telephone: req.body?.telephone,
-        email: req.body?.email,
         password: req.body?.password,
         modified: {
           createBy: `US${userObj.idUser}-${userObj.name}`,
@@ -257,9 +254,9 @@ router.put('/update/:idUser', checkAuthentication, async function (req, res, nex
 
     const entry2 = await permissionModel.findOneAndUpdate({ idUser: idUser }, {
       $set: {
-        name: permissionUser.name,
-        modules: permissionUser.modules,
-        ability: permissionUser.ability,
+        name: req.body?.role,
+        modules: req.body?.modules,
+        ability: req.body?.ability,
       }
     })
 
