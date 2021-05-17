@@ -171,7 +171,7 @@ router.post('/create', checkAuthentication, checkEmail, idUserAuto, roleDefault,
       birthDay: req.body?.birthDay,
       telephone: req.body?.telephone,
       email: req.body?.email,
-      password: req.body?.password,
+      password: passwordRan,
       active: 0,
       softDelete: 0,
       created: {
@@ -185,7 +185,7 @@ router.post('/create', checkAuthentication, checkEmail, idUserAuto, roleDefault,
     })
     const entry2 = await permissionModel.create({
       idUser: AutoId,
-      nameRole: RoleUser.name,
+      name: RoleUser.name,
       modules: RoleUser.modules,
       ability: RoleUser.ability
     })
@@ -210,7 +210,7 @@ router.post('/create', checkAuthentication, checkEmail, idUserAuto, roleDefault,
 // TODO: METHOD - GET
 // -u http://localhost:1509/mail/task/detail/:id
 // ? Example: http://localhost:1509/mail/task/detail/606f591f41340a452c5e8376
-router.get('/detail/:idUser', async function (req, res, next) {
+router.get('/detail/:idUser', checkAuthentication, async function (req, res, next) {
   try {
     const idUser = req.params.idUser;
     const entry = await userModel.findOne({ idUser: idUser });
