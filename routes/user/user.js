@@ -218,6 +218,7 @@ router.put('/update/:idUser', checkAuthentication, async function (req, res, nex
         active: req.body?.active,
         telephone: req.body?.telephone,
         password: req.body?.password,
+        role: req.body?.role,
         modified: {
           createBy: `US${userObj.idUser}-${userObj.name}`,
           time: Date.now()

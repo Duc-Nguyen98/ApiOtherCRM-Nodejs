@@ -38,6 +38,10 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    role: {
+        type: String,
+        default: ''
+    },
     created: {
         type: Object,
         CreateBy: {
