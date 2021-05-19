@@ -27,21 +27,21 @@ const sendMail = (userName, userMail, userPassword) => {
 
 const hasFilter = (param, param2, param3, param4, param5, param6) => {
   if (param !== null && param2 !== null && param3 !== null) {
-    return { gender: param, role: param2, active: param3, softDelete: param5, idUser: { $ne: param6 } }
+    return { gender: param, role: param2, active: param3, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   } else if (param == null && param2 !== null && param3 !== null) {
-    return { role: param2, active: param3, name: param4, softDelete: param5, idUser: { $ne: param6 } }
+    return { role: param2, active: param3, name: param4, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   } else if (param2 == null && param !== null && param3 !== null) {
-    return { gender: param, active: param3, name: param4, softDelete: param5, idUser: { $ne: param6 } }
+    return { gender: param, active: param3, name: param4, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   } else if (param3 == null && param !== null && param2 !== null) {
-    return { gender: param, role: param2, name: param4, softDelete: param5, idUser: { $ne: param6 } }
+    return { gender: param, role: param2, name: param4, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   } else if (param == null && param2 == null && param3 !== null) {
-    return { active: param3, name: param4, softDelete: param5, idUser: { $ne: param6 } }
+    return { active: param3, name: param4, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   } else if (param == null && param3 == null && param2 !== null) {
-    return { role: param2, name: param4, softDelete: param5, idUser: { $ne: param6 } }
+    return { role: param2, name: param4, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   } else if (param2 == null && param3 == null && param !== null) {
-    return { gender: param, name: param4, softDelete: param5, idUser: { $ne: param6 } }
+    return { gender: param, name: param4, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   } else {
-    return { name: param4, softDelete: param5, idUser: { $ne: param6 } }
+    return { name: param4, softDelete: param5, $and: [{ idUser: { $ne: param6 } }, { role: { $ne: "super admin" } }] }
   }
 }
 
@@ -89,9 +89,6 @@ const idUserAuto = async (req, res, next) => {
     })
 }
 
-const checkRoleUser = async function (req, res, next) {
-
-}
 
 router.get('/list', checkAuthentication, async function (req, res, next) {
   try {
@@ -419,7 +416,6 @@ router.get('/list/trash', checkAuthentication, async function (req, res, next) {
   };
 });
 
-
 /* PATCH todo listing change isStarred isComplete. */
 // TODO: METHOD - PATCH
 // -u http://localhost:1509/active/:id
@@ -442,9 +438,6 @@ router.patch('/trash/restore/:id', checkAuthentication, async function (req, res
     });
   };
 });
-
-
-
 
 
 //! CODE API FOR PERMISSION EMPLOYEE
