@@ -9,9 +9,6 @@ const checkAuthentication = require('../../utils/checkAuthentication');
 const sgMail = require('@sendgrid/mail')
 const faker = require('faker');
 
-
-
-
 const sendMail = (userName, userMail, userPassword) => {
   const API_KEY = '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';
   sgMail.setApiKey(API_KEY);
@@ -28,43 +25,25 @@ const sendMail = (userName, userMail, userPassword) => {
     .catch(error => console.log(error.message))
 }
 
-
-
-const hasFilter = (param, param2, param3, param4, param5) => {
+const hasFilter = (param, param2, param3, param4, param5, param6) => {
   if (param !== null && param2 !== null && param3 !== null) {
-
-    return { gender: param, role: param2, active: param3, softDelete: param5 }
-
+    return { gender: param, role: param2, active: param3, softDelete: param5, idUser: { $ne: param6 } }
   } else if (param == null && param2 !== null && param3 !== null) {
-
-    return { role: param2, active: param3, name: param4, softDelete: param5 }
-
+    return { role: param2, active: param3, name: param4, softDelete: param5, idUser: { $ne: param6 } }
   } else if (param2 == null && param !== null && param3 !== null) {
-
-    return { gender: param, active: param3, name: param4, softDelete: param5 }
-
+    return { gender: param, active: param3, name: param4, softDelete: param5, idUser: { $ne: param6 } }
   } else if (param3 == null && param !== null && param2 !== null) {
-
-    return { gender: param, role: param2, name: param4, softDelete: param5 }
-
+    return { gender: param, role: param2, name: param4, softDelete: param5, idUser: { $ne: param6 } }
   } else if (param == null && param2 == null && param3 !== null) {
-
-    return { active: param3, name: param4, softDelete: param5 }
-
+    return { active: param3, name: param4, softDelete: param5, idUser: { $ne: param6 } }
   } else if (param == null && param3 == null && param2 !== null) {
-
-    return { role: param2, name: param4, softDelete: param5 }
-
+    return { role: param2, name: param4, softDelete: param5, idUser: { $ne: param6 } }
   } else if (param2 == null && param3 == null && param !== null) {
-
-    return { gender: param, name: param4, softDelete: param5 }
-
+    return { gender: param, name: param4, softDelete: param5, idUser: { $ne: param6 } }
   } else {
-
-    return { name: param4, softDelete: param5 }
+    return { name: param4, softDelete: param5, idUser: { $ne: param6 } }
   }
 }
-
 
 //! CODE API FOR PERMISSION SUPER ADMIN - ADMIN
 
@@ -116,7 +95,6 @@ const checkRoleUser = async function (req, res, next) {
 
 router.get('/list', checkAuthentication, async function (req, res, next) {
   try {
-    // console.log(userObj)
     let gender = req.query.gender;
     let role = req.query.role;
     let active = req.query.active;
@@ -132,12 +110,9 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
       currentPage: parseInt(req.query.page),
       totalItemsPerPage: parseInt(req.query.perPage)
     }
-
-    // const entry = await permissionModel.findOne({ idUser: userObj.idUser }).select({ _id: 0 });
     const entry2 = await userModel.countDocuments(hasFilter(gender, role, active, regex, softDelete));
-
     const entry3 = await userModel
-      .find(hasFilter(gender, role, active, regex, softDelete))
+      .find(hasFilter(gender, role, active, regex, softDelete, userObj.idUser))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -146,14 +121,6 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
       totalRecords: entry2,
       users: entry3,
     });
-
-    // const entry = await userModel.findOne({ idUser: idUser });
-    // const entry2 = await permissionModel.findOne({ idUser: idUser }).select({ _id: 0 });
-    // const userData = { ...entry._doc, role: entry2.name, ability: entry2.ability, modules: entry2.modules };
-    // return res.status(200).json({
-    //   success: true,
-    //   users: userData,
-    // });
   } catch (err) {
     console.log(err)
     return res.status(500).json({
