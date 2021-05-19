@@ -99,7 +99,6 @@ const roleDefault = async (req, res, next) => {
     })
 }
 
-
 const idUserAuto = async (req, res, next) => {
   await userModel.findOne({}, { idUser: 1, _id: 0 }).sort({ idUser: -1 })
     .then(data => {
@@ -111,11 +110,13 @@ const idUserAuto = async (req, res, next) => {
     })
 }
 
+const checkRoleUser = async function (req, res, next) {
 
+}
 
 router.get('/list', checkAuthentication, async function (req, res, next) {
   try {
-
+    // console.log(userObj)
     let gender = req.query.gender;
     let role = req.query.role;
     let active = req.query.active;
@@ -124,8 +125,6 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
     (gender == undefined || gender == '') ? gender = null : gender = gender;
     (role == undefined || role == '') ? role = null : role = role;
     (active == undefined || active == '') ? active = null : active = active;
-    // console.log(gender, role, active, q)
-
     let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
 
     //? Begin config Pagination
@@ -134,20 +133,27 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
       totalItemsPerPage: parseInt(req.query.perPage)
     }
 
-    const users = await userModel
+    // const entry = await permissionModel.findOne({ idUser: userObj.idUser }).select({ _id: 0 });
+    const entry2 = await userModel.countDocuments(hasFilter(gender, role, active, regex, softDelete));
+
+    const entry3 = await userModel
       .find(hasFilter(gender, role, active, regex, softDelete))
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
+    return res.status(200).json({
+      success: true,
+      totalRecords: entry2,
+      users: entry3,
+    });
 
-    const totalRecords = await userModel.countDocuments(hasFilter(gender, role, active, regex, softDelete));
-    Promise.all([users, totalRecords]).then(([users, totalRecords]) => {
-      return res.status(200).json({
-        success: true,
-        totalRecords: totalRecords,
-        users: users,
-      });
-    })
+    // const entry = await userModel.findOne({ idUser: idUser });
+    // const entry2 = await permissionModel.findOne({ idUser: idUser }).select({ _id: 0 });
+    // const userData = { ...entry._doc, role: entry2.name, ability: entry2.ability, modules: entry2.modules };
+    // return res.status(200).json({
+    //   success: true,
+    //   users: userData,
+    // });
   } catch (err) {
     console.log(err)
     return res.status(500).json({

@@ -18,8 +18,7 @@ const checkAuthentication = async (req, res, next) => {
         //?check again db
         if (token == null) return res.sendStatus(401)
 
-        jwt.verify(token,  jwtConfig.secret, (err, user) => {
-            console.log(err);
+        jwt.verify(token, jwtConfig.secret, (err, user) => {
             if (err) return res.sendStatus(403);
             userObj = user;
             // console.log(new Date(userObj.iat))
