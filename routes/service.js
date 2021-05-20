@@ -308,7 +308,6 @@ router.get('/list', async function (req, res, next) {
 
         const services = await servicesModel
             .find(hasFilter(type, status, regex, softDelete))
-            .select({ idServices: 1, idCustomer: 1, nameCustomer: 1, titleServices: 1, voucherCode: 1, typeServices: 1, dateAutomaticallySent: 1, statusSend: 1 })
             .limit(pagination.totalItemsPerPage)
             .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
@@ -348,8 +347,6 @@ router.get('/list/trash', async function (req, res, next) {
 
         const services = await servicesModel
             .find(hasFilter(type, status, regex, softDelete))
-            .select({ idServices: 1, idCustomer: 1, nameCustomer: 1, titleServices: 1, voucherCode: 1, typeServices: 1, dateAutomaticallySent: 1, statusSend: 1 })
-
             .limit(pagination.totalItemsPerPage)
             .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
