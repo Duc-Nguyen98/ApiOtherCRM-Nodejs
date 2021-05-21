@@ -5,6 +5,10 @@ const schema = new mongoose.Schema({
         type: Number,
         default: ''
     },
+    idUser: {
+        type: Number,
+        default: ''
+    },
     idCustomer: {
         type: Number,
         default: ''
