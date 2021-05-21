@@ -67,28 +67,26 @@ const rankingGratitude = async (req, res, next) => {
 //   };
 // });
 
-router.get('/', checkAuthentication, rankingGratitude, async function (req, res, next) {
+
+router.get('/', checkAuthentication, async function (req, res, next) {
   try {
-    console.log(ranking)
-    let startCustomer = 1618807799301;
-    let todayCustomer = 1618807799323;
-    let startServices = 1620851795634.0;
-    let todayServices = 1620852586609.0;
+    let thisMoment = moment();
+    let endOfMonth = (moment().clone().startOf('month').format("X")) * 1000;
+    let startOfMonth = (moment().clone().endOf('month').format("X")) * 1000;
+
+
     // console.log(userObj)
     const totalCustomers = await customerModel.countDocuments({ softDelete: 0 });
-    const customersPerMonth = await customerModel.countDocuments({ "created.time": { $gte: startCustomer, $lte: todayCustomer } })
+    const customersPerMonth = await customerModel.countDocuments({ "created.time": { $gte: startOfMonth, $lte: endOfMonth } })
 
     const totalServices = await servicesModel.countDocuments({ softDelete: 0 });
-    const servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startServices, $lte: todayServices } })
-
-    // const rankingGratitude = await servicesModel.countDocuments({ idUser: userObj.idUser, softDelete: 0 });
-
+    const servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startOfMonth, $lte: endOfMonth } })
 
     return res.status(200).json({
       success: true,
       customerData: { totalCustomers: totalCustomers, customersPerMonth: customersPerMonth },
       gratitudeCustomerData: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth },
-      rankingGratitude: rGratitude,
+      // rankingGratitude: rGratitude,
     });
   } catch (err) {
     console.log(err)
