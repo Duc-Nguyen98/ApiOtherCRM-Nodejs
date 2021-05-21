@@ -6,6 +6,7 @@ const checkAuthentication = require('../../utils/checkAuthentication');
 const customerModel = require('../../model/customer/customer/schemaCustomer');
 const servicesModel = require('../../model/schemaService');
 const usersModel = require('../../model/groupUser/schemaUser');
+const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 
 const thisMoment = moment();
 const endOfWeek = (moment().clone().endOf('week').format("X")) * 1000;
@@ -215,6 +216,39 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
   };
 });
 
+
+router.get('/statistics', checkAuthentication, async function (req, res, next) {
+  try {
+
+    const vouchersTrade = await groupVoucherItemsModel.countDocuments({ status: 3, classified: 0, softDelete: 0 });
+    const vouchersGift = await groupVoucherItemsModel.countDocuments({ status: 3, classified: 1, softDelete: 0 });
+    const totalVouchers = await groupVoucherItemsModel.countDocuments({ status: 3, softDelete: 0 });
+
+    const revenue = await servicesModel.aggregate([
+      {
+        $group: {
+          _id: '',
+          price: { $sum: '$price' }
+        }
+      }
+    ]);
+
+
+    return res.status(200).json({
+      success: true,
+      vouchersTrade: vouchersTrade,
+      vouchersGift: vouchersGift,
+      totalVouchers: totalVouchers,
+      Revenue: revenue[0].price
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 router.get('/tableServices', checkAuthentication, async function (req, res, next) {
   try {
