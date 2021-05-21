@@ -38,10 +38,22 @@ const startOfYear = (moment().clone().startOf('year').format("X")) * 1000;
 
 router.get('/userWelcome', checkAuthentication, async function (req, res, next) {
   try {
-    const userInformation = await usersModel.findOne({ idUser: userObj.idUser });
+    const entry = await usersModel.findOne({ idUser: userObj.idUser }).select({ _id: 0, name: 1 });
+    const entry2 = await usersModel.countDocuments({ idUser: userObj.idUser, softDelete: 0 });
+    const entry3 = await servicesModel.aggregate([
+      { $match: { softDelete: 0, idUser: userObj.idUser } },
+      {
+        $group: {
+          _id: null,
+          "price": {
+            $sum: "$price"
+          }
+        }
+      }
+    ]);
     return res.status(200).json({
       success: true,
-      userInformation: userInformation,
+      userInformation: { name: entry.name, gratitudeCustomer: entry2, earned: entry3[0].price },
     });
   } catch (err) {
     console.log(err)
@@ -110,6 +122,52 @@ router.get('/gratitudeCustomerData', checkAuthentication, async function (req, r
   };
 });
 
+
+router.get('/rankingRevenue', checkAuthentication, async function (req, res, next) {
+  try {
+    let by = req.query.by;
+    let matchBy = {};
+    if (by == 0) {  // month
+      matchBy = { softDelete: 0, "details.time": { $gte: startOfMonth, $lte: endOfMonth } };
+    } else if (by == 1) { // year
+      matchBy = { softDelete: 0, "details.time": { $gte: startOfYear, $lte: endOfYear } };
+    } else {
+      matchBy = { softDelete: 0, "details.time": { $gte: startOfWeek, $lte: endOfWeek } };
+    }
+
+    let rGratitude = [];
+    let rGratitude_old = [];
+    const entry = await servicesModel.aggregate(
+      [
+        { $match: matchBy },
+        {
+          $group: {
+            _id: "$idUser",
+            earned: { $sum: "$price" }
+          }
+        },
+        { $sort: { earned: -1 } },
+        { $limit: 5 }
+      ]
+    ).then(data => {
+      rGratitude_old = data;
+    });
+    for (let i = 0; i < rGratitude_old.length; i++) {
+      let element2 = await usersModel.find({ idUser: rGratitude_old[i]._id }).select({ avatar: 1, name: 1, _id: 0 });
+      rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, earned: rGratitude_old[i].earned });
+    }
+    return res.status(200).json({
+      success: true,
+      rankingGratitude: rGratitude,
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
 
 router.get('/rankingGratitude', checkAuthentication, async function (req, res, next) {
   try {
