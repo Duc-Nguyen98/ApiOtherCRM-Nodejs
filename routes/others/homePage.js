@@ -32,7 +32,8 @@ const rankingGratitude = async (req, res, next) => {
       let element2 = await usersModel.find({ idUser: rGratitude_old[i]._id }).select({ avatar: 1, name: 1, _id: 0 });
       rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
     }
-    console.log(rGratitude)
+    rGratitude_new = rGratitude
+    next();
   } catch (err) {
     console.log(err)
     return res.status(500).json({
@@ -65,7 +66,7 @@ const rankingGratitude = async (req, res, next) => {
 // });
 
 
-router.get('/', checkAuthentication, async function (req, res, next) {
+router.get('/', checkAuthentication, rankingGratitude, async function (req, res, next) {
   try {
     let thisMoment = moment();
     let endOfMonth = (moment().clone().startOf('month').format("X")) * 1000;
@@ -83,7 +84,7 @@ router.get('/', checkAuthentication, async function (req, res, next) {
       success: true,
       customerData: { totalCustomers: totalCustomers, customersPerMonth: customersPerMonth },
       gratitudeCustomerData: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth },
-      // rankingGratitude: rGratitude,
+      rankingGratitude: rGratitude_new,
     });
   } catch (err) {
     console.log(err)
