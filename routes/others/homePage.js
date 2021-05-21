@@ -8,8 +8,12 @@ const servicesModel = require('../../model/schemaService');
 const usersModel = require('../../model/groupUser/schemaUser');
 
 const thisMoment = moment();
-const endOfMonth = (moment().clone().startOf('month').format("X")) * 1000;
-const startOfMonth = (moment().clone().endOf('month').format("X")) * 1000;
+const endOfWeek = (moment().clone().endOf('week').format("X")) * 1000;
+const startOfWeek = (moment().clone().startOf('week').format("X")) * 1000;
+const endOfMonth = (moment().clone().endOf('month').format("X")) * 1000;
+const startOfMonth = (moment().clone().startOf('month').format("X")) * 1000;
+const endOfYear = (moment().clone().endOf('year').format("X")) * 1000;
+const startOfYear = (moment().clone().startOf('year').format("X")) * 1000;
 
 // router.get('/', async function (req, res, next) {
 //   try {
@@ -80,8 +84,8 @@ router.get('/customerData', checkAuthentication, async function (req, res, next)
 
 router.get('/gratitudeCustomerData', checkAuthentication, async function (req, res, next) {
   try {
-    const totalServices = await servicesModel.countDocuments({ softDelete: 0 });
-    const servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startOfMonth, $lte: endOfMonth } });
+    let totalServices = await servicesModel.countDocuments({ softDelete: 0 });
+    let servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startOfMonth, $lte: endOfMonth } });
     if (totalServices > 0 && totalServices < 10) {
       totalServices = `0${totalServices}`;
     } else {
@@ -109,11 +113,21 @@ router.get('/gratitudeCustomerData', checkAuthentication, async function (req, r
 
 router.get('/rankingGratitude', checkAuthentication, async function (req, res, next) {
   try {
+    let by = req.query.by;
+    let matchBy = {};
+    if (by == 0) {  // month
+      matchBy = { softDelete: 0, "details.time": { $gte: startOfMonth, $lte: endOfMonth } };
+    } else if (by == 1) { // year
+      matchBy = { softDelete: 0, "details.time": { $gte: startOfYear, $lte: endOfYear } };
+    } else {
+      matchBy = { softDelete: 0, "details.time": { $gte: startOfWeek, $lte: endOfWeek } };
+    }
+
     let rGratitude = [];
     let rGratitude_old = [];
     const entry = await servicesModel.aggregate(
       [
-        { $match: { softDelete: 0 } },
+        { $match: matchBy },
         {
           $group: {
             _id: "$idUser",
@@ -130,10 +144,8 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
       let element2 = await usersModel.find({ idUser: rGratitude_old[i]._id }).select({ avatar: 1, name: 1, _id: 0 });
       rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
     }
-
     return res.status(200).json({
       success: true,
-
       rankingGratitude: rGratitude,
     });
   } catch (err) {
