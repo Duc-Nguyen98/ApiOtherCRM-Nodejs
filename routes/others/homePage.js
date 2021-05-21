@@ -11,7 +11,8 @@ const usersModel = require('../../model/groupUser/schemaUser');
 
 const rankingGratitude = async (req, res, next) => {
   try {
-    let rGratitude = [];
+    var rGratitude = [];
+    var rGratitude_old = [];
     const entry = await servicesModel.aggregate(
       [
         { $match: { softDelete: 0 } },
@@ -25,17 +26,13 @@ const rankingGratitude = async (req, res, next) => {
         { $limit: 5 }
       ]
     ).then(data => {
-      data.forEach(async (element) => {
-        const entry2 = await usersModel.find({ idUser: element._id }).select({ avatar: 1, name: 1, _id: 0 }).then(element2 => {
-          rGratitude.push({ idUser: element._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: element.count })
-        });
-        console.log(rGratitude)
-        // ranking = rGratitude;
-        // next();
-
-      });
-
-    })
+      rGratitude_old = data;
+    });
+   for (let i = 0; i < rGratitude_old.length; i++) {
+     let element2 = await usersModel.find({ idUser: rGratitude_old[i]._id }).select({ avatar: 1, name: 1, _id: 0 });
+     rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
+   }
+    console.log(rGratitude)
   } catch (err) {
     console.log(err)
     return res.status(500).json({
@@ -67,9 +64,9 @@ const rankingGratitude = async (req, res, next) => {
 //   };
 // });
 
-router.get('/', checkAuthentication, rankingGratitude, async function (req, res, next) {
+router.get('/', rankingGratitude, async function (req, res, next) {
   try {
-    console.log(ranking)
+
     let startCustomer = 1618807799301;
     let todayCustomer = 1618807799323;
     let startServices = 1620851795634.0;
