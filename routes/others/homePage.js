@@ -68,19 +68,8 @@ router.get('/userWelcome', checkAuthentication, async function (req, res, next) 
 router.get('/customerData', checkAuthentication, async function (req, res, next) {
   try {
     let totalCustomers = await customerModel.countDocuments({ softDelete: 0 });
-    let customersPerMonth = await customerModel.countDocuments({ "created.time": { $gte: startOfMonth, $lte: endOfMonth } })
+    let customersPerMonth = await customerModel.countDocuments({ "created.time": { $gte: startOfMonth, $lte: endOfMonth }, softDelete: 0 })
 
-    if (totalCustomers > 0 && totalCustomers < 10) {
-      totalCustomers = `0${totalCustomers}`;
-    } else {
-      totalCustomers = totalCustomers;
-    }
-
-    if (customersPerMonth > 0 && customersPerMonth < 10) {
-      customersPerMonth = `0${customersPerMonth}`;
-    } else {
-      customersPerMonth = customersPerMonth;
-    }
 
     return res.status(200).json({
       success: true,
@@ -98,18 +87,7 @@ router.get('/customerData', checkAuthentication, async function (req, res, next)
 router.get('/gratitudeCustomerData', checkAuthentication, async function (req, res, next) {
   try {
     let totalServices = await servicesModel.countDocuments({ softDelete: 0 });
-    let servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startOfMonth, $lte: endOfMonth } });
-    if (totalServices > 0 && totalServices < 10) {
-      totalServices = `0${totalServices}`;
-    } else {
-      totalServices = totalServices;
-    }
-
-    if (servicesPerMonth > 0 && servicesPerMonth < 10) {
-      servicesPerMonth = `0${servicesPerMonth}`;
-    } else {
-      servicesPerMonth = servicesPerMonth;
-    }
+    let servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startOfMonth, $lte: endOfMonth }, softDelete: 0 });
     return res.status(200).json({
       success: true,
       gratitudeCustomerData: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth },
