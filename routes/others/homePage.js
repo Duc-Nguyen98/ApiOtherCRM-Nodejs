@@ -259,7 +259,6 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
     return res.status(200).json({
       success: true,
       data: { rankingGratitude: rGratitude }
-
     });
   } catch (err) {
     console.log(err)
@@ -308,14 +307,28 @@ router.get('/statistics', checkAuthentication, async function (req, res, next) {
   };
 });
 
+const filterCheckServices = (param, param2) => {
+  if (param == '' || param == null || param == undefined) {
+    return { softDelete: 0, idUser: userObj.idUser, nameCustomer: param2 }
+  }
+  else {
+    return { softDelete: 0, idUser: userObj.idUser, nameCustomer: param2, statusSend: param }
+  }
+}
+
 router.get('/tableServices', checkAuthentication, async function (req, res, next) {
   try {
-    const servicesData = await servicesModel.find({ softDelete: 0, idUser: userObj.idUser }).sort({ idUser: -1 })
+    let q = req.query.q;
+    let status = req.query.status;
+
+    let regex = new RegExp(q, 'i');  // 'i' makes it case insensitive
+    const servicesData = await servicesModel.find(filterCheckServices(status, regex)).sort({ idServices: -1 })
+    const totalServices = await servicesModel.countDocuments(filterCheckServices(status, regex));
     return res.status(200).json({
       success: true,
       data: {
         services: servicesData,
-        totalRecords: 2,
+        totalRecords: totalServices,
       }
     });
   } catch (err) {
