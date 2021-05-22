@@ -314,7 +314,8 @@ router.get('/tableServices', checkAuthentication, async function (req, res, next
     return res.status(200).json({
       success: true,
       data: {
-        tableServices: servicesData
+        services: servicesData,
+        totalRecords: 2,
       }
     });
   } catch (err) {
