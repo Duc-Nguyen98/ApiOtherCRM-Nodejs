@@ -16,6 +16,7 @@ const startOfMonth = (moment().clone().startOf('month').format("X")) * 1000;
 const endOfYear = (moment().clone().endOf('year').format("X")) * 1000;
 const startOfYear = (moment().clone().startOf('year').format("X")) * 1000;
 
+console.log(startOfYear, endOfYear)
 // router.get('/', async function (req, res, next) {
 //   try {
 //     //? Birthday notifications
@@ -236,7 +237,7 @@ router.get('/statistics', checkAuthentication, async function (req, res, next) {
 
 router.get('/tableServices', checkAuthentication, async function (req, res, next) {
   try {
-    const servicesData = await servicesModel.find({ softDelete: 0 }).sort({ idUser: -1 })
+    const servicesData = await servicesModel.find({ softDelete: 0, idUser: userObj.idUser }).sort({ idUser: -1 })
     return res.status(200).json({
       success: true,
       data: {
