@@ -6,6 +6,7 @@ const checkAuthentication = require('../../utils/checkAuthentication');
 const customerModel = require('../../model/customer/customer/schemaCustomer');
 const servicesModel = require('../../model/schemaService');
 const usersModel = require('../../model/groupUser/schemaUser');
+const customersModel = require('../../model/customer/customer/schemaCustomer');
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 
 const thisMoment = moment();
@@ -16,7 +17,9 @@ const startOfMonth = (moment().clone().startOf('month').format("X")) * 1000;
 const endOfYear = (moment().clone().endOf('year').format("X")) * 1000;
 const startOfYear = (moment().clone().startOf('year').format("X")) * 1000;
 
-console.log(startOfYear, endOfYear)
+
+
+
 // router.get('/', async function (req, res, next) {
 //   try {
 //     //? Birthday notifications
@@ -38,6 +41,8 @@ console.log(startOfYear, endOfYear)
 // });
 
 
+
+
 router.get('/userWelcome', checkAuthentication, async function (req, res, next) {
   try {
     const entry = await usersModel.findOne({ idUser: userObj.idUser }).select({ _id: 0, name: 1 });
@@ -53,9 +58,12 @@ router.get('/userWelcome', checkAuthentication, async function (req, res, next) 
         }
       }
     ]);
+
     return res.status(200).json({
       success: true,
-      data: { userInformation: { name: entry.name, gratitudeCustomer: entry2, earned: entry3[0].price } }
+      data: {
+        userInformation: { name: entry.name, gratitudeCustomer: entry2, earned: entry3[0].price }
+      }
     });
   } catch (err) {
     console.log(err)
@@ -70,11 +78,42 @@ router.get('/customerData', checkAuthentication, async function (req, res, next)
   try {
     let totalCustomers = await customerModel.countDocuments({ softDelete: 0 });
     let customersPerMonth = await customerModel.countDocuments({ "created.time": { $gte: startOfMonth, $lte: endOfMonth }, softDelete: 0 })
+    let rGratitude = [];
+    for (let i = 1; i <= 12; i++) {
+      let month = i;       // January
+      let year = moment().year();
+      let startDate = (moment([year, month - 1]).format("X")) * 1000;
+      let endDate = (moment(startDate).clone().endOf('month').format("X")) * 1000;
+      if (startDate <= startOfMonth) {
+        let entry4 = await customersModel.aggregate(
+          [
+            {
+              $match: {
+                "created.time": { $gte: startDate, $lte: endDate }, softDelete: 0
+              }
+            },
+            {
+              $count: "count"
+            }
 
+          ]
+        ).then(data => {
+          (data.length < 1) ? rGratitude.push(0) : rGratitude.push(data[0].count);
+        })
+      }
+    }
 
     return res.status(200).json({
       success: true,
-      data: { customerData: { totalCustomers: totalCustomers, customersPerMonth: customersPerMonth } }
+      data: {
+        customerData: { totalCustomers: totalCustomers, customersPerMonth: customersPerMonth },
+        chartData: [
+          {
+            name: 'customerData',
+            data: rGratitude,
+          },
+        ],
+      }
     });
   } catch (err) {
     console.log(err)
@@ -89,9 +128,43 @@ router.get('/gratitudeCustomerData', checkAuthentication, async function (req, r
   try {
     let totalServices = await servicesModel.countDocuments({ softDelete: 0 });
     let servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startOfMonth, $lte: endOfMonth }, softDelete: 0 });
+    let rGratitude = [];
+    for (let i = 1; i <= 12; i++) {
+      let month = i;       // January
+      let year = moment().year();
+      let startDate = (moment([year, month - 1]).format("X")) * 1000;
+      let endDate = (moment(startDate).clone().endOf('month').format("X")) * 1000;
+      if (startDate <= startOfMonth) {
+        let entry4 = await servicesModel.aggregate(
+          [
+            {
+              $match: {
+                "details.time": { $gte: startDate, $lte: endDate }, softDelete: 0
+              }
+            },
+            {
+              $count: "count"
+            }
+
+          ]
+        ).then(data => {
+          (data.length < 1) ? rGratitude.push(0) : rGratitude.push(data[0].count);
+        })
+      }
+    }
+
+
     return res.status(200).json({
       success: true,
-      data: { gratitudeCustomerData: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth } }
+      data: {
+        gratitudeCustomerData: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth },
+        chartData: [
+          {
+            name: 'gratitudeData',
+            data: rGratitude,
+          },
+        ],
+      }
     });
   } catch (err) {
     console.log(err)

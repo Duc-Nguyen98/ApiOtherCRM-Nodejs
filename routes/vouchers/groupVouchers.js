@@ -64,7 +64,6 @@ const idAutoVoucher = async (req, res, next) => {
 
 const updateVoucherAdd = async (req, res, next) => {
   const _id = req.params.id;
-
   const entry = await groupVoucherModel
     .findOne({ idGroupVoucher: _id })
     .select({ "idGroupVoucher": 1 })
