@@ -54,7 +54,7 @@ router.get('/userWelcome', checkAuthentication, async function (req, res, next) 
     ]);
     return res.status(200).json({
       success: true,
-      userInformation: { name: entry.name, gratitudeCustomer: entry2, earned: entry3[0].price },
+      data: { name: entry.name, gratitudeCustomer: entry2, earned: entry3[0].price },
     });
   } catch (err) {
     console.log(err)
@@ -73,7 +73,7 @@ router.get('/customerData', checkAuthentication, async function (req, res, next)
 
     return res.status(200).json({
       success: true,
-      customerData: { totalCustomers: totalCustomers, customersPerMonth: customersPerMonth },
+      data: { totalCustomers: totalCustomers, customersPerMonth: customersPerMonth },
     });
   } catch (err) {
     console.log(err)
@@ -90,7 +90,7 @@ router.get('/gratitudeCustomerData', checkAuthentication, async function (req, r
     let servicesPerMonth = await servicesModel.countDocuments({ "details.time": { $gte: startOfMonth, $lte: endOfMonth }, softDelete: 0 });
     return res.status(200).json({
       success: true,
-      gratitudeCustomerData: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth },
+      data: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth },
     });
   } catch (err) {
     console.log(err)
@@ -137,7 +137,7 @@ router.get('/rankingRevenue', checkAuthentication, async function (req, res, nex
     }
     return res.status(200).json({
       success: true,
-      rankingRevenue: rGratitude,
+      data: rGratitude,
     });
   } catch (err) {
     console.log(err)
@@ -183,7 +183,7 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
     }
     return res.status(200).json({
       success: true,
-      rankingGratitude: rGratitude,
+      data: rGratitude,
     });
   } catch (err) {
     console.log(err)
@@ -214,7 +214,7 @@ router.get('/statistics', checkAuthentication, async function (req, res, next) {
 
     return res.status(200).json({
       success: true,
-      statistics: {
+      data: {
         vouchersTrade: vouchersTrade,
         vouchersGift: vouchersGift,
         totalVouchers: totalVouchers,
@@ -235,7 +235,7 @@ router.get('/tableServices', checkAuthentication, async function (req, res, next
     const servicesData = await servicesModel.find({ softDelete: 0 }).sort({ idUser: -1 })
     return res.status(200).json({
       success: true,
-      tableServices: servicesData
+      data: servicesData
     });
   } catch (err) {
     console.log(err)
