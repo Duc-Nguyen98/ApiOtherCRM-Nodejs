@@ -137,7 +137,7 @@ router.get('/rankingRevenue', checkAuthentication, async function (req, res, nex
     }
     return res.status(200).json({
       success: true,
-      rankingGratitude: rGratitude,
+      rankingRevenue: rGratitude,
     });
   } catch (err) {
     console.log(err)
@@ -214,10 +214,12 @@ router.get('/statistics', checkAuthentication, async function (req, res, next) {
 
     return res.status(200).json({
       success: true,
-      vouchersTrade: vouchersTrade,
-      vouchersGift: vouchersGift,
-      totalVouchers: totalVouchers,
-      Revenue: revenue[0].price
+      statistics: {
+        vouchersTrade: vouchersTrade,
+        vouchersGift: vouchersGift,
+        totalVouchers: totalVouchers,
+        revenue: revenue[0].price
+      },
     });
   } catch (err) {
     console.log(err)
