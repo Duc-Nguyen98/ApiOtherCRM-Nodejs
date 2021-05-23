@@ -18,7 +18,38 @@ const endOfYear = (moment().clone().endOf('year').format("X")) * 1000;
 const startOfYear = (moment().clone().startOf('year').format("X")) * 1000;
 
 
+const filterCheckServices = (param, param2) => {
+  if (param == '' || param == null || param == undefined) {
+    return { softDelete: 0, idUser: userObj.idUser, nameCustomer: param2 }
+  }
+  else {
+    return { softDelete: 0, idUser: userObj.idUser, nameCustomer: param2, statusSend: param }
+  }
+}
 
+
+
+const checkPasswordCurrent = async (req, res, next) => {
+  try {
+    let passwordOld = req.body?.passwordOld;
+    await usersModel.findOne({ idUser: userObj.idUser }).select({ password: 1, _id: 0 }).then(data => {
+      if (data.password == passwordOld) {
+        next();
+      } else {
+        return res.status(500).json({
+          success: true,
+          error: '👋 You have entered the wrong current password!'
+        });
+      }
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  }
+}
 
 // router.get('/', async function (req, res, next) {
 //   try {
@@ -42,7 +73,7 @@ const startOfYear = (moment().clone().startOf('year').format("X")) * 1000;
 
 
 
-
+//! API View HOME
 router.get('/userWelcome', checkAuthentication, async function (req, res, next) {
   try {
     const entry = await usersModel.findOne({ idUser: userObj.idUser }).select({ _id: 0, name: 1 });
@@ -180,9 +211,9 @@ router.get('/rankingRevenue', checkAuthentication, async function (req, res, nex
   try {
     let by = req.query.by;
     let matchBy = {};
-    if (by == 0) {  // month
+    if (by == 1) {  // month
       matchBy = { softDelete: 0, "details.time": { $gte: startOfMonth, $lte: endOfMonth } };
-    } else if (by == 1) { // year
+    } else if (by == 2) { // year
       matchBy = { softDelete: 0, "details.time": { $gte: startOfYear, $lte: endOfYear } };
     } else {
       matchBy = { softDelete: 0, "details.time": { $gte: startOfWeek, $lte: endOfWeek } };
@@ -207,7 +238,9 @@ router.get('/rankingRevenue', checkAuthentication, async function (req, res, nex
     });
     for (let i = 0; i < rGratitude_old.length; i++) {
       let element2 = await usersModel.find({ idUser: rGratitude_old[i]._id }).select({ avatar: 1, name: 1, _id: 0 });
-      rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, earned: rGratitude_old[i].earned });
+      if (element2.length > 0) {
+        rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
+      }
     }
     return res.status(200).json({
       success: true,
@@ -227,9 +260,9 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
   try {
     let by = req.query.by;
     let matchBy = {};
-    if (by == 0) {  // month
+    if (by == 1) {  // month
       matchBy = { softDelete: 0, "details.time": { $gte: startOfMonth, $lte: endOfMonth } };
-    } else if (by == 1) { // year
+    } else if (by == 2) { // year
       matchBy = { softDelete: 0, "details.time": { $gte: startOfYear, $lte: endOfYear } };
     } else {
       matchBy = { softDelete: 0, "details.time": { $gte: startOfWeek, $lte: endOfWeek } };
@@ -308,14 +341,6 @@ router.get('/statistics', checkAuthentication, async function (req, res, next) {
   };
 });
 
-const filterCheckServices = (param, param2) => {
-  if (param == '' || param == null || param == undefined) {
-    return { softDelete: 0, idUser: userObj.idUser, nameCustomer: param2 }
-  }
-  else {
-    return { softDelete: 0, idUser: userObj.idUser, nameCustomer: param2, statusSend: param }
-  }
-}
 
 router.get('/tableServices', checkAuthentication, async function (req, res, next) {
   try {
@@ -340,5 +365,55 @@ router.get('/tableServices', checkAuthentication, async function (req, res, next
     });
   };
 });
+
+//! End API View HOME
+
+
+//! API Account Settings -
+
+router.patch('/accountSettings/general', checkAuthentication, async function (req, res, next) {
+  try {
+    const entry = await usersModel.updateOne({ idUser: userObj.idUser }, {
+      name: req.body?.name,
+      gender: req.body?.gender,
+      birthDay: req.body?.birthDay,
+      telephone: req.body?.telephone,
+      email: req.body?.email,
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Update Account Successfully!",
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+router.patch('/accountSettings/changePassword', checkAuthentication, checkPasswordCurrent, async function (req, res, next) {
+  try {
+    const entry = await usersModel.updateOne({ idUser: userObj.idUser }, {
+      password: req.body?.passwordNew,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Change Password Account Successfully!",
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+
 
 module.exports = router;
