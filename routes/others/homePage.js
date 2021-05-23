@@ -288,7 +288,9 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
     for (let i = 0; i < rGratitude_old.length; i++) {
       let element2 = await usersModel.find({ idUser: rGratitude_old[i]._id }).select({ avatar: 1, name: 1, _id: 0 });
       if (element2.length > 0) {
-        rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
+        if (element2.length > 0) {
+          rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
+        }
       }
     }
     return res.status(200).json({
@@ -371,7 +373,25 @@ router.get('/tableServices', checkAuthentication, async function (req, res, next
 
 //! API Account Settings -
 
-router.patch('/accountSettings/general', checkAuthentication, async function (req, res, next) {
+
+router.get('/accountSettings/information', checkAuthentication, async function (req, res, next) {
+  try {
+    const entry = await usersModel.findOne({ idUser: userObj.idUser });
+    return res.status(200).json({
+      success: true,
+      data: entry,
+    });
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      success: false,
+      error: 'Server Error'
+    });
+  };
+});
+
+
+router.post('/accountSettings/general', checkAuthentication, async function (req, res, next) {
   try {
     const entry = await usersModel.updateOne({ idUser: userObj.idUser }, {
       name: req.body?.name,
@@ -394,7 +414,7 @@ router.patch('/accountSettings/general', checkAuthentication, async function (re
 });
 
 
-router.patch('/accountSettings/changePassword', checkAuthentication, checkPasswordCurrent, async function (req, res, next) {
+router.post('/accountSettings/changePassword', checkAuthentication, checkPasswordCurrent, async function (req, res, next) {
   try {
     const entry = await usersModel.updateOne({ idUser: userObj.idUser }, {
       password: req.body?.passwordNew,
