@@ -104,5 +104,74 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
     };
 });
 
+router.get('/typeServices', checkAuthentication, async function (req, res, next) {
+    try {
+
+        const entry = await servicesModel.aggregate(
+            [
+                { $match: { softDelete: 0 } },
+                {
+                    $group: {
+                        _id: null,
+                        count: { $sum: "$price" }
+                    }
+                },
+            ]
+        )
+        return res.status(200).json({
+            success: true,
+            typeServices: {
+                data: [
+                    { value: entry[0].count, name: 'Voucher' },
+                ]
+
+            }
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+router.get('/messageServices', checkAuthentication, async function (req, res, next) {
+    try {
+
+        const entry = await servicesModel.aggregate(
+            [
+                { $match: { softDelete: 0, statusSend: { $ne: 2 } } },
+                {
+                    $group: {
+                        _id: '$typeServices',
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { count: 1 } },
+            ]
+        )
+        return res.status(200).json({
+            success: true,
+            typeServices: {
+                data: [
+                    { value: entry[0].count, name: 'SMS' },
+                    { value: entry[1].count, name: 'EMAIL' },
+                    { value: entry[2].count, name: 'SMS & EMAIL' },
+                ]
+
+            }
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
 
 module.exports = router;
