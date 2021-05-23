@@ -9,6 +9,7 @@ const usersModel = require('../../model/groupUser/schemaUser');
 const permissionModel = require('../../model/groupUser/schemaPermission');
 const customersModel = require('../../model/customer/customer/schemaCustomer');
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
+const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucher');
 
 //! API View statistics
 
@@ -19,10 +20,11 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
         let year = moment().year();
         let date = (moment().date());
 
-
         let dateTo = req.query.dateTo;
         let dateFrom = req.query.dateFrom;
         let rangesDate = moment(dateFrom).diff(moment(dateTo), 'day');
+        (dateTo == null && dateFrom == null || dateTo == '' && dateFrom == '' || dateTo == undefined && dateFrom == undefined) ? rangesDate = 7 : rangesDate = rangesDate;
+
         let totals = [];
         let labels = [];
         let labelsDay = ['MON', 'TUE', 'WED ', 'THU', 'FRI', 'SAT', 'SUN'];
@@ -133,91 +135,73 @@ router.get('/messageServices', checkAuthentication, async function (req, res, ne
 });
 
 
-// router.get('/voucherRelease', checkAuthentication, async function (req, res, next) {
-//     try {
+router.get('/voucherRelease', checkAuthentication, async function (req, res, next) {
+    try {
+        let day = (moment().isoWeekday());
+        let month = (moment().month());       // January
+        let year = moment().year();
+        let date = (moment().date());
+        let dateTo = req.query.dateTo;
+        let dateFrom = req.query.dateFrom;
+        let rangesDate = moment(dateFrom).diff(moment(dateTo), 'day');
+        (dateTo == null && dateFrom == null || dateTo == '' && dateFrom == '' || dateTo == undefined && dateFrom == undefined) ? rangesDate = 7 : rangesDate = rangesDate;
 
-//         let filter = req.query.filter;
-//         let totals = [];
-//         let labels = [];
-//         if (filter == 1) {
-//             filter = 7;
-//             for (let i = 0; i < filter; i++) {
-//                 let labelsMonth = ['MON', 'TUE', 'WED ', 'THU', 'FRI', 'SAT', 'SUN'];
-//                 var day = (moment().isoWeekday()) - i;
-//                 let month = (moment().month());       // January
-//                 let year = moment().year();
-//                 let date = (moment().date()) - i;
-//                 let startWeek = (moment([year, month, date - filter]).format("X")) * 1000;
-//                 let currentWeek = (moment().clone().endOf('day').format("X")) * 1000;
-//                 let startMonth = (moment([year, month, date]).format("X")) * 1000;
-//                 let endMonth = (moment(startMonth).clone().endOf('day').format("X")) * 1000;
-//                 if (startWeek <= currentWeek) {
-//                     // console.log(startMonth, endMonth)
-//                     let entry4 = await servicesModel.countDocuments({ softDelete: 0, "details.time": { $gte: startMonth, $lte: endMonth } }).then(data => {
-//                         if (data.length < 1) {
-//                             console.log(date)
-//                             totals.push(0);
-//                             labels.push(labelsMonth[day - 1]);
-//                         } else {
-//                             console.log(date)
-//                             totals.push(data);
-//                             labels.push(labelsMonth[day - 1]);
-//                         }
-//                     })
-//                 }
-//             }
-//             return res.status(200).json({
-//                 success: true,
-//                 customersUsedService: {
-//                     labels: labels.reverse(),
-//                     datasets: [
-//                         {
-//                             data: totals.reverse()
-//                         },
-//                     ],
-//                 }
-//             });
-//         } else {
-//             filter = 12;
-//             for (let i = 0; i < filter; i++) {
-//                 let labelsMonth = ['JAN', 'FEB', 'MAR ', 'APR', 'MAY', 'JUN', 'JULY', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-//                 let month = i;       // January
-//                 let year = moment().year();
-//                 let startMonth = (moment([year, month]).format("X")) * 1000;
-//                 let endMonth = (moment(startMonth).clone().endOf('month').format("X")) * 1000;
-//                 if (startMonth <= startOfMonth) {
-//                     let entry4 = await servicesModel.countDocuments({ softDelete: 0, "details.time": { $gte: startMonth, $lte: endMonth } }).then((data, index) => {
-//                         if (data.length < 1) {
-//                             totals.push(0);
-//                             labels.push(labelsMonth[i]);
-//                         } else {
-//                             totals.push(data);
-//                             labels.push(labelsMonth[i]);
-//                         }
-//                     })
-//                 }
-//             }
+        let totals = [];
+        let series = [];
+        let listDay = []
 
-//             return res.status(200).json({
-//                 success: true,
-//                 customersUsedService: {
-//                     labels: labels,
-//                     datasets: [
-//                         {
-//                             data: totals
-//                         },
-//                     ],
-//                 }
-//             });
-//         }
-//     } catch (err) {
-//         console.log(err)
-//         return res.status(500).json({
-//             success: false,
-//             error: 'Server Error'
-//         });
-//     };
-// });
+        let entry3 = await servicesModel.aggregate(
+            [
+                { $match: { softDelete: 0 } },
+                {
+                    $group: {
+                        _id: '$idGroupVoucher',
+                    }
+                },
+                { $sort: { _id: 1 } },
+            ]
+        )
+
+        let checkIdGroup = await groupVoucherModel.find({}).select({ title: 1, _id: 0 });
+
+        for (let j = 0; j < entry3.length; j++) {
+            series[j] = {
+                name: checkIdGroup[j].title,
+                data: [],
+            };
+            for (let i = 0; i <= rangesDate; i++) {
+                let entry4 = await servicesModel.countDocuments({ idGroupVoucher: entry3[j]._id, softDelete: 0, statusSend: { $ne: 2 }, "details.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } })
+                    .then(data => {
+                        let day = moment([year, month, date - i]).format("DD/MM");
+                        if (data.length < 1) {
+                            series[j].data.push(0)
+                            listDay.push(day)
+                        } else {
+                            series[j].data.push(data)
+                            listDay.push(day)
+                        }
+                    })
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            customersUsedService: {
+                series: series,
+                xaxis: {
+                    categories: listDay.reverse()
+                }
+            }
+        });
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+
+});
 
 
 module.exports = router;
