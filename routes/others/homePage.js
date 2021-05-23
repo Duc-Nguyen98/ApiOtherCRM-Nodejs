@@ -137,13 +137,14 @@ router.get('/customerData', checkAuthentication, async function (req, res, next)
     return res.status(200).json({
       success: true,
       data: {
-        customerData: { totalCustomers: totalCustomers, customersPerMonth: customersPerMonth },
-        chartData: [
-          {
-            name: 'customerData',
-            data: rGratitude,
-          },
-        ],
+        customerData: {
+          totalCustomers: totalCustomers, customersPerMonth: customersPerMonth, chartData: [
+            {
+              name: 'customerData',
+              data: rGratitude,
+            },
+          ],
+        },
       }
     });
   } catch (err) {
@@ -188,13 +189,14 @@ router.get('/gratitudeCustomerData', checkAuthentication, async function (req, r
     return res.status(200).json({
       success: true,
       data: {
-        gratitudeCustomerData: { totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth },
-        chartData: [
-          {
-            name: 'gratitudeData',
-            data: rGratitude,
-          },
-        ],
+        gratitudeCustomerData: {
+          totalGratitude: totalServices, gratitudePerMonth: servicesPerMonth, chartData: [
+            {
+              name: 'gratitudeData',
+              data: rGratitude,
+            },
+          ],
+        },
       }
     });
   } catch (err) {
