@@ -16,6 +16,7 @@ const userRouter = require('./routes/user/user');
 const roleRouter = require('./routes/user/role');
 const shopRouter = require('./routes/shop');
 const homePageRouter = require('./routes/others/homePage');
+const statisticsRouter = require('./routes/others/statistics');
 
 //? Services cms 
 const servicesRouter = require('./routes/service');
@@ -74,6 +75,7 @@ app.use('/user', userRouter);
 app.use('/role', roleRouter);
 app.use('/shop', shopRouter);
 app.use('/services', servicesRouter);
+app.use('/statistics', statisticsRouter);
 app.use('/voucher/group', groupVoucherRouter);
 app.use('/customer/group', groupCustomerRouter);
 app.use('/home', homePageRouter);
@@ -93,18 +95,4 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
-
-
-// cron.schedule('*/1 * * * *', () => {
-//   let currentDate = Math.floor(Date.now() / 1000);
-//   const services = servicesModel.find({ dateAutomaticallySent: currentDate, softDelete: 0 }).then(data => {
-//     console.log(data)
-//     if (data) {
-
-//     }
-
-//   })
-//   console.log(currentDate)
-// });
-
 module.exports = app;
