@@ -242,6 +242,7 @@ router.get('/list/group-voucher/voucher-items/:idGroupVoucher', checkAuthenticat
 // ? Example: http://localhost:1509/user/create
 router.post('/create', checkAuthentication, idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
     try {
+        let idGroupVoucher = req.body.idGroupVoucher;
         let typeServices = req.body.typeServices;
         let dateAutomaticallySent = req.body.dateAutomaticallySent;
         let titleServices = req.body.titleServices;
@@ -252,6 +253,7 @@ router.post('/create', checkAuthentication, idServicesAuto, checkIdCustomer, che
             idServices: AutoId,
             idCustomer: dataCustomer.idCustomer,
             idUser: userObj.idUser,
+            idGroupVoucher: idGroupVoucher,
             idVoucher: infoVoucherCode.idVoucher,
             titleServices: titleServices,
             listShop: dataGroupVoucher.listShop,

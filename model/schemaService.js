@@ -13,6 +13,10 @@ const schema = new mongoose.Schema({
         type: Number,
         default: ''
     },
+    idGroupVoucher: {
+        type: Number,
+        default: ''
+    },
     idVoucher: {
         type: Number,
         default: ''
