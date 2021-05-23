@@ -28,8 +28,6 @@ const filterCheckServices = (param, param2) => {
   }
 }
 
-
-
 const checkPasswordCurrent = async (req, res, next) => {
   try {
     let passwordOld = req.body?.passwordOld;
@@ -142,7 +140,6 @@ router.get('/customerData', checkAuthentication, async function (req, res, next)
         })
       }
     }
-
     return res.status(200).json({
       success: true,
       data: {
@@ -216,7 +213,6 @@ router.get('/gratitudeCustomerData', checkAuthentication, async function (req, r
     });
   };
 });
-
 
 router.get('/rankingRevenue', checkAuthentication, async function (req, res, next) {
   try {
@@ -383,7 +379,6 @@ router.get('/tableServices', checkAuthentication, async function (req, res, next
 
 //! API Account Settings -
 
-
 router.get('/accountSettings/information', checkAuthentication, async function (req, res, next) {
   try {
     const entry = await usersModel.findOne({ idUser: userObj.idUser }).select({ _id: 0 });
@@ -400,7 +395,6 @@ router.get('/accountSettings/information', checkAuthentication, async function (
     });
   };
 });
-
 
 router.post('/accountSettings/general', checkAuthentication, async function (req, res, next) {
   try {
@@ -424,7 +418,6 @@ router.post('/accountSettings/general', checkAuthentication, async function (req
   };
 });
 
-
 router.post('/accountSettings/changePassword', checkAuthentication, checkPasswordCurrent, async function (req, res, next) {
   try {
     const entry = await usersModel.updateOne({ idUser: userObj.idUser }, {
@@ -443,8 +436,5 @@ router.post('/accountSettings/changePassword', checkAuthentication, checkPasswor
     });
   };
 });
-
-
-
 
 module.exports = router;
