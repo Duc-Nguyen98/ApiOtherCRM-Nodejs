@@ -186,7 +186,7 @@ router.get('/voucherRelease', checkAuthentication, async function (req, res, nex
 
         return res.status(200).json({
             success: true,
-            customersUsedService: {
+            voucherRelease: {
                 series: series,
                 xaxis: {
                     categories: listDay.reverse()
