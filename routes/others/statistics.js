@@ -30,7 +30,7 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
         let labelsDay = ['MON', 'TUE', 'WED ', 'THU', 'FRI', 'SAT', 'SUN'];
         for (let i = 0; i <= rangesDate; i++) {
 
-            let entry4 = await servicesModel.countDocuments({ softDelete: 0, "details.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } })
+            let entry4 = await servicesModel.countDocuments({ softDelete: 0, statusSend: { $ne: 2 }, "details.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } })
                 .then(data => {
                     let day = moment([year, month, date - i]).format("YYYY-MM-DD");
                     day = moment(day).isoWeekday();
@@ -70,7 +70,7 @@ router.get('/typeServices', checkAuthentication, async function (req, res, next)
 
         const entry = await servicesModel.aggregate(
             [
-                { $match: { softDelete: 0 } },
+                { $match: { softDelete: 0, statusSend: { $ne: 2 } } },
                 {
                     $group: {
                         _id: null,
@@ -201,6 +201,71 @@ router.get('/voucherRelease', checkAuthentication, async function (req, res, nex
         });
     };
 
+});
+
+router.get('/serviceRevenue', checkAuthentication, async function (req, res, next) {
+    try {
+        let day = (moment().isoWeekday());
+        let month = (moment().month());       // January
+        let year = moment().year();
+        let date = (moment().date());
+        let rangesDate = 14;
+
+        let days = [];
+        let totals = [];
+        let sum = 0;
+        for (let i = 0; i <= rangesDate; i++) {
+
+            let entry4 = await servicesModel.aggregate(
+                [
+                    { $match: { softDelete: 0, statusSend: { $ne: 2 }, "details.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } } },
+                    {
+                        $group: {
+                            _id: null,
+                            count: { $sum: '$price' }
+                        }
+                    },
+                ]
+            ).then(data => {
+                let day = moment([year, month, date - i]).format("DD/MM");
+
+                if (data.length < 1) {
+                    days.push(day)
+                    totals.push(0);
+                } else {
+                    days.push(day)
+                    totals.push(data[0].count)
+                    sum += data[0].count;
+                }
+            })
+
+
+
+        }
+        return res.status(200).json({
+            success: true,
+            serviceRevenue: {
+                series: [
+                    {
+                        data: totals.reverse(),
+                    },
+                ],
+                xaxis: {
+                    categories: days.reverse(),
+                },
+                totalRevenue: sum,
+            }
+        });
+
+
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
 });
 
 
