@@ -254,7 +254,9 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
     });
     for (let i = 0; i < rGratitude_old.length; i++) {
       let element2 = await usersModel.find({ idUser: rGratitude_old[i]._id }).select({ avatar: 1, name: 1, _id: 0 });
-      rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
+      if (element2.length > 0) {
+        rGratitude.push({ idUser: rGratitude_old[i]._id, avatar: element2[0].avatar, name: element2[0].name, countGratitude: rGratitude_old[i].count });
+      }
     }
     return res.status(200).json({
       success: true,
