@@ -263,7 +263,6 @@ router.get('/rankingGratitude', checkAuthentication, async function (req, res, n
       data: { rankingGratitude: rGratitude }
     });
   } catch (err) {
-    console.log(err)
     return res.status(500).json({
       success: false,
       error: 'Server Error'
