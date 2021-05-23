@@ -6,6 +6,7 @@ const checkAuthentication = require('../../utils/checkAuthentication');
 const customerModel = require('../../model/customer/customer/schemaCustomer');
 const servicesModel = require('../../model/schemaService');
 const usersModel = require('../../model/groupUser/schemaUser');
+const permissionModel = require('../../model/groupUser/schemaPermission');
 const customersModel = require('../../model/customer/customer/schemaCustomer');
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 
@@ -32,9 +33,17 @@ const filterCheckServices = (param, param2) => {
 const checkPasswordCurrent = async (req, res, next) => {
   try {
     let passwordOld = req.body?.passwordOld;
+    let passwordNew = req.body?.passwordNew;
     await usersModel.findOne({ idUser: userObj.idUser }).select({ password: 1, _id: 0 }).then(data => {
       if (data.password == passwordOld) {
-        next();
+        if (passwordNew == passwordOld) {
+          return res.status(500).json({
+            success: true,
+            error: '👋 Your current password must not be the same as your old password!'
+          });
+        } else {
+          next();
+        }
       } else {
         return res.status(500).json({
           success: true,
@@ -375,13 +384,13 @@ router.get('/tableServices', checkAuthentication, async function (req, res, next
 //! API Account Settings -
 
 
-router.post('/accountSettings/information', checkAuthentication, async function (req, res, next) {
+router.get('/accountSettings/information', checkAuthentication, async function (req, res, next) {
   try {
-    const entry = await usersModel.findOne({ idUser: userObj.idUser });
-
+    const entry = await usersModel.findOne({ idUser: userObj.idUser }).select({ _id: 0 });
+    const entry2 = await permissionModel.findOne({ idUser: userObj.idUser }).select({ idUser: 0, name: 0, _id: 0 });
     return res.status(200).json({
       success: true,
-      data: "Change Password Account Successfully!",
+      data: { entry, modules: entry2.modules, ability: entry2.ability }
     });
   } catch (err) {
     console.log(err)
