@@ -10,14 +10,6 @@ const permissionModel = require('../../model/groupUser/schemaPermission');
 const customersModel = require('../../model/customer/customer/schemaCustomer');
 const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucherItems');
 
-let day = (moment().isoWeekday());
-let month = (moment().month());       // January
-let year = moment().year();
-let date = (moment().date());
-let startMonth = (moment([year, month, date - 7]).format("X")) * 1000;
-let endMonth = ((moment([year, month, date - 7]).endOf('day').format("X")) * 1000);
-console.log(startMonth, endMonth)
-
 //! API View statistics
 
 router.get('/customersUsedServices', checkAuthentication, async function (req, res, next) {
