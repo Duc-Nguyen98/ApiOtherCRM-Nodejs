@@ -44,6 +44,10 @@ const schema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    price: {
+        type: Number,
+        default: 0
+    },
     typeServices: {
         type: Number,
         default: 0

@@ -8,6 +8,8 @@ const voucherItemsModel = require('../model/vouchers/groupVoucher/schemaGroupVou
 const client = require('twilio')("ACbb5296290de010b74d2e3123ab119085", "fdbcf46f84c94310b301325d1330653d");
 var moment = require('moment'); // require
 const cron = require('node-cron');
+const checkAuthentication = require('../utils/checkAuthentication');
+
 
 //! Cron sec
 cron.schedule('*/1 * * * *', () => {
@@ -173,7 +175,7 @@ function msToTime(duration) {
     return `${hours} hours, ${minutesEd} minutes.`;
 }
 
-router.get('/list/customer', async function (req, res, next) {
+router.get('/list/customer', checkAuthentication, async function (req, res, next) {
     try {
         const customers = await customerModel.find({ softDelete: 0 }).select({ "idCustomer": 1, "name": 1, "telephone": 1, "email": 1, "avatar": 1 });
         return res.status(200).json({
@@ -190,7 +192,7 @@ router.get('/list/customer', async function (req, res, next) {
     };
 });
 
-router.get('/list/group-voucher', async function (req, res, next) {
+router.get('/list/group-voucher', checkAuthentication, async function (req, res, next) {
     try {
         const groupVoucher = await groupVoucherModel
             .find({ status: 1, softDelete: 0 })
@@ -212,7 +214,7 @@ router.get('/list/group-voucher', async function (req, res, next) {
 
 
 
-router.get('/list/group-voucher/voucher-items/:idGroupVoucher', async function (req, res, next) {
+router.get('/list/group-voucher/voucher-items/:idGroupVoucher', checkAuthentication, async function (req, res, next) {
     try {
         let idGroupVoucher = req.params.idGroupVoucher;
         const voucherItems = await voucherItemsModel
@@ -238,16 +240,18 @@ router.get('/list/group-voucher/voucher-items/:idGroupVoucher', async function (
 // TODO: METHOD - GET
 // -u http://localhost:1509/user/create
 // ? Example: http://localhost:1509/user/create
-router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
+router.post('/create', checkAuthentication, idServicesAuto, checkIdCustomer, checkIdGroupVoucher, checkVoucherItems, async function (req, res, next) {
     try {
         let typeServices = req.body.typeServices;
         let dateAutomaticallySent = req.body.dateAutomaticallySent;
         let titleServices = req.body.titleServices;
         let content = req.body.content;
+        let price = req.body.price;
         let currentDate = Math.floor(new Date().getTime() / 1000.0);
         const data = {
             idServices: AutoId,
             idCustomer: dataCustomer.idCustomer,
+            idUser: userObj.idUser,
             idVoucher: infoVoucherCode.idVoucher,
             titleServices: titleServices,
             listShop: dataGroupVoucher.listShop,
@@ -255,13 +259,14 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
             telephoneCustomer: dataCustomer.telephone,
             mailCustomer: dataCustomer.email,
             voucherCode: infoVoucherCode.voucherCode,
+            price: price,
             typeServices: typeServices,
             content: content,
             dateAutomaticallySent: dateAutomaticallySent,
             discount: infoVoucherCode.discount,
             timeLine: infoVoucherCode.timeLine,
             details: {
-                createBy: "Admin",
+                createBy: `US${userObj.idUser}-${userObj.name}`,
                 time: Date.now()
             },
             statusSend: 0,
@@ -291,7 +296,7 @@ router.post('/create', idServicesAuto, checkIdCustomer, checkIdGroupVoucher, che
 
 
 
-router.get('/list', async function (req, res, next) {
+router.get('/list', checkAuthentication, async function (req, res, next) {
     try {
         let type = req.query.type;
         let status = req.query.status;
@@ -329,7 +334,7 @@ router.get('/list', async function (req, res, next) {
     };
 });
 
-router.get('/list/trash', async function (req, res, next) {
+router.get('/list/trash', checkAuthentication, async function (req, res, next) {
     try {
         let type = req.query.type;
         let status = req.query.status;
