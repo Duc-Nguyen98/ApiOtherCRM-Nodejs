@@ -12,6 +12,15 @@ const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schema
 const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucher');
 
 //! API View statistics
+const handleFilterSearch = (param, param2, param3,) => {
+    if (param2) {
+        return { idCustomer: param, groups: parseInt(param2), name: param3, softDelete: 0 }
+    } else {
+        return { idCustomer: param, name: param3, softDelete: 0 }
+    }
+
+}
+
 
 router.get('/customersUsedServices', checkAuthentication, async function (req, res, next) {
     try {
@@ -133,7 +142,6 @@ router.get('/messageServices', checkAuthentication, async function (req, res, ne
         });
     };
 });
-
 
 router.get('/voucherRelease', checkAuthentication, async function (req, res, next) {
     try {
@@ -316,7 +324,6 @@ router.get('/customersJoin', checkAuthentication, async function (req, res, next
     };
 });
 
-
 router.get('/customerClassification', checkAuthentication, async function (req, res, next) {
     try {
 
@@ -353,6 +360,114 @@ router.get('/customerClassification', checkAuthentication, async function (req, 
     };
 });
 
+router.get('/revenueCustomers', checkAuthentication, async function (req, res, next) {
+    try {
+        let q = req.query.q;
+        let keyword = new RegExp(q, 'i');  // 'i' makes it case insensitive
+        //? Begin config Pagination
+        let arrRevenue = [];
+        let arrRevenueNew = [];
+        let totalRecord = 0;
+        let pagination = {
+            currentPage: parseInt(req.query.page),
+            totalItemsPerPage: parseInt(req.query.perPage)
+        }
+        const entry = await servicesModel.aggregate(
+            [
+                { $match: { softDelete: 0 } },
+                {
+                    $group: {
+                        _id: '$idCustomer',
+                        earned: { $sum: '$price' }
+                    }
+                },
+                { $sort: { count: -1 } },
+            ]
+        ).then(data => {
+            arrRevenue = data;
+        })
 
+        for (let i = 0; i < arrRevenue.length; i++) {
+            let element2 = await customerModel.find({ idCustomer: arrRevenue[i]._id, name: keyword })
+                .select({ idCustomer: 1, avatar: 1, name: 1, gender: 1, birthDay: 1, telephone: 1, email: 1, groups: 1, _id: 0 })
+                .limit(pagination.totalItemsPerPage)
+                .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+            if (element2.length > 0) {
+                arrRevenueNew.push({ idCustomer: arrRevenue[i]._id, avatar: element2[0].avatar, name: element2[0].name, gender: element2[0].gender, birthDay: element2[0].birthDay, telephone: element2[0].telephone, email: element2[0].email, groups: element2[0].groups, earned: arrRevenue[i].earned });
+            }
+            let element3 = await customerModel.countDocuments({ idCustomer: arrRevenue[i]._id, name: keyword }).then(data => {
+                totalRecord += data;
+            })
+        }
+        return res.status(200).json({
+            success: true,
+            totalRecords: totalRecord,
+            data: arrRevenueNew
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+router.get('/interactiveCustomers', checkAuthentication, async function (req, res, next) {
+    try {
+        let q = req.query.q;
+        let keyword = new RegExp(q, 'i');  // 'i' makes it case insensitive
+        //? Begin config Pagination
+        let arrRevenue = [];
+        let arrRevenueNew = [];
+        let totalRecord = 0;
+        let pagination = {
+            currentPage: parseInt(req.query.page),
+            totalItemsPerPage: parseInt(req.query.perPage)
+        }
+        const entry = await servicesModel.aggregate(
+            [
+                { $match: { softDelete: 0 } },
+                {
+                    $group: {
+                        _id: '$idCustomer',
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { count: -1 } },
+            ]
+        ).then(data => {
+            arrRevenue = data;
+        })
+
+        for (let i = 0; i < arrRevenue.length; i++) {
+            let element2 = await customerModel.find({ idCustomer: arrRevenue[i]._id, name: keyword })
+                .select({ idCustomer: 1, avatar: 1, name: 1, gender: 1, birthDay: 1, telephone: 1, email: 1, groups: 1, _id: 0 })
+                .limit(pagination.totalItemsPerPage)
+                .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
+
+            if (element2.length > 0) {
+                arrRevenueNew.push({ idCustomer: arrRevenue[i]._id, avatar: element2[0].avatar, name: element2[0].name, gender: element2[0].gender, birthDay: element2[0].birthDay, telephone: element2[0].telephone, email: element2[0].email, groups: element2[0].groups, interactive: arrRevenue[i].count });
+            }
+            let element3 = await customerModel.countDocuments({ idCustomer: arrRevenue[i]._id, name: keyword }).then(data => {
+                totalRecord += data;
+            })
+        }
+
+        return res.status(200).json({
+            success: true,
+            totalRecords: totalRecord,
+            data: arrRevenueNew
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
 
 module.exports = router;
