@@ -32,7 +32,7 @@ const app = express();
 const cors = require('cors')
 
 app.use(cors({
-  origin: 'https://antcvvcrm.herokuapp.com/', //Chan tat ca cac domain khac ngoai domain nay
+  origin: 'http://localhost:8080', //Chan tat ca cac domain khac ngoai domain nay
   credentials: true //Để bật cookie HTTP qua CORS
 }))
 
