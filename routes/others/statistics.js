@@ -41,42 +41,19 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
                         totals.push(data);
                     }
                 })
-
-            let entry5 = await servicesModel.aggregate(
-                [
-                    { $match: { softDelete: 0, statusSend: { $ne: 2 }, "details.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } } },
-                    {
-                        $group: {
-                            _id: null,
-                            count: { $sum: '$price' }
-                        }
-                    },
-
-                ]
-            ).then(data => {
-                console.log(data)
-                if (data.length > 0) {
-                    totalMoney += data[0].count
-                }
-            })
-
         }
 
 
         return res.status(200).json({
             success: true,
-            data: {
-                customersUsedService: {
-                    totalMoney: totalMoney,
-                    datasets: [
-                        {
-                            data: totals.reverse()
-                        },
-                    ],
-                    xaxis: {
-                        categories: listDay.reverse()
-                    }
-                }
+            customersUsedService: {
+                labels: listDay.reverse(),
+                datasets: [
+                    {
+                        data: totals.reverse()
+                    },
+                ]
+
             }
         });
 
