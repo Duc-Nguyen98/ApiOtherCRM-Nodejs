@@ -12,14 +12,6 @@ const groupVoucherItemsModel = require('../../model/vouchers/groupVoucher/schema
 const groupVoucherModel = require('../../model/vouchers/groupVoucher/schemaGroupVoucher');
 
 //! API View statistics
-const handleFilterSearch = (param, param2, param3,) => {
-    if (param2) {
-        return { idCustomer: param, groups: parseInt(param2), name: param3, softDelete: 0 }
-    } else {
-        return { idCustomer: param, name: param3, softDelete: 0 }
-    }
-
-}
 
 
 router.get('/customersUsedServices', checkAuthentication, async function (req, res, next) {
@@ -33,6 +25,7 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
         let dateFrom = req.query.dateFrom;
         let rangesDate = moment(dateFrom).diff(moment(dateTo), 'day');
         (dateTo == null && dateFrom == null || dateTo == '' && dateFrom == '' || dateTo == undefined && dateFrom == undefined) ? rangesDate = 7 : rangesDate = rangesDate;
+        console.log((moment('2021-09-15').format("X")) * 1000);
 
         let totals = [];
         let labels = [];
@@ -52,10 +45,25 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
                     }
                 })
         }
+
+        let totalMoney = await servicesModel.aggregate(
+            [
+                { $match: { softDelete: 0, statusSend: { $ne: 2 } } },
+                {
+                    $group: {
+                        _id: null,
+                        count: { $sum: '$price' }
+                    }
+                },
+
+            ]
+        )
+
         return res.status(200).json({
             success: true,
             customersUsedService: {
                 labels: labels.reverse(),
+                totalMoney: totalMoney[0].count,
                 datasets: [
                     {
                         data: totals.reverse()
@@ -124,7 +132,7 @@ router.get('/messageServices', checkAuthentication, async function (req, res, ne
         )
         return res.status(200).json({
             success: true,
-            typeServices: {
+            messageServices: {
                 data: [
                     { value: entry[0].count, name: 'SMS' },
                     { value: entry[1].count, name: 'EMAIL' },
