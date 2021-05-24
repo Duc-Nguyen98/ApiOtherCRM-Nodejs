@@ -80,7 +80,6 @@ router.get('/list', checkAuthentication, async function (req, res, next) {
 
     const taskOne = await customerModel
       .find(handleFilterSearch(group, gender, keyword, softDelete))
-      .sort({ idCustomer: -1 })
       .limit(pagination.totalItemsPerPage)
       .skip((pagination.currentPage - 1) * pagination.totalItemsPerPage);
 
