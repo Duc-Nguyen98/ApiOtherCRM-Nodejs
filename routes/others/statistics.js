@@ -25,50 +25,58 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
         let dateFrom = req.query.dateFrom;
         let rangesDate = moment(dateFrom).diff(moment(dateTo), 'day');
         (dateTo == null && dateFrom == null || dateTo == '' && dateFrom == '' || dateTo == undefined && dateFrom == undefined) ? rangesDate = 7 : rangesDate = rangesDate;
-        console.log((moment('2021-09-15').format("X")) * 1000);
 
+        let totalMoney = 0;
         let totals = [];
-        let labels = [];
-        let labelsDay = ['MON', 'TUE', 'WED ', 'THU', 'FRI', 'SAT', 'SUN'];
+        let listDay = [];
         for (let i = 0; i <= rangesDate; i++) {
-
             let entry4 = await servicesModel.countDocuments({ softDelete: 0, statusSend: { $ne: 2 }, "details.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } })
                 .then(data => {
-                    let day = moment([year, month, date - i]).format("YYYY-MM-DD");
-                    day = moment(day).isoWeekday();
+                    let day = moment([year, month, date - i]).format("DD/MM");
                     if (data.length < 1) {
-                        labels.push(labelsDay[day - 1]);
+                        listDay.push(day)
                         totals.push(0);
                     } else {
-                        labels.push(labelsDay[day - 1]);
+                        listDay.push(day)
                         totals.push(data);
                     }
                 })
+
+            let entry5 = await servicesModel.aggregate(
+                [
+                    { $match: { softDelete: 0, statusSend: { $ne: 2 }, "details.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } } },
+                    {
+                        $group: {
+                            _id: null,
+                            count: { $sum: '$price' }
+                        }
+                    },
+
+                ]
+            ).then(data => {
+                console.log(data)
+                if (data.length > 0) {
+                    totalMoney += data[0].count
+                }
+            })
+
         }
 
-        let totalMoney = await servicesModel.aggregate(
-            [
-                { $match: { softDelete: 0, statusSend: { $ne: 2 } } },
-                {
-                    $group: {
-                        _id: null,
-                        count: { $sum: '$price' }
-                    }
-                },
-
-            ]
-        )
 
         return res.status(200).json({
             success: true,
-            customersUsedService: {
-                labels: labels.reverse(),
-                totalMoney: totalMoney[0].count,
-                datasets: [
-                    {
-                        data: totals.reverse()
-                    },
-                ],
+            data: {
+                customersUsedService: {
+                    totalMoney: totalMoney,
+                    datasets: [
+                        {
+                            data: totals.reverse()
+                        },
+                    ],
+                    xaxis: {
+                        categories: listDay.reverse()
+                    }
+                }
             }
         });
 
