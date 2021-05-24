@@ -85,12 +85,15 @@ router.get('/typeServices', checkAuthentication, async function (req, res, next)
         )
         return res.status(200).json({
             success: true,
-            typeServices: {
-                data: [
-                    { value: entry[0].count, name: 'Voucher' },
-                ]
+            data: {
+                typeServices: {
+                    data: [
+                        { value: entry[0].count, name: 'Voucher' },
+                    ]
 
+                }
             }
+
         });
 
     } catch (err) {
@@ -119,14 +122,17 @@ router.get('/messageServices', checkAuthentication, async function (req, res, ne
         )
         return res.status(200).json({
             success: true,
-            messageServices: {
-                data: [
-                    { value: entry[0].count, name: 'SMS' },
-                    { value: entry[1].count, name: 'EMAIL' },
-                    { value: entry[2].count, name: 'SMS & EMAIL' },
-                ]
+            data: {
+                messageServices: {
+                    data: [
+                        { value: entry[0].count, name: 'SMS' },
+                        { value: entry[1].count, name: 'EMAIL' },
+                        { value: entry[2].count, name: 'SMS & EMAIL' },
+                    ]
 
+                }
             }
+
         });
 
     } catch (err) {
