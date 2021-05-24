@@ -189,13 +189,6 @@ router.get('/voucherRelease', checkAuthentication, async function (req, res, nex
 
         return res.status(200).json({
             success: true,
-            // voucherRelease: {
-            //     series: series,
-            //     xaxis: {
-            //         categories: listDay.reverse()
-            //     }
-            // }
-
             data: {
                 voucherRelease: {
                     labels: listDay.reverse(),
@@ -255,16 +248,19 @@ router.get('/serviceRevenue', checkAuthentication, async function (req, res, nex
         }
         return res.status(200).json({
             success: true,
-            serviceRevenue: {
-                series: [
-                    {
-                        data: totals.reverse(),
+            data: {
+                serviceRevenue: {
+                    labels: {
+                        categories: days.reverse(),
                     },
-                ],
-                xaxis: {
-                    categories: days.reverse(),
-                },
-                totalRevenue: sum,
+                    totalRevenue: sum,
+                    series: [
+                        {
+                            data: totals.reverse(),
+                        },
+                    ],
+
+                }
             }
         });
 
@@ -309,13 +305,15 @@ router.get('/customersJoin', checkAuthentication, async function (req, res, next
         }
         return res.status(200).json({
             success: true,
-            customersJoin: {
-                labels: labels.reverse(),
-                datasets: [
-                    {
-                        data: totals.reverse()
-                    },
-                ],
+            data: {
+                customersJoin: {
+                    labels: labels.reverse(),
+                    datasets: [
+                        {
+                            data: totals.reverse()
+                        },
+                    ],
+                }
             }
         });
     } catch (err) {
@@ -344,14 +342,17 @@ router.get('/customerClassification', checkAuthentication, async function (req, 
         )
         return res.status(200).json({
             success: true,
-            typeServices: {
-                data: [
-                    { value: entry[0].count, name: 'Normal' },
-                    { value: entry[1].count, name: 'Loyal' },
-                    { value: entry[2].count, name: 'Potential' },
-                ]
+            data: {
+                customerClassification: {
+                    data: [
+                        { value: entry[0].count, name: 'Normal' },
+                        { value: entry[1].count, name: 'Loyal' },
+                        { value: entry[2].count, name: 'Potential' },
+                    ]
 
+                }
             }
+
         });
 
     } catch (err) {
