@@ -268,5 +268,91 @@ router.get('/serviceRevenue', checkAuthentication, async function (req, res, nex
     };
 });
 
+router.get('/customersJoin', checkAuthentication, async function (req, res, next) {
+    try {
+        let day = (moment().isoWeekday());
+        let month = (moment().month());       // January
+        let year = moment().year();
+        let date = (moment().date());
+
+        let dateTo = req.query.dateTo;
+        let dateFrom = req.query.dateFrom;
+        let rangesDate = moment(dateFrom).diff(moment(dateTo), 'day');
+        (dateTo == null && dateFrom == null || dateTo == '' && dateFrom == '' || dateTo == undefined && dateFrom == undefined) ? rangesDate = 11 : rangesDate = rangesDate;
+
+        let totals = [];
+        let labels = [];
+        for (let i = 0; i <= rangesDate; i++) {
+
+            let entry4 = await customersModel.countDocuments({ softDelete: 0, "created.time": { $gte: ((moment([year, month, date - i]).format("X")) * 1000), $lte: ((moment([year, month, date - i]).endOf('day').format("X")) * 1000) } })
+                .then(data => {
+                    let day = moment([year, month, date - i]).format("DD/MM");
+                    if (data.length < 1) {
+                        labels.push(day);
+                        totals.push(0);
+                    } else {
+                        labels.push(day);
+                        totals.push(data);
+                    }
+                })
+        }
+        return res.status(200).json({
+            success: true,
+            customersJoin: {
+                labels: labels.reverse(),
+                datasets: [
+                    {
+                        data: totals.reverse()
+                    },
+                ],
+            }
+        });
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
+router.get('/customerClassification', checkAuthentication, async function (req, res, next) {
+    try {
+
+        const entry = await customersModel.aggregate(
+            [
+                { $match: { softDelete: 0 } },
+                {
+                    $group: {
+                        _id: '$groups',
+                        count: { $sum: 1 }
+                    }
+                },
+                { $sort: { _id: 1 } },
+            ]
+        )
+        return res.status(200).json({
+            success: true,
+            typeServices: {
+                data: [
+                    { value: entry[0].count, name: 'Normal' },
+                    { value: entry[1].count, name: 'Loyal' },
+                    { value: entry[2].count, name: 'Potential' },
+                ]
+
+            }
+        });
+
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            success: false,
+            error: 'Server Error'
+        });
+    };
+});
+
+
 
 module.exports = router;
