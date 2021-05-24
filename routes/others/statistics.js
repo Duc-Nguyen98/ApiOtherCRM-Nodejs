@@ -189,10 +189,18 @@ router.get('/voucherRelease', checkAuthentication, async function (req, res, nex
 
         return res.status(200).json({
             success: true,
-            voucherRelease: {
-                series: series,
-                xaxis: {
-                    categories: listDay.reverse()
+            // voucherRelease: {
+            //     series: series,
+            //     xaxis: {
+            //         categories: listDay.reverse()
+            //     }
+            // }
+
+            data: {
+                voucherRelease: {
+                    labels: listDay.reverse(),
+                    series: series,
+
                 }
             }
         });
