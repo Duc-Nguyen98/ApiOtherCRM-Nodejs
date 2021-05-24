@@ -46,14 +46,16 @@ router.get('/customersUsedServices', checkAuthentication, async function (req, r
 
         return res.status(200).json({
             success: true,
-            customersUsedService: {
-                labels: listDay.reverse(),
-                datasets: [
-                    {
-                        data: totals.reverse()
-                    },
-                ]
+            data: {
+                customersUsedService: {
+                    labels: listDay.reverse(),
+                    datasets: [
+                        {
+                            data: totals.reverse()
+                        },
+                    ]
 
+                }
             }
         });
 
